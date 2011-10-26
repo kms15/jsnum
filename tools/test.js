@@ -60,60 +60,6 @@ exports.runTests = function (callback, /*optional*/ prefix) {
     callback("endTestRun", numTests, numFailures);
 };
 
-// Tests
-//
-// Note: probably silly to run these all of the time, but how else do you test 
-// the test harness?
-
-(function () {
-    "use strict"
-    var calls = [];
-    
-    function trackCalls() {
-        calls.push(Array.prototype.slice.apply(arguments,[0]));
-    }    
-
-    assert.throws(function () { exports.createSuite(undefined,{}) });
-    assert.throws(function () { exports.createSuite("foo"); });
-    exports.createSuite("foo",{});
-    assert.throws(function () { exports.createSuite("foo", {}); });
-
+exports.removeAllSuites = function () {
     suites = {};
-    exports.createSuite("A:A", {
-        "a" : function () {
-        },
-        "b" : function () {
-            throw new Error("Oh no, A:A:b!");
-        }
-    });
-
-    exports.createSuite("B:A", {
-        "c" : function () {
-        }
-    });
-
-    exports.createSuite("A:B", {
-        "b" : function () {
-        },
-        _private : function () {
-            throw new Error("Private!");
-        }
-    });
-
-    exports.runTests(trackCalls, "A:");
-    assert.equal(JSON.stringify(calls), '[' + 
-        '["startTestRun"],' + 
-        '["startSuite","A:A"],' + 
-        '["startTest","A:A","a"],' + 
-        '["passTest","A:A","a"],' + 
-        '["startTest","A:A","b"],' + 
-        '["failTest","A:A","b","Error: Oh no, A:A:b!"],' + 
-        '["endSuite","A:A"],' + 
-        '["startSuite","A:B"],' + 
-        '["startTest","A:B","b"],' + 
-        '["passTest","A:B","b"],' + 
-        '["endSuite","A:B"],' + 
-        '["endTestRun",3,1]' + 
-        ']');
-    suites = {};
-}());
+};
