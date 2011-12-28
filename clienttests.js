@@ -1,11 +1,15 @@
 requirejs(
-    ['tools/test','test/basearray_test.js'], 
-    function(test, basearray_test) {
-    "use strict";
+    ['tools/test','test/basearray_test.js', 'lib/domReady.js'], 
+    function(test, basearray_test, domReady) {
+        "use strict";
 
-    document.write('<pre>');
-    test.runTests(test.textReporter(function (text) {
-        document.write(text + '\n');
-    }));
-    document.write('</pre>');
-});
+        domReady(function () {
+            var report = document.getElementById('report');
+            
+            report.innerHTML = '';
+            test.runTests(test.textReporter(function (text) {
+                report.innerHTML += text + '\n';
+            }));
+        });
+    }
+);
