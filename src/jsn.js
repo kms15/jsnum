@@ -73,9 +73,15 @@ define([], function() {
     };
 
     jsn.array = function (vals) {
-        var o = Object.create(basearray);
+        var o = Object.create(basearray),
+            val;
 
-        o.shape = [ vals.length ];
+        val = vals;
+        o.shape = [];
+        while (val.length !== undefined) { 
+            o.shape.push(val.length);
+            val = val[1];
+        }
         o._vals = vals;
 
         return o;

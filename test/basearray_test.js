@@ -9,6 +9,7 @@ define(
                 
                 assert.strictEqual(String(A), 
                     '[   1.5,  3.25, 5.125 ]');
+                assert.strictEqual(String(A.shape), '3');
             },
 
             "should build from 2-d list" : function () {
@@ -18,6 +19,7 @@ define(
                     '[[   1.5,  3.25 ],\n' +
                     ' [ 5.125,     6 ],\n' + 
                     ' [   7.5, 8.625 ]]');
+                assert.strictEqual(String(A.shape), '3,2');
             }
         });
     }
