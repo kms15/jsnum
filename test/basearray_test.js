@@ -8,7 +8,15 @@ define(
                 var A = jsn.array([1.5,3.25,5.125])
                 
                 assert.strictEqual(String(A), 
-                    'BaseArray:\n[ 1.5, 3.25, 5.125 ]');
+                    'BaseArray:\n[   1.5,  3.25, 5.125 ]');
+            },
+
+            "should build from 2-d list" : function () {
+                var A = jsn.array([[1.5,3.25],[5.125,6],[7.5,8.625]])
+                
+                assert.strictEqual(String(A), 
+                    'BaseArray:\n[[   1.5,  3.25 ],\n [ 5.125,     6 ],\n' + 
+                    ' [   7.5, 8.625 ]]');
             }
         });
     }
