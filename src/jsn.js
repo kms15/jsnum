@@ -53,7 +53,7 @@ define([], function() {
                 return result;
             }
             
-            result = 'BaseArray:\n';
+            result = '';
             if (this._vals.length > 0 && this._vals[0].length !== undefined) {
                 result += '[';
                 for (i = 0; i < this._vals.length; i += 1) {
