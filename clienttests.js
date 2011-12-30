@@ -1,6 +1,6 @@
 requirejs(
-    ['tools/test','test/basearray_test.js', 'lib/domReady.js'], 
-    function(test, basearray_test, domReady) {
+    ['tools/test','lib/domReady.js','test/basearray_test.js'], 
+    function(test, domReady, basearray_test) {
         "use strict";
 
         domReady(function () {
