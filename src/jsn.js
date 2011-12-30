@@ -6,7 +6,7 @@ define([], function () {
     basearray = {
         // create a human-readable version of the array
         'toString' : function () {
-            var result, i, fieldWidth;
+            var fieldWidth;
 
             function padLeft(value, width) {
                 var result = String(value);
@@ -56,15 +56,15 @@ define([], function () {
                 return result;
             }
 
-            function format2D(get_element, shape, fieldWidth) {
+            function format2D(get_element, shape, fieldWidth, indent) {
                 var result, i;
 
-                result = '[';
+                result = padLeft('', indent) + '[';
                 for (i = 0; i < shape[0]; i += 1) {
                     result += format1D(get_element.bind(null, i),
                             shape[1], fieldWidth);
                     if (i < shape[0] - 1) {
-                        result += ',\n ';
+                        result += ',\n' + padLeft('', indent + 1);
                     } else {
                         result += ']';
                     }
@@ -73,17 +73,34 @@ define([], function () {
                 return result;
             }
 
-            result = '';
-            if (this.shape.length > 1) {
-                result += format2D(this.get_element.bind(this),
-                        this.shape, fieldWidth);
-            } else {
-                result += format1D(this.get_element.bind(this),
-                        this.shape[0], fieldWidth);
+            function formatND(get_element, shape, fieldWidth, indent) {
+                var result, i;
+
+                if (shape.length === 1) {
+                    result = format1D(get_element, shape, fieldWidth);
+                } else if (shape.length === 2) {
+                    result = format2D(get_element, shape, fieldWidth, indent);
+                } else {
+                    result = padLeft('', indent) + '[\n';
+                    for (i = 0; i < shape[0]; i += 1) {
+                        result += formatND(get_element.bind(null, i),
+                                shape.slice(1), fieldWidth, indent + 1);
+                        if (i < shape[0] - 1) {
+                            result += ',\n\n';
+                        } else {
+                            result += '\n' + padLeft('', indent) + ']';
+                        }
+                    }
+                }
+
+                return result;
             }
-            return result;
+
+            return formatND(this.get_element.bind(this),
+                this.shape, fieldWidth, 0);
         }
     };
+
 
     jsn.array = function (vals) {
         var o = Object.create(basearray),
@@ -93,7 +110,7 @@ define([], function () {
         o.shape = [];
         while (val.length !== undefined) {
             o.shape.push(val.length);
-            val = val[1];
+            val = val[0];
         }
 
         o.get_element = function () {
