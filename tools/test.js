@@ -1,3 +1,4 @@
+/*global define */
 define(['tools/assert'], function (assert) {
     "use strict";
     var test = {},
@@ -66,53 +67,55 @@ define(['tools/assert'], function (assert) {
     };
 
 
-    test.textReporter = function (outputLine) { return function(a, b, c, d) {
-        switch (a) {
-        case 'startTestRun':
-            outputLine('======================================');
-            outputLine(' Starting test run');
-            outputLine('======================================');
-            break;
+    test.textReporter = function (outputLine) {
+        return function (a, b, c, d) {
+            switch (a) {
+            case 'startTestRun':
+                outputLine('======================================');
+                outputLine(' Starting test run');
+                outputLine('======================================');
+                break;
 
-        case 'startSuite':
-            outputLine('--------------------------------------');
-            outputLine('Running suite ' + b);
-            break;
+            case 'startSuite':
+                outputLine('--------------------------------------');
+                outputLine('Running suite ' + b);
+                break;
 
-        case 'startTest':
-            outputLine(c  + ':');
-            break;
+            case 'startTest':
+                outputLine(c  + ':');
+                break;
 
-        case 'passTest':
-            outputLine('passed');
-            break;
+            case 'passTest':
+                outputLine('passed');
+                break;
 
-        case 'failTest':
-            outputLine('######### FAILED ##########');
-            outputLine(d);
-            break;
+            case 'failTest':
+                outputLine('######### FAILED ##########');
+                outputLine(d);
+                break;
 
-        case 'endSuite':
-            outputLine('--------------------------------------');
-            break;
+            case 'endSuite':
+                outputLine('--------------------------------------');
+                break;
 
-        case 'endTestRun':
-            outputLine('======================================');
-            outputLine(' Tests completed:');
-            outputLine(' ' + b + ' tests, ' + c + ' failures.');
-            outputLine('======================================');
-            if (c === 0) {
-                outputLine('');
-                outputLine('All tests passed!');
-                outputLine('');
-            } else {
-                outputLine('');
-                outputLine('######### Tests failed! ##########');
-                outputLine('');
+            case 'endTestRun':
+                outputLine('======================================');
+                outputLine(' Tests completed:');
+                outputLine(' ' + b + ' tests, ' + c + ' failures.');
+                outputLine('======================================');
+                if (c === 0) {
+                    outputLine('');
+                    outputLine('All tests passed!');
+                    outputLine('');
+                } else {
+                    outputLine('');
+                    outputLine('######### Tests failed! ##########');
+                    outputLine('');
+                }
+                break;
             }
-            break;
-        }
-    }};
+        };
+    };
 
     test.consoleReporter = test.textReporter(console.log);
 
