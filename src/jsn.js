@@ -3,8 +3,9 @@ define([], function() {
     var jsn = {}, basearray;
 
     basearray = {
+        // create a human-readable version of the array
         'toString' : function () {
-            var result, i, fieldWidth, vals1d, vals2d;
+            var result, i, fieldWidth;
             
             function padLeft(value, width) {
                 var result = String(value);
@@ -17,32 +18,36 @@ define([], function() {
             }
 
 
-            function getMaxFieldWidth(vals) {
+            function getMaxFieldWidth(get_element, shape, minFieldWidth) {
                 var result, i;
 
-                if (vals.length === undefined) {
-                    return String(vals).length;
+                if (shape.length == 0) {
+                    return Math.max(minFieldWidth, 
+                            String(get_element()).length);
                 } else {
-                    result = 0;
+                    result = minFieldWidth;
 
-                    for (i = 0; i < vals.length; i += 1) {
-                        result = Math.max(result, 
-                            getMaxFieldWidth(vals[i]));
+                    for (i = 0; i < shape[0]; i += 1) {
+                        result = getMaxFieldWidth(
+                            get_element.bind(null, i), 
+                            shape.slice(1), result
+                            );
                     }
                     
                     return result;
                 }
             }
-            fieldWidth = getMaxFieldWidth(this._vals);
+            fieldWidth = getMaxFieldWidth(this.get_element.bind(this), 
+                    this.shape, 0);
 
 
-            function format1D(vals, fieldWidth) {
+            function format1D(get_element, length, fieldWidth) {
                 var result, i;
 
                 var result = '[ '
-                for (i = 0; i < vals.length; i += 1) {
-                    result += padLeft(vals[i], fieldWidth);
-                    if (i < vals.length - 1) {
+                for (i = 0; i < length; i += 1) {
+                    result += padLeft(get_element(i), fieldWidth);
+                    if (i < length - 1) {
                         result += ', ';
                     }
                     else {
@@ -52,21 +57,32 @@ define([], function() {
 
                 return result;
             }
-            
-            result = '';
-            if (this._vals.length > 0 && this._vals[0].length !== undefined) {
-                result += '[';
-                for (i = 0; i < this._vals.length; i += 1) {
-                    result += format1D(this._vals[i], fieldWidth);
-                    if (i < this._vals.length - 1) {
+
+            function format2D(get_element, shape, fieldWidth) {
+                var result, i;
+
+                result = '[';
+                for (i = 0; i < shape[0]; i += 1) {
+                    result += format1D(get_element.bind(null,i), 
+                            shape[1], fieldWidth);
+                    if (i < shape[0] - 1) {
                         result += ',\n ';
                     }
                     else {
                         result += ']'
                     }
                 }
+
+                return result;
+            }
+
+            result = '';
+            if (this.shape.length > 1) {
+                result += format2D(this.get_element.bind(this), 
+                        this.shape, fieldWidth);
             } else {
-                result += format1D(this._vals, fieldWidth);
+                result += format1D(this.get_element.bind(this), 
+                        this.shape[0], fieldWidth);
             }
             return result;
         }
@@ -82,7 +98,14 @@ define([], function() {
             o.shape.push(val.length);
             val = val[1];
         }
-        o._vals = vals;
+        
+        o.get_element = function () {
+            var i, val = vals;
+            for (i = 0; i < arguments.length; ++i) {
+                val = val[arguments[i]];
+            }
+            return val;
+        };
 
         return o;
     };
