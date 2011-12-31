@@ -61,14 +61,12 @@ define(
                 assert.strictEqual(A.get_element([2, 1]), 8.625);
             },
 
-            /*
             "should support set_element" : function () {
                 var A = jsn.array([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]);
                 A.set_element([1, 0], 3.125);
-                assert.strictEqual(A.get_element(1, 0), 3.125);
-                assert.strictEqual(A.get_element(2, 1), 8.625);
+                assert.strictEqual(A.get_element([1, 0]), 3.125);
+                assert.strictEqual(A.get_element([2, 1]), 8.625);
             },
-            */
         });
 
 

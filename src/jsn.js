@@ -162,6 +162,14 @@ define([], function () {
             return val;
         };
 
+        o.set_element = function (indexes, newVal) {
+            var i, val = vals;
+            for (i = 0; i < indexes.length - 1; i += 1) {
+                val = val[indexes[i]];
+            }
+            val[indexes[i]] = newVal;
+        };
+
         return o;
     };
 
