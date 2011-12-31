@@ -75,7 +75,9 @@ define([], function () {
             function formatND(array, fieldWidth, indent) {
                 var result, i;
 
-                if (array.shape.length === 1) {
+                if (array.shape.length === 0) {
+                    result = '( ' + array.get_element([]) + ' )';
+                } else if (array.shape.length === 1) {
                     result = format1D(array, fieldWidth);
                 } else if (array.shape.length === 2) {
                     result = format2D(array, fieldWidth, indent);
