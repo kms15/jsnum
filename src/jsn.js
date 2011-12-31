@@ -21,25 +21,23 @@ define([], function () {
             }
 
 
-            function getMaxFieldWidth(get_element, shape, minFieldWidth) {
+            function getMaxFieldWidth(array, minFieldWidth) {
                 var result, i;
 
-                if (shape.length === 0) {
+                if (array.shape.length === 0) {
                     return Math.max(minFieldWidth,
-                            String(get_element()).length);
+                            String(array.get_element([])).length);
                 } else {
                     result = minFieldWidth;
 
-                    for (i = 0; i < shape[0]; i += 1) {
-                        result = getMaxFieldWidth(get_element.bind(null, i),
-                            shape.slice(1), result);
+                    for (i = 0; i < array.shape[0]; i += 1) {
+                        result = getMaxFieldWidth(array.collapse([i]), result);
                     }
 
                     return result;
                 }
             }
-            fieldWidth = getMaxFieldWidth(this.get_element.bind(this),
-                    this.shape, 0);
+            fieldWidth = getMaxFieldWidth(this, 0);
 
 
             function format1D(array, fieldWidth) {
@@ -47,7 +45,7 @@ define([], function () {
 
                 result = '[ ';
                 for (i = 0; i < array.shape[0]; i += 1) {
-                    result += padLeft(array.get_element(i), fieldWidth);
+                    result += padLeft(array.get_element([i]), fieldWidth);
                     if (i < array.shape[0] - 1) {
                         result += ', ';
                     } else {
@@ -119,18 +117,17 @@ define([], function () {
 
             o = Object.create(basearray);
             o.shape = newShape;
-            o.get_element = function () {
+            o.get_element = function (reducedIndexes) {
                 var expandedIndexes = [], i;
                 
                 for (i = 0; i < indexes.length; ++i) {
                     expandedIndexes.push(indexes[i]);
                 }
                 for (i = 0; i < map.length; ++i) {
-                    expandedIndexes[map[i]] = arguments[i];
+                    expandedIndexes[map[i]] = reducedIndexes[i];
                 }
 
-                //return that.get_element(expandedIndexes);
-                return that.get_element.apply(that, expandedIndexes);
+                return that.get_element(expandedIndexes);
             };
             
             return o;
@@ -139,8 +136,8 @@ define([], function () {
 
 
     // Create an ND array from the given nested Array.
+    // TODO: handle 0 dim arrays
     // TODO: input validation
-    // TODO: switch get_element to [] syntax
     // TODO: make copy of vals
     // TODO: lock down shape
     // TODO: document
@@ -155,10 +152,10 @@ define([], function () {
             val = val[0];
         }
 
-        o.get_element = function () {
+        o.get_element = function (indexes) {
             var i, val = vals;
-            for (i = 0; i < arguments.length; i += 1) {
-                val = val[arguments[i]];
+            for (i = 0; i < indexes.length; i += 1) {
+                val = val[indexes[i]];
             }
             return val;
         };

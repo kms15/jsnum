@@ -4,7 +4,7 @@ define(
     function (test, assert, jsn) {
         "use strict";
 
-        test.createSuite("unit:BaseArray", {
+        test.createSuite("unit:basearray", {
             "should build from 1D list" : function () {
                 var A = jsn.array([1.5, 3.25, 5.125]);
 
@@ -50,8 +50,8 @@ define(
 
             "should support get_element" : function () {
                 var A = jsn.array([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]);
-                assert.strictEqual(A.get_element(1, 0), 5.125);
-                assert.strictEqual(A.get_element(2, 1), 8.625);
+                assert.strictEqual(A.get_element([1, 0]), 5.125);
+                assert.strictEqual(A.get_element([2, 1]), 8.625);
             },
 
             "should support collapse" : function () {
