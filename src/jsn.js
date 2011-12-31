@@ -82,7 +82,7 @@ define([], function () {
                 } else {
                     result = padLeft('', indent) + '[\n';
                     for (i = 0; i < array.shape[0]; i += 1) {
-                        result += formatND(array.collapse([i]), fieldWidth, 
+                        result += formatND(array.collapse([i]), fieldWidth,
                                 indent + 1);
                         if (i < array.shape[0] - 1) {
                             result += ',\n\n';
@@ -108,28 +108,28 @@ define([], function () {
         'collapse' : function (indexes) {
             var o, i, map = [], newShape = [], that = this;
 
-            for (i = 0; i < this.shape.length; ++i) {
+            for (i = 0; i < this.shape.length; i += 1) {
                 if (indexes[i] === undefined) {
                     newShape.push(this.shape[i]);
                     map.push(i);
                 }
-            }                        
+            }
 
             o = Object.create(basearray);
             o.shape = newShape;
             o.get_element = function (reducedIndexes) {
                 var expandedIndexes = [], i;
-                
-                for (i = 0; i < indexes.length; ++i) {
+
+                for (i = 0; i < indexes.length; i += 1) {
                     expandedIndexes.push(indexes[i]);
                 }
-                for (i = 0; i < map.length; ++i) {
+                for (i = 0; i < map.length; i += 1) {
                     expandedIndexes[map[i]] = reducedIndexes[i];
                 }
 
                 return that.get_element(expandedIndexes);
             };
-            
+
             return o;
         }
     };
