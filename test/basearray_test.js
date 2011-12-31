@@ -74,6 +74,7 @@ define(
             "should support collapse" : function () {
                 var A = jsn.array([[[[1.5], [3.25]], [[5.125], [6]]],
                     [[[7.5], [8.625]], [[9.25], [10.125]]]]);
+
                 assert.strictEqual(String(A.collapse([1])),
                     '[\n' +
                     ' [[    7.5 ],\n' +
@@ -82,6 +83,12 @@ define(
                     ' [[   9.25 ],\n' +
                     '  [ 10.125 ]]\n' +
                     ']');
+
+                assert.strictEqual(String(A.collapse([,,0,0])),
+                    '[[   1.5, 5.125 ],\n' +
+                    ' [   7.5,  9.25 ]]');
+
+                assert.strictEqual(String(A.collapse([1,1,0,0])), '( 9.25 )');
             },
         });
     }
