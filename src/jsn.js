@@ -5,6 +5,8 @@ define([], function () {
 
     basearray = {
         // create a human-readable version of the array
+        // TODO: handle 0 dim arrays
+        // TODO: document
         'toString' : function () {
             var fieldWidth;
 
@@ -40,13 +42,13 @@ define([], function () {
                     this.shape, 0);
 
 
-            function format1D(get_element, length, fieldWidth) {
+            function format1D(array, fieldWidth) {
                 var result, i;
 
                 result = '[ ';
-                for (i = 0; i < length; i += 1) {
-                    result += padLeft(get_element(i), fieldWidth);
-                    if (i < length - 1) {
+                for (i = 0; i < array.shape[0]; i += 1) {
+                    result += padLeft(array.get_element(i), fieldWidth);
+                    if (i < array.shape[0] - 1) {
                         result += ', ';
                     } else {
                         result += ' ]';
@@ -56,14 +58,13 @@ define([], function () {
                 return result;
             }
 
-            function format2D(get_element, shape, fieldWidth, indent) {
+            function format2D(array, fieldWidth, indent) {
                 var result, i;
 
                 result = padLeft('', indent) + '[';
-                for (i = 0; i < shape[0]; i += 1) {
-                    result += format1D(get_element.bind(null, i),
-                            shape[1], fieldWidth);
-                    if (i < shape[0] - 1) {
+                for (i = 0; i < array.shape[0]; i += 1) {
+                    result += format1D(array.collapse([i]), fieldWidth);
+                    if (i < array.shape[0] - 1) {
                         result += ',\n' + padLeft('', indent + 1);
                     } else {
                         result += ']';
@@ -73,19 +74,19 @@ define([], function () {
                 return result;
             }
 
-            function formatND(get_element, shape, fieldWidth, indent) {
+            function formatND(array, fieldWidth, indent) {
                 var result, i;
 
-                if (shape.length === 1) {
-                    result = format1D(get_element, shape, fieldWidth);
-                } else if (shape.length === 2) {
-                    result = format2D(get_element, shape, fieldWidth, indent);
+                if (array.shape.length === 1) {
+                    result = format1D(array, fieldWidth);
+                } else if (array.shape.length === 2) {
+                    result = format2D(array, fieldWidth, indent);
                 } else {
                     result = padLeft('', indent) + '[\n';
-                    for (i = 0; i < shape[0]; i += 1) {
-                        result += formatND(get_element.bind(null, i),
-                                shape.slice(1), fieldWidth, indent + 1);
-                        if (i < shape[0] - 1) {
+                    for (i = 0; i < array.shape[0]; i += 1) {
+                        result += formatND(array.collapse([i]), fieldWidth, 
+                                indent + 1);
+                        if (i < array.shape[0] - 1) {
                             result += ',\n\n';
                         } else {
                             result += '\n' + padLeft('', indent) + ']';
@@ -96,12 +97,53 @@ define([], function () {
                 return result;
             }
 
-            return formatND(this.get_element.bind(this),
-                this.shape, fieldWidth, 0);
+            return formatND(this, fieldWidth, 0);
+        },
+
+        // create a new array object that maps indexes to the selected
+        // portions of the array.
+        // TODO: check that indexes is not longer than shape
+        // TODO: make copy of indexes
+        // TODO: input validation for get_element
+        // TODO: lock down shape
+        // TODO: document
+        'collapse' : function (indexes) {
+            var o, i, map = [], newShape = [], that = this;
+
+            for (i = 0; i < this.shape.length; ++i) {
+                if (indexes[i] === undefined) {
+                    newShape.push(this.shape[i]);
+                    map.push(i);
+                }
+            }                        
+
+            o = Object.create(basearray);
+            o.shape = newShape;
+            o.get_element = function () {
+                var expandedIndexes = [], i;
+                
+                for (i = 0; i < indexes.length; ++i) {
+                    expandedIndexes.push(indexes[i]);
+                }
+                for (i = 0; i < map.length; ++i) {
+                    expandedIndexes[map[i]] = arguments[i];
+                }
+
+                //return that.get_element(expandedIndexes);
+                return that.get_element.apply(that, expandedIndexes);
+            };
+            
+            return o;
         }
     };
 
 
+    // Create an ND array from the given nested Array.
+    // TODO: input validation
+    // TODO: switch get_element to [] syntax
+    // TODO: make copy of vals
+    // TODO: lock down shape
+    // TODO: document
     jsn.array = function (vals) {
         var o = Object.create(basearray),
             val;
