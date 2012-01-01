@@ -90,6 +90,20 @@ define(
 
                 assert.strictEqual(String(A.collapse([1,1,0,0])), '( 9.25 )');
             },
+
+            "collapse should support set_element" : function () {
+                var A = jsn.array([[1.5, 3.25], [5.125, 6.125], [7.5, 8.625]]),
+                    B = A.collapse([,1]);
+
+                B.set_element([1],2);
+
+                assert.strictEqual(String(B),
+                    '[  3.25,     2, 8.625 ]');
+                assert.strictEqual(String(A),
+                    '[[   1.5,  3.25 ],\n' +
+                    ' [ 5.125,     2 ],\n' +
+                    ' [   7.5, 8.625 ]]');
+            },
         });
     }
 );

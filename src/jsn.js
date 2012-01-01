@@ -5,7 +5,6 @@ define([], function () {
 
     basearray = {
         // create a human-readable version of the array
-        // TODO: handle 0 dim arrays
         // TODO: document
         'toString' : function () {
             var fieldWidth;
@@ -132,13 +131,25 @@ define([], function () {
                 return that.get_element(expandedIndexes);
             };
 
+            o.set_element = function (reducedIndexes, value) {
+                var expandedIndexes = [], i;
+
+                for (i = 0; i < indexes.length; i += 1) {
+                    expandedIndexes.push(indexes[i]);
+                }
+                for (i = 0; i < map.length; i += 1) {
+                    expandedIndexes[map[i]] = reducedIndexes[i];
+                }
+
+                that.set_element(expandedIndexes, value);
+            };
+
             return o;
         }
     };
 
 
     // Create an ND array from the given nested Array.
-    // TODO: handle 0 dim arrays
     // TODO: input validation
     // TODO: make copy of vals
     // TODO: lock down shape
