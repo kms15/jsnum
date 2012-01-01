@@ -109,6 +109,19 @@ define([], function () {
         'collapse' : function (indexes) {
             var o, i, map = [], newShape = [], that = this;
 
+            function expandIndexes (reducedIndexes) {
+                var expandedIndexes = [], i;
+
+                for (i = 0; i < indexes.length; i += 1) {
+                    expandedIndexes.push(indexes[i]);
+                }
+                for (i = 0; i < map.length; i += 1) {
+                    expandedIndexes[map[i]] = reducedIndexes[i];
+                }
+
+                return expandedIndexes;
+            }
+
             for (i = 0; i < this.shape.length; i += 1) {
                 if (indexes[i] === undefined) {
                     newShape.push(this.shape[i]);
@@ -119,29 +132,11 @@ define([], function () {
             o = Object.create(basearray);
             o.shape = newShape;
             o.get_element = function (reducedIndexes) {
-                var expandedIndexes = [], i;
-
-                for (i = 0; i < indexes.length; i += 1) {
-                    expandedIndexes.push(indexes[i]);
-                }
-                for (i = 0; i < map.length; i += 1) {
-                    expandedIndexes[map[i]] = reducedIndexes[i];
-                }
-
-                return that.get_element(expandedIndexes);
+                return that.get_element(expandIndexes(reducedIndexes));
             };
 
             o.set_element = function (reducedIndexes, value) {
-                var expandedIndexes = [], i;
-
-                for (i = 0; i < indexes.length; i += 1) {
-                    expandedIndexes.push(indexes[i]);
-                }
-                for (i = 0; i < map.length; i += 1) {
-                    expandedIndexes[map[i]] = reducedIndexes[i];
-                }
-
-                that.set_element(expandedIndexes, value);
+                return that.set_element(expandIndexes(reducedIndexes), value);
             };
 
             return o;
