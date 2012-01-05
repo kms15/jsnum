@@ -1,3 +1,4 @@
+#!/usr/bin/node
 var requirejs = require('requirejs');
 
 // standard requirejs server initialization to choose the default require call
