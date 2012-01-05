@@ -102,18 +102,17 @@ define([], function () {
         // create a new array object that maps indexes to the selected
         // portions of the array.
         // TODO: check that indexes is not longer than shape
-        // TODO: make copy of indexes
         // TODO: input validation for get_element
         // TODO: lock down shape
         // TODO: document
         'collapse' : function (indexes) {
-            var o, i, map = [], newShape = [], that = this;
+            var o, i, map = [], newShape = [], newIndexes = [], that = this;
 
-            function expandIndexes (reducedIndexes) {
+            function expandIndexes(reducedIndexes) {
                 var expandedIndexes = [], i;
 
-                for (i = 0; i < indexes.length; i += 1) {
-                    expandedIndexes.push(indexes[i]);
+                for (i = 0; i < newIndexes.length; i += 1) {
+                    expandedIndexes.push(newIndexes[i]);
                 }
                 for (i = 0; i < map.length; i += 1) {
                     expandedIndexes[map[i]] = reducedIndexes[i];
@@ -123,6 +122,7 @@ define([], function () {
             }
 
             for (i = 0; i < this.shape.length; i += 1) {
+                newIndexes.push(indexes[i]);
                 if (indexes[i] === undefined) {
                     newShape.push(this.shape[i]);
                     map.push(i);
@@ -145,13 +145,18 @@ define([], function () {
 
 
     // Create an ND array from the given nested Array.
-    // TODO: input validation
+    // TODO: make sure input isn't ragged
     // TODO: make copy of vals
     // TODO: lock down shape
     // TODO: document
-    jsn.array = function (vals) {
+    jsn.asNDArray = function (vals) {
         var o = Object.create(basearray),
             val;
+
+        // if it's already an array, we're done
+        if (vals.get_element !== undefined) {
+            return vals;
+        }
 
         val = vals;
         o.shape = [];
