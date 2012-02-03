@@ -91,20 +91,21 @@ define(
                     '  [ 10.125 ]]\n' +
                     ']');
 
-                assert.strictEqual(String(A.collapse([,,0,0])),
+                //assert.strictEqual(String(A.collapse([,,0,0])),
+                assert.strictEqual(String(A.collapse([undefined, undefined, 0, 0])),
                     '[[   1.5, 5.125 ],\n' +
                     ' [   7.5,  9.25 ]]');
 
-                assert.strictEqual(String(A.collapse([1,1,0,0])), '( 9.25 )');
+                assert.strictEqual(String(A.collapse([1, 1, 0, 0])), '( 9.25 )');
             },
 
             "collapse should support set_element" : function () {
                 var A = jsn.asNDArray(
                     [[1.5, 3.25], [5.125, 6.125], [7.5, 8.625]]
-                    ),
-                    B = A.collapse([,1]);
+                ),
+                    B = A.collapse([undefined, 1]);
 
-                B.set_element([1],2);
+                B.set_element([1], 2);
 
                 assert.strictEqual(String(B),
                     '[  3.25,     2, 8.625 ]');
@@ -117,8 +118,8 @@ define(
             "collapse should not track original index array" : function () {
                 var A = jsn.asNDArray(
                     [[1.5, 3.25], [5.125, 6.125], [7.5, 8.625]]
-                    ),
-                    l = [,1],
+                ),
+                    l = [undefined, 1],
                     B = A.collapse(l);
 
                 l[1] = 0;
