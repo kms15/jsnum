@@ -57,6 +57,59 @@ define([], function () {
         }
     };
 
+    function deepEqual(item1, item2) {
+        var propName;
+
+        if (item1 === item2) {
+            return true;
+        } else if (item1 instanceof Date &&
+                item2 instanceof Date) {
+            return item1.toJSON() === item2.toJSON();
+        } else if (typeof item1 === "object" &&
+                typeof item2 == "object") {
+
+            for (propName in item1) {
+                if (item1.hasOwnProperty(propName) && (
+                        !item2.hasOwnProperty(propName)
+                        || !deepEqual(item1[propName], item2[propName])
+                    )) {
+                    return false;
+                }
+            }
+
+            for (propName in item2) {
+                if (item2.hasOwnProperty(propName) &&
+                        !item1.hasOwnProperty(propName)) {
+                    return false;
+                }
+            }
+
+            return item1.prototype === item2.prototype;
+        } else {
+            return item1 == item2;
+        }
+    }
+
+    assert.deepEqual = function (actual, expected, message_opt) {
+        if (!deepEqual(actual, expected)) {
+            throw new assert.AssertionError({
+                message : message_opt,
+                actual : actual,
+                expected : expected
+            });
+        }
+    };
+
+    assert.notDeepEqual = function (actual, expected, message_opt) {
+        if (deepEqual(actual, expected)) {
+            throw new assert.AssertionError({
+                message : message_opt,
+                actual : actual,
+                expected : expected
+            });
+        }
+    };
+
     assert.strictEqual = function (actual, expected, message_opt) {
         if (actual !== expected) {
             throw new assert.AssertionError({
@@ -90,6 +143,7 @@ define([], function () {
 
         throw new assert.AssertionError({
             message : message_opt,
+            actual : "No exception",
             expected : "Exception"
         });
     };
