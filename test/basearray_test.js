@@ -125,7 +125,24 @@ define(
                 l[1] = 0;
                 assert.strictEqual(String(B),
                     '[  3.25, 6.125, 8.625 ]');
-            }
+            },
+
+            "collapse should throw if given bad arguments" : 
+                function () {
+
+                var A = jsn.asNDArray(
+                    [[1.5, 3.25], [5.125, 6.125], [7.5, 8.625]]
+                );
+                
+                assert.throws(function () { A.collapse([1,2,3]) },
+                    RangeError, "too many indexes");
+                assert.throws( function () { A.collapse() },
+                    TypeError, "no indexes");
+                assert.throws( function () { A.collapse(3) },
+                    TypeError, "single number");
+                assert.throws( function () { A.collapse("hello") },
+                    TypeError, "string");
+           }
         });
     }
 );

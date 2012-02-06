@@ -108,6 +108,14 @@ define([], function () {
         'collapse' : function (indexes) {
             var o, i, map = [], newShape = [], newIndexes = [], that = this;
 
+            if (!Array.isArray(indexes)) {
+                throw new TypeError("indexes should be a javascript array");
+            }
+
+            if (indexes.length > this.shape.length) {
+                throw new RangeError("More indexes than dimensions to index");
+            }
+
             function expandIndexes(reducedIndexes) {
                 var expandedIndexes = [], i;
 
