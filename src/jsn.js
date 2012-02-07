@@ -101,7 +101,6 @@ define([], function () {
 
         // create a new array object that maps indexes to the selected
         // portions of the array.
-        // TODO: check that indexes is not longer than shape
         // TODO: input validation for get_element
         // TODO: lock down shape
         // TODO: document
