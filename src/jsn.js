@@ -118,6 +118,24 @@ define([], function () {
             function expandIndexes(reducedIndexes) {
                 var expandedIndexes = [], i;
 
+                // argument checks
+                // TODO: move these to a "validate indexes" function?
+                if (reducedIndexes.length !== map.length) {
+                    throw new RangeError(
+                        "Expected " + map.length + " indexes but given " +
+                            reducedIndexes.length + " indexes."
+                    );
+                }
+                for (i = 0; i < map.length; i += 1) {
+                    if (typeof reducedIndexes[i] !== "number") {
+                        throw new TypeError(
+                            "Non-numeric index \"" +
+                                String(reducedIndexes[i]) + "\""
+                        );
+                    }
+                }
+
+                // build a full length index
                 for (i = 0; i < newIndexes.length; i += 1) {
                     expandedIndexes.push(newIndexes[i]);
                 }
