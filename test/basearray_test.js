@@ -62,17 +62,17 @@ define(
                 assert.strictEqual(B, A);
             },
 
-            "should support get_element" : function () {
+            "should support getElement" : function () {
                 var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]);
-                assert.strictEqual(A.get_element([1, 0]), 5.125);
-                assert.strictEqual(A.get_element([2, 1]), 8.625);
+                assert.strictEqual(A.getElement([1, 0]), 5.125);
+                assert.strictEqual(A.getElement([2, 1]), 8.625);
             },
 
-            "should support set_element" : function () {
+            "should support setElement" : function () {
                 var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]);
-                A.set_element([1, 0], 3.125);
-                assert.strictEqual(A.get_element([1, 0]), 3.125);
-                assert.strictEqual(A.get_element([2, 1]), 8.625);
+                A.setElement([1, 0], 3.125);
+                assert.strictEqual(A.getElement([1, 0]), 3.125);
+                assert.strictEqual(A.getElement([2, 1]), 8.625);
             },
         });
 
@@ -129,13 +129,13 @@ define(
                     '( 9.25 )');
             },
 
-            "collapse should support set_element" : function () {
+            "collapse should support setElement" : function () {
                 var A = jsn.asNDArray(
                     [[1.5, 3.25], [5.125, 6.125], [7.5, 8.625]]
                 ),
                     B = A.collapse([undefined, 1]);
 
-                B.set_element([1], 2);
+                B.setElement([1], 2);
 
                 assert.strictEqual(String(B),
                     '[  3.25,     2, 8.625 ]');
@@ -173,18 +173,18 @@ define(
                     TypeError, "string");
             },
 
-            "collapse(...).get_element should thow if given bad arguments" :
+            "collapse(...).getElement should thow if given bad arguments" :
                 function () {
 
                     var A = jsn.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
                         [[[7.5], [8.625]], [[9.25], [10.125]]]]),
                         B = A.collapse([1, undefined, 1]);
 
-                    assert.throws(function () { B.get_element([2]); },
+                    assert.throws(function () { B.getElement([2]); },
                         RangeError, "too few indices");
-                    assert.throws(function () { B.get_element([1, 1, 1]); },
+                    assert.throws(function () { B.getElement([1, 1, 1]); },
                         RangeError, "too many indices");
-                    assert.throws(function () { B.get_element([1, 'a']); },
+                    assert.throws(function () { B.getElement([1, 'a']); },
                         TypeError, "non-numeric index");
                 }
         });

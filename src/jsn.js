@@ -25,7 +25,7 @@ define([], function () {
 
                 if (array.shape.length === 0) {
                     return Math.max(minFieldWidth,
-                            String(array.get_element([])).length);
+                            String(array.getElement([])).length);
                 } else {
                     result = minFieldWidth;
 
@@ -43,7 +43,7 @@ define([], function () {
 
                 result = '[ ';
                 for (i = 0; i < array.shape[0]; i += 1) {
-                    result += padLeft(array.get_element([i]), fieldWidth);
+                    result += padLeft(array.getElement([i]), fieldWidth);
                     if (i < array.shape[0] - 1) {
                         result += ', ';
                     } else {
@@ -74,7 +74,7 @@ define([], function () {
                 var result, i;
 
                 if (array.shape.length === 0) {
-                    result = '( ' + array.get_element([]) + ' )';
+                    result = '( ' + array.getElement([]) + ' )';
                 } else if (array.shape.length === 1) {
                     result = format1D(array, fieldWidth);
                 } else if (array.shape.length === 2) {
@@ -188,12 +188,12 @@ define([], function () {
 
             o = Object.create(basearray);
             o.shape = newShape;
-            o.get_element = function (reducedIndexes) {
-                return that.get_element(expandIndexes(reducedIndexes));
+            o.getElement = function (reducedIndexes) {
+                return that.getElement(expandIndexes(reducedIndexes));
             };
 
-            o.set_element = function (reducedIndexes, value) {
-                return that.set_element(expandIndexes(reducedIndexes), value);
+            o.setElement = function (reducedIndexes, value) {
+                return that.setElement(expandIndexes(reducedIndexes), value);
             };
 
             return o;
@@ -211,7 +211,7 @@ define([], function () {
             val;
 
         // if it's already an array, we're done
-        if (vals.get_element !== undefined) {
+        if (vals.getElement !== undefined) {
             return vals;
         }
 
@@ -222,7 +222,7 @@ define([], function () {
             val = val[0];
         }
 
-        o.get_element = function (indexes) {
+        o.getElement = function (indexes) {
             var i, val = vals;
             for (i = 0; i < indexes.length; i += 1) {
                 val = val[indexes[i]];
@@ -230,7 +230,7 @@ define([], function () {
             return val;
         };
 
-        o.set_element = function (indexes, newVal) {
+        o.setElement = function (indexes, newVal) {
             var i, val = vals;
             for (i = 0; i < indexes.length - 1; i += 1) {
                 val = val[indexes[i]];
