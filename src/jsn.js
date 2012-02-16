@@ -38,7 +38,6 @@ define([], function () {
             }
             fieldWidth = getMaxFieldWidth(this, 0);
 
-
             function format1D(array, fieldWidth) {
                 var result, i;
 
@@ -99,9 +98,42 @@ define([], function () {
             return formatND(this, fieldWidth, 0);
         },
 
+        'checkIndexes' : function (indexes) {
+            var i;
+
+            if (!Array.isArray(indexes)) {
+                throw new TypeError(
+                    "Non-array given as an index."
+                );
+            }
+
+            if (indexes.length !== this.shape.length) {
+                throw new RangeError(
+                    "Expected " + this.shape.length + " indexes but given " +
+                        indexes.length + " indexes."
+                );
+            }
+
+            for (i = 0; i < indexes.length; i += 1) {
+                if (typeof indexes[i] !== 'number') {
+                    throw new TypeError(
+                        "Encountered non-numeric index \"" +
+                            indexes[i] + "\"."
+                    );
+                }
+
+                if (indexes[i] < 0 || indexes[i] >= this.shape[i]) {
+                    throw new RangeError(
+                        "Index out of range, " +
+                            indexes[i] + " is not within (0, " +
+                            this.shape[i] + ")."
+                    );
+                }
+            }
+        },
+
         // create a new array object that maps indexes to the selected
         // portions of the array.
-        // TODO: input validation for get_element
         // TODO: lock down shape
         // TODO: document
         'collapse' : function (indexes) {

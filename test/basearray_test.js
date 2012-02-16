@@ -1,4 +1,3 @@
-/*jslint white: true */
 /*global define */
 define(
     ['tools/test', 'tools/assert', 'src/jsn'],
@@ -78,6 +77,33 @@ define(
         });
 
 
+        test.createSuite("unit:BaseArray:utilities", {
+            "should support checkIndexes" : function () {
+                var A = jsn.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
+                    [[[7.5], [8.625]], [[9.25], [10.125]]]]);
+
+                // should not throw with valid data
+                A.checkIndexes([1, 0, 1, 0]);
+
+                assert.throws(function () { A.checkIndexes([2, 3, 4]); },
+                    RangeError, "too few indices");
+                assert.throws(
+                    function () { A.checkIndexes([1, 1, 1, 0, 0]); },
+                    RangeError,
+                    "too many indices"
+                );
+                assert.throws(function () { A.checkIndexes([1, 'a', 0, 0]); },
+                    TypeError, "non-numeric index");
+                assert.throws(function () { A.checkIndexes('a'); },
+                    TypeError, "non-list");
+
+                assert.throws(function () { A.checkIndexes([1, 0, -1, 0]); },
+                    RangeError, "negative index");
+                assert.throws(function () { A.checkIndexes([1, 0, 1, 1]); },
+                    RangeError, "index too large");
+            }
+        });
+
         test.createSuite("unit:BaseArray:views", {
             "should support collapse" : function () {
                 var A = jsn.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
@@ -96,11 +122,11 @@ define(
                 assert.strictEqual(
                     String(A.collapse([undefined, undefined, 0, 0])),
                     '[[   1.5, 5.125 ],\n' +
-                    ' [   7.5,  9.25 ]]');
+                        ' [   7.5,  9.25 ]]'
+                );
 
-                assert.strictEqual(String(A.collapse([1, 1, 0, 0])), 
+                assert.strictEqual(String(A.collapse([1, 1, 0, 0])),
                     '( 9.25 )');
-
             },
 
             "collapse should support set_element" : function () {
@@ -131,37 +157,36 @@ define(
                     '[  3.25, 6.125, 8.625 ]');
             },
 
-            "collapse should throw if given bad arguments" : 
-                function () {
+            "collapse should throw if given bad arguments" : function () {
 
                 var A = jsn.asNDArray(
                     [[1.5, 3.25], [5.125, 6.125], [7.5, 8.625]]
                 );
-                
-                assert.throws(function () { A.collapse([1,2,3]); },
+
+                assert.throws(function () { A.collapse([1, 2, 3]); },
                     RangeError, "too many indexes");
-                assert.throws( function () { A.collapse(); },
+                assert.throws(function () { A.collapse(); },
                     TypeError, "no indexes");
-                assert.throws( function () { A.collapse(3); },
+                assert.throws(function () { A.collapse(3); },
                     TypeError, "single number");
-                assert.throws( function () { A.collapse("hello"); },
+                assert.throws(function () { A.collapse("hello"); },
                     TypeError, "string");
-           },
+            },
 
-           "collapse(...).get_element should thow if given bad arguments" :
-               function () {
+            "collapse(...).get_element should thow if given bad arguments" :
+                function () {
 
-                var A = jsn.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
-                    [[[7.5], [8.625]], [[9.25], [10.125]]]]),
-                    B = A.collapse([1,undefined,1]);
+                    var A = jsn.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
+                        [[[7.5], [8.625]], [[9.25], [10.125]]]]),
+                        B = A.collapse([1, undefined, 1]);
 
-                assert.throws( function () { B.get_element([2]); },
-                    RangeError, "too few indices");
-                assert.throws( function () { B.get_element([1, 1, 1]); },
-                    RangeError, "too many indices");
-                assert.throws( function () { B.get_element([1, 'a']); },
-                    TypeError, "non-numeric index");
-           }
+                    assert.throws(function () { B.get_element([2]); },
+                        RangeError, "too few indices");
+                    assert.throws(function () { B.get_element([1, 1, 1]); },
+                        RangeError, "too many indices");
+                    assert.throws(function () { B.get_element([1, 'a']); },
+                        TypeError, "non-numeric index");
+                }
         });
     }
 );
