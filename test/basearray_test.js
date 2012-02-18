@@ -73,11 +73,40 @@ define(
                 A.setElement([1, 0], 3.125);
                 assert.strictEqual(A.getElement([1, 0]), 3.125);
                 assert.strictEqual(A.getElement([2, 1]), 8.625);
-            },
+            }
         });
 
 
-        test.createSuite("unit:BaseArray:utilities", {
+        test.createSuite("unit:AbstractNDArray:utilities", {
+            "should have virtual methods" : function () {
+                assert.throws(
+                    function () {
+                        var A = new jsn.AbstractNDArray();
+                    },
+                    TypeError,
+                    "can't instantiate"
+                );
+
+                assert.throws(
+                    function () {
+                        jsn.AbstractNDArray.prototype.getElement([1, 1]);
+                    },
+                    TypeError,
+                    "abstract get"
+                );
+
+                assert.throws(
+                    function () {
+                        jsn.AbstractNDArray.prototype.setElement([1, 1], 1);
+                    },
+                    TypeError,
+                    "abstract set"
+                );
+
+                assert.strictEqual(jsn.AbstractNDArray.prototype.shape,
+                    undefined);
+            },
+
             "should support checkIndexes" : function () {
                 var A = jsn.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
                     [[[7.5], [8.625]], [[9.25], [10.125]]]]);
@@ -104,7 +133,7 @@ define(
             }
         });
 
-        test.createSuite("unit:BaseArray:views", {
+        test.createSuite("unit:AbstractNDArray:views", {
             "should support collapse" : function () {
                 var A = jsn.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
                     [[[7.5], [8.625]], [[9.25], [10.125]]]]);

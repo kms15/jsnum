@@ -1,9 +1,42 @@
 /*global define */
 define([], function () {
     "use strict";
-    var jsn = {}, basearray;
+    var jsn = {};
 
-    basearray = {
+    function abstractMethod() {
+        throw new TypeError("call to an abstract method");
+    }
+
+    function AbstractNDArray() {
+        throw new TypeError("AbstractNDArray is an abstract class and " +
+            "should not be directly instantiated - please use an child class.");
+    }
+
+    AbstractNDArray.prototype = {
+        //
+        // Abstract methods
+        //
+
+        // getElement is used to read one element of the array.  It takes
+        // one parameter, which is the list of indexes for the desired 
+        // element, and returns the value stored in that element.              
+        getElement : abstractMethod,
+
+        // setElement is used to change the value of a single element in the
+        // array.  It takes two parameters - the first being the list of 
+        // indexes of that element and the second being the new value of that
+        // element.  
+        setElement : abstractMethod,
+
+        // shape contains an array with the lengths of each dimension of the 
+        // n-dimensional array
+        shape: undefined,
+
+
+        //
+        // Build-in methods
+        //
+
         // create a human-readable version of the array
         // TODO: document
         toString : function () {
@@ -132,6 +165,7 @@ define([], function () {
             }
         },
 
+
         // create a new array object that maps indexes to the selected
         // portions of the array.
         // TODO: lock down shape
@@ -149,8 +183,8 @@ define([], function () {
 
             function expandIndexes(reducedIndexes) {
                 var expandedIndexes = [], i;
-                o.checkIndexes(reducedIndexes);              
-                
+                o.checkIndexes(reducedIndexes);
+
 
                 // build a full length index
                 for (i = 0; i < newIndexes.length; i += 1) {
@@ -171,7 +205,7 @@ define([], function () {
                 }
             }
 
-            o = Object.create(basearray);
+            o = Object.create(AbstractNDArray.prototype);
             o.shape = newShape;
             o.getElement = function (reducedIndexes) {
                 return that.getElement(expandIndexes(reducedIndexes));
@@ -191,8 +225,8 @@ define([], function () {
     // TODO: make copy of vals
     // TODO: lock down shape
     // TODO: document
-    jsn.asNDArray = function (vals) {
-        var o = Object.create(basearray),
+    function asNDArray(vals) {
+        var o = Object.create(AbstractNDArray.prototype),
             val;
 
         // if it's already an array, we're done
@@ -224,7 +258,10 @@ define([], function () {
         };
 
         return o;
-    };
+    }
+
+    jsn.asNDArray = asNDArray;
+    jsn.AbstractNDArray = AbstractNDArray;
 
     return jsn;
 });
