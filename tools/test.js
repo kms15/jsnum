@@ -79,6 +79,7 @@ define(['tools/assert'], function (assert) {
             case 'startSuite':
                 outputLine('--------------------------------------');
                 outputLine('Running suite ' + b);
+                outputLine('--------------------------------------');
                 break;
 
             case 'startTest':
@@ -95,7 +96,7 @@ define(['tools/assert'], function (assert) {
                 break;
 
             case 'endSuite':
-                outputLine('--------------------------------------');
+                //outputLine('--------------------------------------');
                 break;
 
             case 'endTestRun':
