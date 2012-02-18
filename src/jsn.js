@@ -6,7 +6,7 @@ define([], function () {
     basearray = {
         // create a human-readable version of the array
         // TODO: document
-        'toString' : function () {
+        toString : function () {
             var fieldWidth;
 
             function padLeft(value, width) {
@@ -98,7 +98,7 @@ define([], function () {
             return formatND(this, fieldWidth, 0);
         },
 
-        'checkIndexes' : function (indexes) {
+        checkIndexes : function (indexes) {
             var i;
 
             if (!Array.isArray(indexes)) {
@@ -136,7 +136,7 @@ define([], function () {
         // portions of the array.
         // TODO: lock down shape
         // TODO: document
-        'collapse' : function (indexes) {
+        collapse : function (indexes) {
             var o, i, map = [], newShape = [], newIndexes = [], that = this;
 
             if (!Array.isArray(indexes)) {
@@ -149,23 +149,8 @@ define([], function () {
 
             function expandIndexes(reducedIndexes) {
                 var expandedIndexes = [], i;
-
-                // argument checks
-                // TODO: move these to a "validate indexes" function?
-                if (reducedIndexes.length !== map.length) {
-                    throw new RangeError(
-                        "Expected " + map.length + " indexes but given " +
-                            reducedIndexes.length + " indexes."
-                    );
-                }
-                for (i = 0; i < map.length; i += 1) {
-                    if (typeof reducedIndexes[i] !== "number") {
-                        throw new TypeError(
-                            "Non-numeric index \"" +
-                                String(reducedIndexes[i]) + "\""
-                        );
-                    }
-                }
+                o.checkIndexes(reducedIndexes);              
+                
 
                 // build a full length index
                 for (i = 0; i < newIndexes.length; i += 1) {
