@@ -148,6 +148,33 @@ define([], function () {
         });
     };
 
+    //
+    // extensions to the standard
+    //
+
+    assert.calls = function (obj, member, block, message_opt) {
+        var original = obj[member], called = false;
+
+        obj[member] = function () {
+            called = true;
+            original.apply(this, arguments);
+        };
+
+        try {
+            block();
+        } finally {
+            obj[member] = original;
+        }
+
+        if (!called) {
+            throw new assert.AssertionError({
+                message : message_opt,
+                actual : member + " not called",
+                expected : member + " called"
+            });
+        }
+    };
+
     return assert;
 });
 

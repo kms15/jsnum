@@ -131,7 +131,12 @@ define([], function () {
             return formatND(this, fieldWidth, 0);
         },
 
-        checkIndexes : function (indexes) {
+        // Checks a given list of indexes to make sure they are valid.
+        // This function throws an exception if indexes is not an array of 
+        // integers with the same length as the shape.  If you would like
+        // to allow undefined values (and shorter arrays), set 
+        // opts.allowUndefined to be true.  
+        checkIndexes : function (indexes, opts) {
             var i;
 
             if (!Array.isArray(indexes)) {
@@ -141,18 +146,23 @@ define([], function () {
             }
 
             if (indexes.length !== this.shape.length) {
-                throw new RangeError(
-                    "Expected " + this.shape.length + " indexes but given " +
-                        indexes.length + " indexes."
-                );
+                if (!opts || !opts.allowUndefined ||
+                        indexes.length > this.shape.length) {
+                    throw new RangeError("Expected " +
+                        this.shape.length + " indexes but given " +
+                        indexes.length + " indexes.");
+                }
             }
 
             for (i = 0; i < indexes.length; i += 1) {
                 if (typeof indexes[i] !== 'number') {
-                    throw new TypeError(
-                        "Encountered non-numeric index \"" +
-                            indexes[i] + "\"."
-                    );
+                    if (!opts || !opts.allowUndefined ||
+                            indexes[i] !== undefined) {
+                        throw new TypeError(
+                            "Encountered non-numeric index \"" +
+                                indexes[i] + "\"."
+                        );
+                    }
                 }
 
                 if (indexes[i] < 0 || indexes[i] >= this.shape[i]) {
@@ -166,20 +176,14 @@ define([], function () {
         },
 
 
-        // create a new array object that maps indexes to the selected
+        // create a new n-D array object that maps indexes to the selected
         // portions of the array.
         // TODO: lock down shape
         // TODO: document
         collapse : function (indexes) {
             var o, i, map = [], newShape = [], newIndexes = [], that = this;
 
-            if (!Array.isArray(indexes)) {
-                throw new TypeError("indexes should be a javascript array");
-            }
-
-            if (indexes.length > this.shape.length) {
-                throw new RangeError("More indexes than dimensions to index");
-            }
+            this.checkIndexes(indexes, { allowUndefined : true });
 
             function expandIndexes(reducedIndexes) {
                 var expandedIndexes = [], i;

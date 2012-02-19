@@ -114,8 +114,9 @@ define(
                 // should not throw with valid data
                 A.checkIndexes([1, 0, 1, 0]);
 
-                assert.throws(function () { A.checkIndexes([2, 3, 4]); },
+                assert.throws(function () { A.checkIndexes([0, 0, 0]); },
                     RangeError, "too few indices");
+                A.checkIndexes([0, 0, 0], { allowUndefined : true });
                 assert.throws(
                     function () { A.checkIndexes([1, 1, 1, 0, 0]); },
                     RangeError,
@@ -123,6 +124,13 @@ define(
                 );
                 assert.throws(function () { A.checkIndexes([1, 'a', 0, 0]); },
                     TypeError, "non-numeric index");
+                assert.throws(
+                    function () { A.checkIndexes([1, undefined, 0, 0]); },
+                    TypeError,
+                    "non-numeric index"
+                );
+                A.checkIndexes([1, undefined, 0, 0],
+                    { allowUndefined : true });
                 assert.throws(function () { A.checkIndexes('a'); },
                     TypeError, "non-list");
 
@@ -186,36 +194,40 @@ define(
                     '[  3.25, 6.125, 8.625 ]');
             },
 
-            "collapse should throw if given bad arguments" : function () {
-
+            "collapse should call checkIndexes" : function () {
                 var A = jsn.asNDArray(
                     [[1.5, 3.25], [5.125, 6.125], [7.5, 8.625]]
                 );
 
-                assert.throws(function () { A.collapse([1, 2, 3]); },
-                    RangeError, "too many indexes");
-                assert.throws(function () { A.collapse(); },
-                    TypeError, "no indexes");
-                assert.throws(function () { A.collapse(3); },
-                    TypeError, "single number");
-                assert.throws(function () { A.collapse("hello"); },
-                    TypeError, "string");
+                assert.calls(A, "checkIndexes", function () {
+                    A.collapse([1, 0]);
+                });
             },
 
-            "collapse(...).getElement should thow if given bad arguments" :
+
+            "collapse(...).getElement should call check indexes" :
                 function () {
 
                     var A = jsn.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
                         [[[7.5], [8.625]], [[9.25], [10.125]]]]),
                         B = A.collapse([1, undefined, 1]);
 
-                    assert.throws(function () { B.getElement([2]); },
-                        RangeError, "too few indices");
-                    assert.throws(function () { B.getElement([1, 1, 1]); },
-                        RangeError, "too many indices");
-                    assert.throws(function () { B.getElement([1, 'a']); },
-                        TypeError, "non-numeric index");
-                }
+                    assert.calls(B, "checkIndexes", function () {
+                        B.getElement([1, 0]);
+                    });
+                },
+
+            "collapse(...).setElement should call check indexes" :
+                function () {
+
+                    var A = jsn.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
+                        [[[7.5], [8.625]], [[9.25], [10.125]]]]),
+                        B = A.collapse([1, undefined, 1]);
+
+                    assert.calls(B, "checkIndexes", function () {
+                        B.setElement([1, 0], 3);
+                    });
+                },
         });
     }
 );
