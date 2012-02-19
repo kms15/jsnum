@@ -73,7 +73,30 @@ define(
                 A.setElement([1, 0], 3.125);
                 assert.strictEqual(A.getElement([1, 0]), 3.125);
                 assert.strictEqual(A.getElement([2, 1]), 8.625);
-            }
+            },
+
+            "getElement should call checkIndexes" : function () {
+                var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]);
+
+                assert.calls(A, "checkIndexes", function () {
+                    A.getElement([1, 0]);
+                });
+            },
+
+            "setElement should call checkIndexes" : function () {
+                var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]);
+
+                assert.calls(A, "checkIndexes", function () {
+                    A.setElement([1, 0], 2);
+                });
+            },
+
+            "shape should not be writable" : function () {
+                var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]);
+
+                assert.throws(function () { A.shape = [1, 1]; });
+            },
+
         });
 
 
@@ -117,6 +140,7 @@ define(
                 assert.throws(function () { A.checkIndexes([0, 0, 0]); },
                     RangeError, "too few indices");
                 A.checkIndexes([0, 0, 0], { allowUndefined : true });
+
                 assert.throws(
                     function () { A.checkIndexes([1, 1, 1, 0, 0]); },
                     RangeError,
@@ -183,9 +207,8 @@ define(
             },
 
             "collapse should not track original index array" : function () {
-                var A = jsn.asNDArray(
-                    [[1.5, 3.25], [5.125, 6.125], [7.5, 8.625]]
-                ),
+                var A = jsn.asNDArray([[1.5, 3.25],
+                    [5.125, 6.125], [7.5, 8.625]]),
                     l = [undefined, 1],
                     B = A.collapse(l);
 
@@ -195,9 +218,8 @@ define(
             },
 
             "collapse should call checkIndexes" : function () {
-                var A = jsn.asNDArray(
-                    [[1.5, 3.25], [5.125, 6.125], [7.5, 8.625]]
-                );
+                var A = jsn.asNDArray([[1.5, 3.25],
+                    [5.125, 6.125], [7.5, 8.625]]);
 
                 assert.calls(A, "checkIndexes", function () {
                     A.collapse([1, 0]);
@@ -228,6 +250,14 @@ define(
                         B.setElement([1, 0], 3);
                     });
                 },
+
+            "collapse(...).shape should not be writable" : function () {
+                var A = jsn.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
+                    [[[7.5], [8.625]], [[9.25], [10.125]]]]),
+                    B = A.collapse([1, undefined, 1]);
+
+                assert.throws(function () { B.shape = [1, 1]; });
+            },
         });
     }
 );

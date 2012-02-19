@@ -136,6 +136,7 @@ define([], function () {
         // integers with the same length as the shape.  If you would like
         // to allow undefined values (and shorter arrays), set 
         // opts.allowUndefined to be true.  
+        // TODO: check for non-integer values
         checkIndexes : function (indexes, opts) {
             var i;
 
@@ -178,7 +179,6 @@ define([], function () {
 
         // create a new n-D array object that maps indexes to the selected
         // portions of the array.
-        // TODO: lock down shape
         // TODO: document
         collapse : function (indexes) {
             var o, i, map = [], newShape = [], newIndexes = [], that = this;
@@ -210,7 +210,8 @@ define([], function () {
             }
 
             o = Object.create(AbstractNDArray.prototype);
-            o.shape = newShape;
+            Object.defineProperty(o, "shape",
+                { value : newShape, writable : false });
             o.getElement = function (reducedIndexes) {
                 return that.getElement(expandIndexes(reducedIndexes));
             };
@@ -227,11 +228,9 @@ define([], function () {
     // Create an ND array from the given nested Array.
     // TODO: make sure input isn't ragged
     // TODO: make copy of vals
-    // TODO: lock down shape
     // TODO: document
     function asNDArray(vals) {
-        var o = Object.create(AbstractNDArray.prototype),
-            val;
+        var o = Object.create(AbstractNDArray.prototype), val, shape;
 
         // if it's already an array, we're done
         if (vals.getElement !== undefined) {
@@ -239,14 +238,16 @@ define([], function () {
         }
 
         val = vals;
-        o.shape = [];
+        shape = [];
         while (val.length !== undefined) {
-            o.shape.push(val.length);
+            shape.push(val.length);
             val = val[0];
         }
 
         o.getElement = function (indexes) {
             var i, val = vals;
+
+            this.checkIndexes(indexes);
             for (i = 0; i < indexes.length; i += 1) {
                 val = val[indexes[i]];
             }
@@ -255,11 +256,16 @@ define([], function () {
 
         o.setElement = function (indexes, newVal) {
             var i, val = vals;
+
+            this.checkIndexes(indexes);
             for (i = 0; i < indexes.length - 1; i += 1) {
                 val = val[indexes[i]];
             }
             val[indexes[i]] = newVal;
         };
+
+        Object.defineProperty(o, "shape",
+            { value : shape, writable : false });
 
         return o;
     }
