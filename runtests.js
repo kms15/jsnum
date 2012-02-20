@@ -7,9 +7,10 @@ requirejs.config({
 });
 
 requirejs(
-    ['tools/test','test/basearray_test.js'], 
-    function(test, basearray_test) {
-    "use strict";
+    ['tools/test', 'test/basearray_test.js'],
+    function (test, basearray_test) {
+        "use strict";
 
-    test.runTests(test.consoleReporter);
-});
+        test.runTests(test.consoleReporter);
+    }
+);
