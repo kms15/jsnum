@@ -18,17 +18,17 @@ define([], function () {
         //
 
         // getElement is used to read one element of the array.  It takes
-        // one parameter, which is the list of indexes for the desired 
-        // element, and returns the value stored in that element.              
+        // one parameter, which is the list of indexes for the desired
+        // element, and returns the value stored in that element.
         getElement : abstractMethod,
 
         // setElement is used to change the value of a single element in the
-        // array.  It takes two parameters - the first being the list of 
+        // array.  It takes two parameters - the first being the list of
         // indexes of that element and the second being the new value of that
-        // element.  
+        // element.
         setElement : abstractMethod,
 
-        // shape contains an array with the lengths of each dimension of the 
+        // shape contains an array with the lengths of each dimension of the
         // n-dimensional array
         shape: undefined,
 
@@ -132,11 +132,10 @@ define([], function () {
         },
 
         // Checks a given list of indexes to make sure they are valid.
-        // This function throws an exception if indexes is not an array of 
+        // This function throws an exception if indexes is not an array of
         // integers with the same length as the shape.  If you would like
-        // to allow undefined values (and shorter arrays), set 
-        // opts.allowUndefined to be true.  
-        // TODO: check for non-integer values
+        // to allow undefined values (and shorter arrays), set
+        // opts.allowUndefined to be true.
         checkIndexes : function (indexes, opts) {
             var i;
 
@@ -172,6 +171,10 @@ define([], function () {
                             indexes[i] + " is not within (0, " +
                             this.shape[i] + ")."
                     );
+                }
+
+                if (indexes[i] && indexes[i] !== Math.floor(indexes[i])) {
+                    throw new TypeError("Non-integer index " + indexes[i]);
                 }
             }
         },
