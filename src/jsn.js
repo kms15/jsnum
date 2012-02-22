@@ -228,11 +228,53 @@ define([], function () {
         }
     };
 
+    // TODO: test direct call and call with new
+    // TODO: make copy of shape
+    // TODO: should setElement be chainable?
     function UntypedNDArray(shape) {
-        if (!(this instanceof UntypedNDArray)) {
-            return new UntypedNDArray(shape);
+        var i,
+            size = 1,
+            data = [],
+            that = this;
+
+        //if (!(this instanceof UntypedNDArray)) {
+        //    return new UntypedNDArray(shape);
+        //}
+
+        for (i = 0; i < shape.length; i += 1) {
+            size = size * shape[i];
         }
+        data.length = size;
+
+        function calc1DIndex(indexes) {
+            var index1D;
+
+            that.checkIndexes(indexes);
+            if (shape.length === 0) {
+                return 0;
+            } else {
+                index1D = indexes[0];
+
+                for (i = 1; i < shape.length; i += 1) {
+                    index1D = index1D * shape[i - 1] + indexes[i];
+                }
+
+                return index1D;
+            }
+        }
+
+        this.getElement = function (indexes) {
+            return data[calc1DIndex(indexes)];
+        };
+
+        this.setElement = function (indexes, value) {
+            data[calc1DIndex(indexes)] = value;
+        };
+
+        Object.defineProperty(this, "shape",
+            { value : shape, writable : false });
     }
+    UntypedNDArray.prototype = Object.create(AbstractNDArray.prototype);
 
     // Create an ND array from the given nested Array.
     // TODO: make sure input isn't ragged
