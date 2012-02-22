@@ -1,7 +1,9 @@
 /*global requirejs */
 /*jslint browser: true */
 requirejs(
-    ['tools/test', 'lib/domReady.js', 'test/basearray_test.js'],
+    ['tools/test', 'lib/domReady.js',
+        'test/utilities_test.js',
+        'test/AbstractNDArray_test.js'],
     function (test, domReady, basearray_test) {
         "use strict";
 

@@ -136,6 +136,7 @@ define([], function () {
         // integers with the same length as the shape.  If you would like
         // to allow undefined values (and shorter arrays), set
         // opts.allowUndefined to be true.
+        // TODO: document
         checkIndexes : function (indexes, opts) {
             var i;
 
@@ -227,6 +228,11 @@ define([], function () {
         }
     };
 
+    function UntypedNDArray(shape) {
+        if (!(this instanceof UntypedNDArray)) {
+            return new UntypedNDArray(shape);
+        }
+    }
 
     // Create an ND array from the given nested Array.
     // TODO: make sure input isn't ragged
@@ -275,6 +281,7 @@ define([], function () {
 
     jsn.asNDArray = asNDArray;
     jsn.AbstractNDArray = AbstractNDArray;
+    jsn.UntypedNDArray = UntypedNDArray;
 
     return jsn;
 });

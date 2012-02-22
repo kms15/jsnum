@@ -7,7 +7,7 @@ requirejs.config({
 });
 
 requirejs(
-    ['tools/test', 'test/basearray_test.js'],
+    ['tools/test', 'test/utilities_test.js', 'test/AbstractNDArray_test.js'],
     function (test, basearray_test) {
         "use strict";
 
