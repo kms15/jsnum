@@ -6,16 +6,9 @@ requirejs.config({
     nodeRequire: require
 });
 
-requirejs(
-    [
-        'tools/test',
-        'test/utilities_test.js',
-        'test/AbstractNDArray_test.js',
-        'test/UntypedNDArray_test.js'
-    ],
-    function (test, basearray_test) {
+requirejs(['tools/test.js', 'test/allTests.js'], function (test, allTests) {
         "use strict";
 
-        test.runTests(test.consoleReporter);
+        allTests.runTests(test.consoleReporter);
     }
 );

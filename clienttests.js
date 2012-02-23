@@ -4,18 +4,16 @@ requirejs(
     [
         'tools/test',
         'lib/domReady.js',
-        'test/utilities_test.js',
-        'test/AbstractNDArray_test.js',
-        'test/UntypedNDArray_test.js'
+        'test/allTests.js'
     ],
-    function (test, domReady, basearray_test) {
+    function (test, domReady, allTests) {
         "use strict";
 
         domReady(function () {
             var report = document.getElementById('report');
 
             report.innerHTML = '';
-            test.runTests(test.textReporter(function (text) {
+            allTests.runTests(test.textReporter(function (text) {
                 report.innerHTML += text + '\n';
             }));
         });
