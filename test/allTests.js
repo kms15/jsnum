@@ -11,9 +11,8 @@ define(
         var allTests = {};
 
         allTests.runTests = function (reporter) {
-            "use strict";
             test.runTests(reporter);
-        }
+        };
 
         return allTests;
     }

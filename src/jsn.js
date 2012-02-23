@@ -274,6 +274,7 @@ define([], function () {
         Object.defineProperty(this, "shape",
             { value : shape, writable : false });
     }
+
     UntypedNDArray.prototype = Object.create(AbstractNDArray.prototype);
 
     // Create an ND array from the given nested Array.

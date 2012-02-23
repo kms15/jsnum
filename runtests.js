@@ -7,8 +7,7 @@ requirejs.config({
 });
 
 requirejs(['tools/test.js', 'test/allTests.js'], function (test, allTests) {
-        "use strict";
+    "use strict";
 
-        allTests.runTests(test.consoleReporter);
-    }
-);
+    allTests.runTests(test.consoleReporter);
+});
