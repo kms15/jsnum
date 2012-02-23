@@ -12,6 +12,9 @@ define([], function () {
             "should not be directly instantiated - please use an child class.");
     }
 
+    // A base class for n-dimensional arrays that provides a rich set of
+    // functionality building on a small set of functions required in
+    // derived classes.
     AbstractNDArray.prototype = {
         //
         // Abstract methods
@@ -36,6 +39,8 @@ define([], function () {
         //
         // Build-in methods
         //
+
+        // TODO: createResult
 
         // create a human-readable version of the array
         // TODO: document
@@ -221,28 +226,31 @@ define([], function () {
             };
 
             o.setElement = function (reducedIndexes, value) {
-                return that.setElement(expandIndexes(reducedIndexes), value);
+                that.setElement(expandIndexes(reducedIndexes), value);
+                return this;
             };
 
             return o;
         }
     };
 
-    // TODO: test direct call and call with new
-    // TODO: make copy of shape
-    // TODO: should setElement be chainable?
+
+    // TODO: document
+    // TODO: check shape
     function UntypedNDArray(shape) {
         var i,
             size = 1,
             data = [],
-            that = this;
+            that = this,
+            myShape = shape.slice(0);
 
-        //if (!(this instanceof UntypedNDArray)) {
-        //    return new UntypedNDArray(shape);
-        //}
+        // if called without new, create a new object
+        if (!(this instanceof UntypedNDArray)) {
+            return new UntypedNDArray(myShape);
+        }
 
-        for (i = 0; i < shape.length; i += 1) {
-            size = size * shape[i];
+        for (i = 0; i < myShape.length; i += 1) {
+            size = size * myShape[i];
         }
         data.length = size;
 
@@ -250,13 +258,13 @@ define([], function () {
             var index1D;
 
             that.checkIndexes(indexes);
-            if (shape.length === 0) {
+            if (myShape.length === 0) {
                 return 0;
             } else {
                 index1D = indexes[0];
 
-                for (i = 1; i < shape.length; i += 1) {
-                    index1D = index1D * shape[i - 1] + indexes[i];
+                for (i = 1; i < myShape.length; i += 1) {
+                    index1D = index1D * myShape[i - 1] + indexes[i];
                 }
 
                 return index1D;
@@ -269,13 +277,15 @@ define([], function () {
 
         this.setElement = function (indexes, value) {
             data[calc1DIndex(indexes)] = value;
+            return this;
         };
 
         Object.defineProperty(this, "shape",
-            { value : shape, writable : false });
+            { value : myShape, writable : false });
     }
 
     UntypedNDArray.prototype = Object.create(AbstractNDArray.prototype);
+
 
     // Create an ND array from the given nested Array.
     // TODO: make sure input isn't ragged
@@ -314,6 +324,8 @@ define([], function () {
                 val = val[indexes[i]];
             }
             val[indexes[i]] = newVal;
+
+            return this;
         };
 
         Object.defineProperty(o, "shape",

@@ -73,6 +73,8 @@ define(
                 A.setElement([1, 0], 3.125);
                 assert.strictEqual(A.getElement([1, 0]), 3.125);
                 assert.strictEqual(A.getElement([2, 1]), 8.625);
+                assert.strictEqual(A.setElement([0, 1], 2), A,
+                    "set element is chainable");
             },
 
             "getElement should call checkIndexes" : function () {

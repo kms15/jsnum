@@ -11,6 +11,12 @@ define(
                 assert.ok(A instanceof jsn.AbstractNDArray);
             },
 
+            "should handle missing new" : function () {
+                var A = jsn.UntypedNDArray([2, 3]);
+
+                assert.ok(A instanceof jsn.AbstractNDArray);
+            },
+
             "should implement basic array functionality" : function () {
                 var A = new jsn.UntypedNDArray([2, 3]);
 
@@ -18,6 +24,8 @@ define(
                 A.setElement([0, 0], "a");
                 assert.strictEqual(A.getElement([1, 2]), 2.5);
                 assert.strictEqual(A.getElement([0, 0]), "a");
+                assert.strictEqual(A.setElement([0, 1], 2), A,
+                    "set element is chainable");
                 assert.deepEqual(A.shape, [2, 3]);
             },
 
@@ -51,6 +59,14 @@ define(
                 var A = new jsn.UntypedNDArray([2, 3]);
 
                 assert.throws(function () { A.shape = [1, 1]; });
+            },
+
+            "should make a copy of shape" : function () {
+                var myShape = [2, 4],
+                    A = new jsn.UntypedNDArray(myShape);
+
+                myShape[1] = 8;
+                assert.deepEqual(A.shape, [2, 4]);
             },
         });
     }

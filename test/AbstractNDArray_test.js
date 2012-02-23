@@ -110,6 +110,8 @@ define(
                     '[[   1.5,  3.25 ],\n' +
                     ' [ 5.125,     2 ],\n' +
                     ' [   7.5, 8.625 ]]');
+                assert.strictEqual(B.setElement([0], 3), B,
+                    "set element is chainable");
             },
 
             "collapse should not track original index array" : function () {
