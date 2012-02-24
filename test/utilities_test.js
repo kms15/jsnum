@@ -99,6 +99,23 @@ define(
                 assert.throws(function () { A.shape = [1, 1]; });
             },
 
+            "should support checkShape" : function () {
+
+                // should not throw with valid data
+                jsn.checkShape([2, 3, 1, 6]);
+                jsn.checkShape([]);
+
+                assert.throws(function () { jsn.checkShape('a'); },
+                    TypeError, "non-Array");
+                assert.throws(function () { jsn.checkShape([1, 'a', 2]); },
+                    TypeError, "non-numeric length");
+                assert.throws(function () { jsn.checkShape([1, 3, 0]); },
+                    RangeError, "zero length");
+                assert.throws(function () { jsn.checkShape([-2, 3, 3]); },
+                    RangeError, "negative length");
+                assert.throws(function () { jsn.checkShape([2.5, 3, 3]); },
+                    TypeError, "fractional length");
+            }
         });
     }
 );

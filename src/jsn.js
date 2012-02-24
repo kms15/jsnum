@@ -334,9 +334,40 @@ define([], function () {
         return o;
     }
 
+
+    function checkShape(shape) {
+        var i;
+
+        if (!Array.isArray(shape)) {
+            throw new TypeError(
+                "Non-array given as a shape."
+            );
+        }
+
+        for (i = 0; i < shape.length; i += 1) {
+            if (typeof shape[i] !== 'number') {
+                throw new TypeError(
+                    "Encountered non-numeric length \"" +
+                        shape[i] + "\"."
+                );
+            }
+
+            if (shape[i] <= 0) {
+                throw new RangeError(
+                    "Encountered non-positive length " + shape[i]
+                );
+            }
+
+            if (shape[i] !== Math.floor(shape[i])) {
+                throw new TypeError("Non-integer length " + shape[i]);
+            }
+
+        }
+    }
     jsn.asNDArray = asNDArray;
     jsn.AbstractNDArray = AbstractNDArray;
     jsn.UntypedNDArray = UntypedNDArray;
+    jsn.checkShape = checkShape;
 
     return jsn;
 });
