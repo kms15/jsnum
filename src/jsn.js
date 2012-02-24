@@ -142,6 +142,7 @@ define([], function () {
         // to allow undefined values (and shorter arrays), set
         // opts.allowUndefined to be true.
         // TODO: document
+        // TODO: test for nan
         checkIndexes : function (indexes, opts) {
             var i;
 
@@ -290,7 +291,6 @@ define([], function () {
 
     // Create an ND array from the given nested Array.
     // TODO: make sure input isn't ragged
-    // TODO: make copy of vals
     // TODO: document
     function asNDArray(vals) {
         var o = Object.create(AbstractNDArray.prototype), val, shape;
@@ -307,35 +307,32 @@ define([], function () {
             val = val[0];
         }
 
-        o.getElement = function (indexes) {
-            var i, val = vals;
+        function copyVals(o, vals) {
+            var i;
 
-            this.checkIndexes(indexes);
-            for (i = 0; i < indexes.length; i += 1) {
-                val = val[indexes[i]];
+            if (o.shape.length > 1) {
+                for (i = 0; i < o.shape[0]; i += 1) {
+                    copyVals(o.collapse([i]), vals[i]);
+                }
+            } else if (o.shape.length === 1) {
+                for (i = 0; i < o.shape[0]; i += 1) {
+                    o.setElement([i], vals[i]);
+                }
+            } else {
+                // 0D array
+                o.setElement([], vals);
             }
-            return val;
-        };
+        }
 
-        o.setElement = function (indexes, newVal) {
-            var i, val = vals;
-
-            this.checkIndexes(indexes);
-            for (i = 0; i < indexes.length - 1; i += 1) {
-                val = val[indexes[i]];
-            }
-            val[indexes[i]] = newVal;
-
-            return this;
-        };
-
-        Object.defineProperty(o, "shape",
-            { value : shape, writable : false });
+        o = new jsn.UntypedNDArray(shape);
+        copyVals(o, vals);
 
         return o;
     }
 
 
+    // TODO: document
+    // TODO: test for nan
     function checkShape(shape) {
         var i;
 

@@ -55,6 +55,16 @@ define(
                 assert.strictEqual(String(A.shape), '2,2,2,1');
             },
 
+            "should make a copy of values" : function () {
+                var a = [[1, 2], [3, 4]],
+                    A = jsn.asNDArray(a);
+
+                a[0][1] = 5;
+                assert.strictEqual(String(A),
+                    '[[ 1, 2 ],\n' +
+                    ' [ 3, 4 ]]');
+            },
+
             "if passed an ndarray should return the array" : function () {
                 var A = jsn.asNDArray([[1, 2], [3, 4]]),
                     B = jsn.asNDArray(A);
@@ -62,41 +72,12 @@ define(
                 assert.strictEqual(B, A);
             },
 
-            "should support getElement" : function () {
-                var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]);
-                assert.strictEqual(A.getElement([1, 0]), 5.125);
-                assert.strictEqual(A.getElement([2, 1]), 8.625);
-            },
+            "should use (tested) UntypedNDArray class" : function () {
+                var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]),
+                    B = jsn.asNDArray(3);
 
-            "should support setElement" : function () {
-                var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]);
-                A.setElement([1, 0], 3.125);
-                assert.strictEqual(A.getElement([1, 0]), 3.125);
-                assert.strictEqual(A.getElement([2, 1]), 8.625);
-                assert.strictEqual(A.setElement([0, 1], 2), A,
-                    "set element is chainable");
-            },
-
-            "getElement should call checkIndexes" : function () {
-                var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]);
-
-                assert.calls(A, "checkIndexes", function () {
-                    A.getElement([1, 0]);
-                });
-            },
-
-            "setElement should call checkIndexes" : function () {
-                var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]);
-
-                assert.calls(A, "checkIndexes", function () {
-                    A.setElement([1, 0], 2);
-                });
-            },
-
-            "shape should not be writable" : function () {
-                var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]);
-
-                assert.throws(function () { A.shape = [1, 1]; });
+                assert.ok(A instanceof jsn.UntypedNDArray);
+                assert.ok(B instanceof jsn.UntypedNDArray);
             },
 
             "should support checkShape" : function () {
