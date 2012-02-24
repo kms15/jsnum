@@ -37,7 +37,6 @@ define(
                 assert.deepEqual(A.shape, []);
             },
 
-
             "getElement should call checkIndexes" : function () {
                 var A = new jsn.UntypedNDArray([2, 3, 6]);
                 A.setElement([1, 2, 3], 2.5);
@@ -59,6 +58,12 @@ define(
                 var A = new jsn.UntypedNDArray([2, 3]);
 
                 assert.throws(function () { A.shape = [1, 1]; });
+            },
+
+            "should call checkShape" : function () {
+                assert.calls(jsn, "checkShape", function () {
+                    var A = new jsn.UntypedNDArray([3]);
+                });
             },
 
             "should make a copy of shape" : function () {

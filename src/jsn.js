@@ -236,13 +236,14 @@ define([], function () {
 
 
     // TODO: document
-    // TODO: check shape
     function UntypedNDArray(shape) {
         var i,
             size = 1,
             data = [],
             that = this,
             myShape = shape.slice(0);
+
+        jsn.checkShape(shape);
 
         // if called without new, create a new object
         if (!(this instanceof UntypedNDArray)) {
