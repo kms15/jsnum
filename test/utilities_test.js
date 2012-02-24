@@ -94,6 +94,9 @@ define(
                     RangeError, "zero length");
                 assert.throws(function () { jsn.checkShape([-2, 3, 3]); },
                     RangeError, "negative length");
+                assert.throws(function () {
+                    jsn.checkShape([2, Number.NaN, 3]);
+                }, RangeError, "nan length");
                 assert.throws(function () { jsn.checkShape([2.5, 3, 3]); },
                     TypeError, "fractional length");
             }

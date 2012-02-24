@@ -142,7 +142,6 @@ define([], function () {
         // to allow undefined values (and shorter arrays), set
         // opts.allowUndefined to be true.
         // TODO: document
-        // TODO: test for nan
         checkIndexes : function (indexes, opts) {
             var i;
 
@@ -162,7 +161,19 @@ define([], function () {
             }
 
             for (i = 0; i < indexes.length; i += 1) {
-                if (typeof indexes[i] !== 'number') {
+                if (typeof indexes[i] === 'number') {
+                    if (!(indexes[i] >= 0 && indexes[i] < this.shape[i])) {
+                        throw new RangeError(
+                            "Index out of range, " +
+                                indexes[i] + " is not within (0, " +
+                                this.shape[i] + ")."
+                        );
+                    }
+
+                    if (indexes[i] && indexes[i] !== Math.floor(indexes[i])) {
+                        throw new TypeError("Non-integer index " + indexes[i]);
+                    }
+                } else {
                     if (!opts || !opts.allowUndefined ||
                             indexes[i] !== undefined) {
                         throw new TypeError(
@@ -170,18 +181,6 @@ define([], function () {
                                 indexes[i] + "\"."
                         );
                     }
-                }
-
-                if (indexes[i] < 0 || indexes[i] >= this.shape[i]) {
-                    throw new RangeError(
-                        "Index out of range, " +
-                            indexes[i] + " is not within (0, " +
-                            this.shape[i] + ")."
-                    );
-                }
-
-                if (indexes[i] && indexes[i] !== Math.floor(indexes[i])) {
-                    throw new TypeError("Non-integer index " + indexes[i]);
                 }
             }
         },
@@ -332,7 +331,6 @@ define([], function () {
 
 
     // TODO: document
-    // TODO: test for nan
     function checkShape(shape) {
         var i;
 
@@ -350,7 +348,7 @@ define([], function () {
                 );
             }
 
-            if (shape[i] <= 0) {
+            if (!(shape[i] > 0)) {
                 throw new RangeError(
                     "Encountered non-positive length " + shape[i]
                 );
