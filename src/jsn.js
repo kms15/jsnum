@@ -37,7 +37,7 @@ define([], function () {
 
 
         //
-        // Build-in methods
+        // Built-in methods
         //
 
         // TODO: createResult
@@ -235,6 +235,9 @@ define([], function () {
     };
 
 
+    // An implementation of an NDArray that stores arbitrary types of elements.
+    // This is likely to work for most uses, but more specialized types of
+    // NDArray are likely to have better performance and memory usage.
     // TODO: document
     function UntypedNDArray(shape) {
         var i,
@@ -289,7 +292,6 @@ define([], function () {
 
 
     // Create an ND array from the given nested Array.
-    // TODO: make sure input isn't ragged
     // TODO: document
     function asNDArray(vals) {
         var o = Object.create(AbstractNDArray.prototype), val, shape;
@@ -309,17 +311,22 @@ define([], function () {
         function copyVals(o, vals) {
             var i;
 
-            if (o.shape.length > 1) {
+            if (o.shape.length === 0) {
+                // 0D array
+                if (Array.isArray(vals)) {
+                    throw new TypeError("These lists do not appear to form" +
+                        " and n-dimensional array!");
+                }
+                o.setElement([], vals);
+            } else {
+                if (vals.length !== o.shape[0]) {
+                    throw new TypeError("These lists do not appear to form" +
+                        " and n-dimensional array!");
+                }
+
                 for (i = 0; i < o.shape[0]; i += 1) {
                     copyVals(o.collapse([i]), vals[i]);
                 }
-            } else if (o.shape.length === 1) {
-                for (i = 0; i < o.shape[0]; i += 1) {
-                    o.setElement([i], vals[i]);
-                }
-            } else {
-                // 0D array
-                o.setElement([], vals);
             }
         }
 
@@ -329,7 +336,7 @@ define([], function () {
         return o;
     }
 
-
+    // Ensures shape is a JavasScript array of non-negative integers.
     // TODO: document
     function checkShape(shape) {
         var i;
@@ -348,7 +355,7 @@ define([], function () {
                 );
             }
 
-            if (!(shape[i] > 0)) {
+            if (shape[i] <= 0 || isNaN(shape[i])) {
                 throw new RangeError(
                     "Encountered non-positive length " + shape[i]
                 );

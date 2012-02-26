@@ -80,6 +80,23 @@ define(
                 assert.ok(B instanceof jsn.UntypedNDArray);
             },
 
+            "should not accept ragged arrays" : function () {
+                assert.throws(function () {
+                    jsn.asNDArray([[1, 2], [3, 4, 5]]);
+                }, TypeError, "first shorter");
+                assert.throws(function () {
+                    jsn.asNDArray([[1, 2, 3], [4, 5]]);
+                }, TypeError, "later shorter");
+                assert.throws(function () {
+                    jsn.asNDArray([[[1, 2], 3], [4, 5]]);
+                }, TypeError, "first element deeper");
+                assert.throws(function () {
+                    jsn.asNDArray([[1, 2], [[3, 4], 5]]);
+                }, TypeError, "later element deeper");
+            },
+        });
+
+        test.createSuite("unit:miscUtils", {
             "should support checkShape" : function () {
 
                 // should not throw with valid data
