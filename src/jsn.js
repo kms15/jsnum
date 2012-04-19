@@ -1,4 +1,4 @@
-/*global define */
+/*global define, UntypedNDArray */
 define([], function () {
     "use strict";
     var jsn = {};
@@ -40,7 +40,13 @@ define([], function () {
         // Built-in methods
         //
 
-        // TODO: createResult
+        // Create an array for storing the result of a mathematical
+        // operation.  This allows derived classes to specialize
+        // the generated results based on what they know about the data
+        // (for example it may be all 32 bit IEEE floating point).
+        createResult : function (shape) {
+            return new UntypedNDArray(shape);
+        },
 
         // create a human-readable version of the array
         // TODO: document

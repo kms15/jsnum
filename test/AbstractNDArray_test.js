@@ -71,6 +71,14 @@ define(
                 assert.throws(function () {
                     A.checkIndexes([1, Number.NaN, 1, 0]);
                 }, RangeError, "nan index");
+            },
+
+            "should support createResult using untyped array" : function () {
+                var A = jsn.asNDArray([10.125, 3]),
+                    B = A.createResult([3, 5]);
+
+                assert.ok(B instanceof jsn.UntypedNDArray);
+                assert.deepEqual(B.shape, [3, 5]);
             }
         });
 
