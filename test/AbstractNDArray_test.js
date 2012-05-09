@@ -36,10 +36,12 @@ define(
 
             "should support checkIndexes" : function () {
                 var A = jsn.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
-                    [[[7.5], [8.625]], [[9.25], [10.125]]]]);
+                    [[[7.5], [8.625]], [[9.25], [10.125]]]]),
+                    result;
 
                 // should not throw with valid data
-                A.checkIndexes([1, 0, 1, 0]);
+                result = A.checkIndexes([1, 0, 1, 0]);
+                assert.strictEqual(result, A);
 
                 assert.throws(function () { A.checkIndexes([0, 0, 0]); },
                     RangeError, "too few indices");
