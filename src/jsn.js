@@ -82,6 +82,20 @@ define(
             },
 
 
+            /** Create a copy of this array.
+             * @returns A new n-dimensional array containing a shallow copy
+             *     of the contents of this array.
+             */
+            copy : function () {
+                var result = this.createResult(this.shape),
+                    that = this;
+
+                return result.walkIndexes(function (index) {
+                    result.setElement(index, that.getElement(index));
+                });
+            },
+
+
             /** Checks a given list of indexes to make sure they are valid.
              * This function throws an exception if indexes is not an array of
              * integers with the same length as the shape.  If you would like
@@ -134,6 +148,33 @@ define(
                     }
                 }
 
+                return this;
+            },
+
+            /** Calls a callback with every valid index for this array.  This
+             *  is useful when you want to perform an operation on every
+             *  element element of the array
+             *  @param { function } The callback, should take a single parameter
+             *      which is the index to process.
+             *  @returns The n-dimensional array (chainable)
+             */
+            walkIndexes : function (callback) {
+                var shape = this.shape;
+
+                function walk(index, pos) {
+                    var i;
+
+                    if (pos >= shape.length) {
+                        callback(index);
+                    } else {
+                        for (i = shape[pos] - 1; i >= 0; i -= 1) {
+                            index[pos] = i;
+                            walk(index, pos + 1);
+                        }
+                    }
+                }
+
+                walk([], 0);
                 return this;
             },
 
@@ -192,6 +233,106 @@ define(
 
                 return o;
             },
+
+
+            /** Replace this array with an element-wise sum of this array and B.
+             *  @param B { NDArray } the elements to add to this array
+             *  @returns this n-dimensional array (chainable)
+             */
+            addHere : function (B) {
+                var that = this;
+                return this.walkIndexes(function (index) {
+                    that.setElement(index, that.getElement(index) + B.getElement(index));
+                });
+            },
+
+            /** Perform an element-wise addition with another array.
+             *  @param B { NDArray } the elements to add to this array
+             *  @returns a new array
+             */
+            add : function (B) {
+                return this.copy().addHere(B);
+            },
+
+
+            /** Replace this array with an element-wise subtraction of B from this array.
+             *  @param B { NDArray } the elements to subtract from this array
+             *  @returns this n-dimensional array (chainable)
+             */
+            subHere : function (B) {
+                var that = this;
+                return this.walkIndexes(function (index) {
+                    that.setElement(index, that.getElement(index) - B.getElement(index));
+                });
+            },
+
+
+            /** Perform an element-wise subtraction with another array.
+             *  @param B { NDArray } the elements to subtract from this array
+             *  @returns a new array
+             */
+            sub : function (B) {
+                return this.copy().subHere(B);
+            },
+
+
+            /** Replace this array with an element-wise multiplication with B.
+             *  @param B { NDArray } the elements to multiply by this array
+             *  @returns this n-dimensional array (chainable)
+             */
+            mulHere : function (B) {
+                var that = this;
+                return this.walkIndexes(function (index) {
+                    that.setElement(index, that.getElement(index) * B.getElement(index));
+                });
+            },
+
+            /** Perform an element-wise multiplication with another array.
+             *  @param B { NDArray } the elements to multiply by this array
+             *  @returns a new array
+             */
+            mul : function (B) {
+                return this.copy().mulHere(B);
+            },
+
+
+            /** Replace this array with an element-wise division by B.
+             *  @param B { NDArray } the elements to divide this array by
+             *  @returns this n-dimensional array (chainable)
+             */
+            divHere : function (B) {
+                var that = this;
+                return this.walkIndexes(function (index) {
+                    that.setElement(index, that.getElement(index) / B.getElement(index));
+                });
+            },
+
+            /** Perform an element-wise division by another array.
+             *  @param B { NDArray } the elements to divide this array by
+             *  @returns a new array
+             */
+            div : function (B) {
+                return this.copy().divHere(B);
+            },
+
+
+            /** Replace this array with its element-wise negation.
+             *  @returns this n-dimensional array (chainable)
+             */
+            negHere : function () {
+                var that = this;
+                return this.walkIndexes(function (index) {
+                    that.setElement(index, -that.getElement(index));
+                });
+            },
+
+            /** Perform an element-wise negation.
+             *  @returns a new array
+             */
+            neg : function () {
+                return this.copy().negHere();
+            },
+
 
             /** Perform a matrix product with another array.
              *  In particular, this function takes the dot product of the last

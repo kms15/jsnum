@@ -75,12 +75,49 @@ define(
                 }, RangeError, "nan index");
             },
 
+            "should support walkIndexes" : function () {
+                var A = jsn.asNDArray([[[1.5, 2, 4 ], [3.25, 5, 3]], [[5.125, 6, 1 ], [ 6, 23, 2 ]]]),
+                    totalCalls = 0,
+                    result;
+
+                // replace every element with "A"
+                result = A.walkIndexes(function (index) {
+                    A.setElement(index, "A");
+                    totalCalls += 1;
+                });
+
+                assert.strictEqual(result, A); // chainable
+                assert.strictEqual(String(A),
+                    '[\n' +
+                    ' [[ A, A, A ],\n' +
+                    '  [ A, A, A ]],\n' +
+                    '\n' +
+                    ' [[ A, A, A ],\n' +
+                    '  [ A, A, A ]]\n' +
+                    ']');
+                assert.strictEqual(totalCalls, 12);
+            },
+
             "should support createResult using untyped array" : function () {
                 var A = jsn.asNDArray([10.125, 3]),
                     B = A.createResult([3, 5]);
 
                 assert.ok(B instanceof jsn.UntypedNDArray);
                 assert.deepEqual(B.shape, [3, 5]);
+            },
+
+            "should support copy" : function () {
+                var A = jsn.asNDArray([[1, 2], [3, 4]]),
+                    B = A.copy();
+
+                A.setElement([0, 1], 5);
+                B.setElement([1, 0], 7);
+                assert.strictEqual(String(A),
+                    '[[ 1, 5 ],\n' +
+                    ' [ 3, 4 ]]');
+                assert.strictEqual(String(B),
+                    '[[ 1, 2 ],\n' +
+                    ' [ 7, 4 ]]');
             }
         });
 
@@ -227,6 +264,101 @@ define(
                         B = jsn.asNDArray([[1, 3, 2], [5, 11, 13]]);
                     A.dot(B);
                 }, RangeError, "matrix-matrix");
+            }
+        });
+
+        test.createSuite("unit:AbstractNDArray:math_ops", {
+            "should support addHere" : function () {
+                var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
+                    B = jsn.asNDArray([[7, 2, 9], [6, 11, 4]]);
+
+                assert.strictEqual(A.addHere(B), A);
+                assert.strictEqual(String(A),
+                    '[[  8,  5, 14 ],\n' +
+                    ' [ 10, 17, 12 ]]');
+            },
+
+            "should support add" : function () {
+                var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
+                    B = jsn.asNDArray([[7, 2, 9], [6, 11, 4]]);
+
+                assert.strictEqual(String(A.add(B)),
+                    '[[  8,  5, 14 ],\n' +
+                    ' [ 10, 17, 12 ]]');
+            },
+
+            "should support subHere" : function () {
+                var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
+                    B = jsn.asNDArray([[7, 2, 9], [6, 11, 4]]);
+
+                assert.strictEqual(A.subHere(B), A);
+                assert.strictEqual(String(A),
+                    '[[ -6,  1, -4 ],\n' +
+                    ' [ -2, -5,  4 ]]');
+            },
+
+            "should support sub" : function () {
+                var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
+                    B = jsn.asNDArray([[7, 2, 9], [6, 11, 4]]);
+
+                assert.strictEqual(String(A.sub(B)),
+                    '[[ -6,  1, -4 ],\n' +
+                    ' [ -2, -5,  4 ]]');
+            },
+
+            "should support mulHere" : function () {
+                var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
+                    B = jsn.asNDArray([[7, 2, 9], [6, 11, 4]]);
+
+                assert.strictEqual(A.mulHere(B), A);
+                assert.strictEqual(String(A),
+                    '[[  7,  6, 45 ],\n' +
+                    ' [ 24, 66, 32 ]]');
+            },
+
+            "should support mul" : function () {
+                var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
+                    B = jsn.asNDArray([[7, 2, 9], [6, 11, 4]]);
+
+                assert.strictEqual(String(A.mul(B)),
+                    '[[  7,  6, 45 ],\n' +
+                    ' [ 24, 66, 32 ]]');
+            },
+
+            "should support divHere" : function () {
+                var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
+                    B = jsn.asNDArray([[2, 4, 8], [0.5, 0.25, 4]]);
+
+                assert.strictEqual(A.divHere(B), A);
+                assert.strictEqual(String(A),
+                    '[[   0.5,  0.75, 0.625 ],\n' +
+                    ' [     8,    24,     2 ]]');
+            },
+
+            "should support div" : function () {
+                var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
+                    B = jsn.asNDArray([[2, 4, 8], [0.5, 0.25, 4]]);
+
+                assert.strictEqual(String(A.div(B)),
+                    '[[   0.5,  0.75, 0.625 ],\n' +
+                    ' [     8,    24,     2 ]]');
+            },
+
+            "should support negHere" : function () {
+                var A = jsn.asNDArray([[1, -3, 5], [4, 6, 8]]);
+
+                assert.strictEqual(A.negHere(), A);
+                assert.strictEqual(String(A),
+                    '[[ -1,  3, -5 ],\n' +
+                    ' [ -4, -6, -8 ]]');
+            },
+
+            "should support neg" : function () {
+                var A = jsn.asNDArray([[1, -3, 5], [4, 6, 8]]);
+
+                assert.strictEqual(String(A.neg()),
+                    '[[ -1,  3, -5 ],\n' +
+                    ' [ -4, -6, -8 ]]');
             }
         });
     }
