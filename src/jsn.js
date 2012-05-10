@@ -191,6 +191,49 @@ define(
                 };
 
                 return o;
+            },
+
+            /** Perform a matrix product with another array.
+             *  In particular, this function takes the dot product of the last
+             *  dimension of the first array (this) and the first dimension
+             *  of the second array (B).  This is equivalent to the dot product
+             *  for vectors and the matrix product for matrices, with vectors
+             *  being treated as rows when on the left and columns when on the
+             *  right.
+             *  @param B { NDArray } the other NDArray in the multiplication (on the right)
+             *  @returns A new NDArray
+             */
+            dot : function (B) {
+                var newShape = this.shape.slice(0, -1).concat(B.shape.slice(1)),
+                    result = this.createResult(newShape);
+
+                if (this.shape[this.shape.length - 1] !== B.shape[0]) {
+                    throw new RangeError("Can not multiply array of shape " +
+                        this.shape + " by array of shape " + this.shape);
+                }
+
+                function dotToResult(result, A, B) {
+                    var i, total;
+
+                    if (A.shape.length > 1) {
+                        for (i = A.shape[0] - 1; i >= 0; i -= 1) {
+                            dotToResult(result.collapse([i]), A.collapse([i]), B);
+                        }
+                    } else if (B.shape.length > 1) {
+                        for (i = B.shape[1] - 1; i >= 0; i -= 1) {
+                            dotToResult(result.collapse([i]), A, B.collapse([undefined, i]));
+                        }
+                    } else {
+                        total = A.getElement([0]) * B.getElement([0]);
+                        for (i = A.shape[0] - 1; i > 0; i -= 1) {
+                            total += A.getElement([i]) * B.getElement([i]);
+                        }
+                        result.setElement([], total);
+                    }
+                }
+
+                dotToResult(result, this, B);
+                return result;
             }
         };
 
@@ -304,7 +347,7 @@ define(
                 that = this,
                 myShape = shape.slice(0);
 
-            jsn.checkShape(shape);
+            AbstractNDArray.checkShape(shape);
 
             // if called without new, create a new object
             if (!(this instanceof UntypedNDArray)) {
@@ -326,7 +369,7 @@ define(
                     index1D = indexes[0];
 
                     for (i = 1; i < myShape.length; i += 1) {
-                        index1D = index1D * myShape[i - 1] + indexes[i];
+                        index1D = index1D * myShape[i] + indexes[i];
                     }
 
                     return index1D;
@@ -406,7 +449,7 @@ define(
          * @param { Array<int> } shape The shape array to check.
          * @throws { TypeError | RangeError }
          */
-        function checkShape(shape) {
+        AbstractNDArray.checkShape = function (shape) {
             var i;
 
             if (!Array.isArray(shape)) {
@@ -434,11 +477,11 @@ define(
                 }
 
             }
-        }
+        };
+
         jsn.asNDArray = asNDArray;
         jsn.AbstractNDArray = AbstractNDArray;
         jsn.UntypedNDArray = UntypedNDArray;
-        jsn.checkShape = checkShape;
 
         return jsn;
     }

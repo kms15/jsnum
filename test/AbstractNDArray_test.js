@@ -180,5 +180,54 @@ define(
                 assert.throws(function () { B.shape = [1, 1]; });
             },
         });
+
+        test.createSuite("unit:AbstractNDArray:matrix_operations:dot", {
+            "should support dot product between vectors" : function () {
+                var A = jsn.asNDArray([1, 3, 5]),
+                    B = jsn.asNDArray([7, 2, 9]);
+                assert.strictEqual(String(A.dot(B)), '( 58 )');
+            },
+
+            "should support matrix product between a matrix and a vector" : function () {
+                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13]]),
+                    B = jsn.asNDArray([7, 2, 1]);
+                assert.strictEqual(String(A.dot(B)), '[ 15, 70 ]');
+            },
+
+            "should support matrix product between a vector and a matrix" : function () {
+                var A = jsn.asNDArray([7, 2, 1]),
+                    B = jsn.asNDArray([[1, 3], [5, 11], [2, 13]]);
+                assert.strictEqual(String(A.dot(B)), '[ 19, 56 ]');
+            },
+
+            "should support matrix product between matrixes" : function () {
+                var A = jsn.asNDArray([[1, 2, 3], [4, 5, 6], [7, 8, 9]]),
+                    B = jsn.asNDArray([[1.5, 2.5, 3.5], [4.5, 5.5, 6.5], [7.5, 8.5, 9.5]]);
+                assert.strictEqual(String(A.dot(B)),
+                    '[[    33,    39,    45 ],\n' +
+                    ' [  73.5,  88.5, 103.5 ],\n' +
+                    ' [   114,   138,   162 ]]');
+            },
+
+            "should throw an exception if matrix shapes are not compatible" : function () {
+                assert.throws(function () {
+                    var A = jsn.asNDArray([1, 3]),
+                        B = jsn.asNDArray([7, 2, 9]);
+                    A.dot(B);
+                }, RangeError, "vector-vector");
+
+                assert.throws(function () {
+                    var A = jsn.asNDArray([1, 3, 5]),
+                        B = jsn.asNDArray([[1, 3, 2], [5, 11, 13]]);
+                    A.dot(B);
+                }, RangeError, "vector-matrix");
+
+                assert.throws(function () {
+                    var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13]]),
+                        B = jsn.asNDArray([[1, 3, 2], [5, 11, 13]]);
+                    A.dot(B);
+                }, RangeError, "matrix-matrix");
+            }
+        });
     }
 );

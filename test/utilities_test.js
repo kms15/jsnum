@@ -21,13 +21,18 @@ define(
             },
 
             "should build from 2D list" : function () {
-                var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]);
+                var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]),
+                    B = jsn.asNDArray([[1.5, 3.25, 5.125], [6, 7.5, 8.625]]);
 
                 assert.strictEqual(String(A),
                     '[[   1.5,  3.25 ],\n' +
                     ' [ 5.125,     6 ],\n' +
                     ' [   7.5, 8.625 ]]');
                 assert.strictEqual(String(A.shape), '3,2');
+                assert.strictEqual(String(B),
+                    '[[   1.5,  3.25, 5.125 ],\n' +
+                    ' [     6,   7.5, 8.625 ]]');
+                assert.strictEqual(String(B.shape), '2,3');
             },
 
             "should build from higher dimensional list" : function () {
@@ -100,21 +105,21 @@ define(
             "should support checkShape" : function () {
 
                 // should not throw with valid data
-                jsn.checkShape([2, 3, 1, 6]);
-                jsn.checkShape([]);
+                jsn.AbstractNDArray.checkShape([2, 3, 1, 6]);
+                jsn.AbstractNDArray.checkShape([]);
 
-                assert.throws(function () { jsn.checkShape('a'); },
+                assert.throws(function () { jsn.AbstractNDArray.checkShape('a'); },
                     TypeError, "non-Array");
-                assert.throws(function () { jsn.checkShape([1, 'a', 2]); },
+                assert.throws(function () { jsn.AbstractNDArray.checkShape([1, 'a', 2]); },
                     TypeError, "non-numeric length");
-                assert.throws(function () { jsn.checkShape([1, 3, 0]); },
+                assert.throws(function () { jsn.AbstractNDArray.checkShape([1, 3, 0]); },
                     RangeError, "zero length");
-                assert.throws(function () { jsn.checkShape([-2, 3, 3]); },
+                assert.throws(function () { jsn.AbstractNDArray.checkShape([-2, 3, 3]); },
                     RangeError, "negative length");
                 assert.throws(function () {
-                    jsn.checkShape([2, Number.NaN, 3]);
+                    jsn.AbstractNDArray.checkShape([2, Number.NaN, 3]);
                 }, RangeError, "nan length");
-                assert.throws(function () { jsn.checkShape([2.5, 3, 3]); },
+                assert.throws(function () { jsn.AbstractNDArray.checkShape([2.5, 3, 3]); },
                     TypeError, "fractional length");
             }
         });

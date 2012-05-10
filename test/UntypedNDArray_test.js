@@ -61,7 +61,7 @@ define(
             },
 
             "should call checkShape" : function () {
-                assert.calls(jsn, "checkShape", function () {
+                assert.calls(jsn.AbstractNDArray, "checkShape", function () {
                     var A = new jsn.UntypedNDArray([3]);
                 });
             },
