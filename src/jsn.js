@@ -582,6 +582,22 @@ define(
             return o;
         }
 
+
+        /** Checks if two floating point numbers are sufficiently "close".
+         *  This is true iff the numbers are within abstol of each other
+         *  or if the ratio of the numbers is within reltol of 1.
+         *  @param {Number} val1 the first number to compare
+         *  @param {Number} val2 the second number to compare
+         *  @param {Number} abstol the absolute tolerance
+         *  @param {Number} reltol the relative tolerance
+         *  @result true iff the numbers are close, otherwise false
+         */
+        function areClose(val1, val2, abstol, reltol) {
+            return (Math.abs(val1 - val2) <= abstol) ||
+                (Math.abs(val1 - val2) / Math.max(Math.abs(val1), Math.abs(val2)) <= reltol);
+        }
+
+
         /** Verifies that the argument is a valid shape for an n-dimensional
          * array (i.e. a JavasScript array of non-negative integers).
          * @param { Array<int> } shape The shape array to check.
@@ -618,6 +634,7 @@ define(
         };
 
         jsn.asNDArray = asNDArray;
+        jsn.areClose = areClose;
         jsn.AbstractNDArray = AbstractNDArray;
         jsn.UntypedNDArray = UntypedNDArray;
 

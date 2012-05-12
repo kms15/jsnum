@@ -123,5 +123,26 @@ define(
                     TypeError, "fractional length");
             }
         });
+
+        test.createSuite("unit:miscUtils:areClose", {
+            "should use abstol when out of range for reltol" : function () {
+                assert.ok(!jsn.areClose(1, 0.74, 0.25, 0.125));
+                assert.ok(jsn.areClose(1, 0.75, 0.25, 0.125));
+                assert.ok(jsn.areClose(1, 0.76, 0.25, 0.125));
+                assert.ok(jsn.areClose(1, 1.25, 0.25, 0.125));
+                assert.ok(jsn.areClose(1, 1.24, 0.25, 0.125));
+                assert.ok(!jsn.areClose(1, 1.26, 0.25, 0.125));
+            },
+
+            "should use reltol when out of range for abstol" : function () {
+                assert.ok(!jsn.areClose(100, 87.4, 0.25, 0.125));
+                assert.ok(jsn.areClose(100, 87.5, 0.25, 0.125));
+                assert.ok(jsn.areClose(100, 87.6, 0.25, 0.125));
+
+                assert.ok(!jsn.areClose(87.4, 100, 0.25, 0.125));
+                assert.ok(jsn.areClose(87.5, 100, 0.25, 0.125));
+                assert.ok(jsn.areClose(87.6, 100, 0.25, 0.125));
+            }
+        });
     }
 );
