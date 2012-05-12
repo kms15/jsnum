@@ -82,7 +82,7 @@ define(
 
                 // replace every element with "A"
                 result = A.walkIndexes(function (index) {
-                    A.setElement(index, "A");
+                    this.setElement(index, "A");
                     totalCalls += 1;
                 });
 

@@ -153,19 +153,21 @@ define(
 
             /** Calls a callback with every valid index for this array.  This
              *  is useful when you want to perform an operation on every
-             *  element element of the array
-             *  @param { function } The callback, should take a single parameter
-             *      which is the index to process.
+             *  element element of the array.  The callback passed a single
+             *      parameter which is the index to process.  The this
+             *      variable for the callback is set to the original array.
+             *  @param { function } callback A function to be called with each
+             *      index
              *  @returns The n-dimensional array (chainable)
              */
             walkIndexes : function (callback) {
-                var shape = this.shape;
+                var shape = this.shape, that = this;
 
                 function walk(index, pos) {
                     var i;
 
                     if (pos >= shape.length) {
-                        callback(index);
+                        callback.call(that, index);
                     } else {
                         for (i = shape[pos] - 1; i >= 0; i -= 1) {
                             index[pos] = i;
@@ -240,9 +242,8 @@ define(
              *  @returns this n-dimensional array (chainable)
              */
             addHere : function (B) {
-                var that = this;
                 return this.walkIndexes(function (index) {
-                    that.setElement(index, that.getElement(index) + B.getElement(index));
+                    this.setElement(index, this.getElement(index) + B.getElement(index));
                 });
             },
 
@@ -260,9 +261,8 @@ define(
              *  @returns this n-dimensional array (chainable)
              */
             subHere : function (B) {
-                var that = this;
                 return this.walkIndexes(function (index) {
-                    that.setElement(index, that.getElement(index) - B.getElement(index));
+                    this.setElement(index, this.getElement(index) - B.getElement(index));
                 });
             },
 
@@ -281,9 +281,8 @@ define(
              *  @returns this n-dimensional array (chainable)
              */
             mulHere : function (B) {
-                var that = this;
                 return this.walkIndexes(function (index) {
-                    that.setElement(index, that.getElement(index) * B.getElement(index));
+                    this.setElement(index, this.getElement(index) * B.getElement(index));
                 });
             },
 
@@ -301,9 +300,8 @@ define(
              *  @returns this n-dimensional array (chainable)
              */
             divHere : function (B) {
-                var that = this;
                 return this.walkIndexes(function (index) {
-                    that.setElement(index, that.getElement(index) / B.getElement(index));
+                    this.setElement(index, this.getElement(index) / B.getElement(index));
                 });
             },
 
@@ -320,9 +318,8 @@ define(
              *  @returns this n-dimensional array (chainable)
              */
             negHere : function () {
-                var that = this;
                 return this.walkIndexes(function (index) {
-                    that.setElement(index, -that.getElement(index));
+                    this.setElement(index, -this.getElement(index));
                 });
             },
 
