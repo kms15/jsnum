@@ -142,6 +142,46 @@ define(
                 assert.ok(!jsn.areClose(87.4, 100, 0.25, 0.125));
                 assert.ok(jsn.areClose(87.5, 100, 0.25, 0.125));
                 assert.ok(jsn.areClose(87.6, 100, 0.25, 0.125));
+            },
+
+            "should throw an exception if given negative tolerances" : function () {
+                assert.throws(function () { jsn.areClose(10, 11, 1, -1); },
+                    RangeError);
+                assert.throws(function () { jsn.areClose(10, 11, -1, 1); },
+                    RangeError);
+            },
+
+            "should use default reltol of 1e-9" : function () {
+                assert.ok(!jsn.areClose(100, 100 * (1 - 1.1e-9)));
+                assert.ok(jsn.areClose(100, 100 * (1 - 0.9e-9)));
+            },
+
+            "should use default abstol of 1e-9" : function () {
+                assert.ok(!jsn.areClose(0, 1.1e-9));
+                assert.ok(jsn.areClose(0, 0.9e-9));
+            },
+
+            "should support NDArrays" : function () {
+                var A = jsn.asNDArray([[1, 2], [3, 4]]),
+                    B = jsn.asNDArray([[1, 2.5], [3, 4]]);
+                assert.ok(jsn.areClose(A, B, 0.5));
+                assert.ok(!jsn.areClose(A, B, 0.4));
+            },
+
+            "should throw exception for non-arrays and non-numbers" : function () {
+                var A = jsn.asNDArray([[1, 2], [3, 4]]);
+                assert.throws(function () { jsn.areClose("a", "b"); },
+                    TypeError);
+                assert.throws(function () { jsn.areClose(1, A); },
+                    TypeError);
+            },
+
+            "should throw exception if arrays are different shapes" : function () {
+                var A = jsn.asNDArray([[1, 2], [3, 4]]),
+                    B = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]),
+                    C = jsn.asNDArray([1, 2]);
+                assert.throws(function () { jsn.areClose(A, B); }, RangeError);
+                assert.throws(function () { jsn.areClose(C, A); }, RangeError);
             }
         });
     }

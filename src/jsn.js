@@ -583,18 +583,58 @@ define(
         }
 
 
-        /** Checks if two floating point numbers are sufficiently "close".
-         *  This is true iff the numbers are within abstol of each other
-         *  or if the ratio of the numbers is within reltol of 1.
-         *  @param {Number} val1 the first number to compare
-         *  @param {Number} val2 the second number to compare
+        /** Checks if two numbers or NDArrays are sufficiently "close".
+         *  This is true iff the numbers (or corresponding array elements)
+         *  are within abstol of each other or if the ratio of the numbers is
+         *  within reltol of 1.
+         *  @param {Number | NDArray} val1 the first number to compare
+         *  @param {Number | NDArray} val2 the second number to compare
          *  @param {Number} abstol the absolute tolerance
          *  @param {Number} reltol the relative tolerance
          *  @result true iff the numbers are close, otherwise false
          */
         function areClose(val1, val2, abstol, reltol) {
-            return (Math.abs(val1 - val2) <= abstol) ||
-                (Math.abs(val1 - val2) / Math.max(Math.abs(val1), Math.abs(val2)) <= reltol);
+            var close = true, i;
+
+            if (abstol < 0 || reltol < 0) {
+                throw new RangeError("Tolerances must be non-negative");
+            }
+
+            // defaults (note that we can't just use reltol || ... because 0
+            // is a valid tolerance and not equal to the default)
+            if (reltol === undefined) {
+                reltol = 1e-9;
+            }
+            if (abstol === undefined) {
+                abstol = 1e-9;
+            }
+
+            // if these are NDArrays, do an element-wise compare
+            if (val1.walkIndexes && val2.walkIndexes) {
+
+                if (val1.shape.length !== val2.shape.length) {
+                    throw new RangeError("Array shapes must match");
+                }
+                for (i = val1.shape.length - 1; i >= 0; i -= 1) {
+                    if (val1.shape[i] !== val2.shape[i]) {
+                        throw new RangeError("Array shapes must match");
+                    }
+                }
+
+                val1.walkIndexes(function (index) {
+                    if (!areClose(val1.getElement(index),
+                            val2.getElement(index), abstol, reltol)) {
+                        close = false;
+                    }
+                });
+
+                return close;
+            } else if (typeof val1 === "number" && typeof val2 === "number") {
+                return (Math.abs(val1 - val2) <= abstol) ||
+                    (Math.abs(val1 - val2) / Math.max(Math.abs(val1), Math.abs(val2)) <= reltol);
+            } else {
+                throw new TypeError("arguments must both be numbers or both be NDArrays");
+            }
         }
 
 
