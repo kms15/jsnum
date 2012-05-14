@@ -372,6 +372,22 @@ define(
 
                 dotToResult(result, this, B);
                 return result;
+            },
+
+            /** converts this NDArray to a nested Array
+             */
+            toArray : function () {
+                var i, result = [];
+
+                if (this.shape.length === 0) {
+                    return this.getElement([]);
+                } else {
+                    for (i = 0; i < this.shape[0]; i += 1) {
+                        result[i] = this.collapse([i]).toArray();
+                    }
+
+                    return result;
+                }
             }
         };
 

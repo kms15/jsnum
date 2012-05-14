@@ -118,6 +118,11 @@ define(
                 assert.strictEqual(String(B),
                     '[[ 1, 2 ],\n' +
                     ' [ 7, 4 ]]');
+            },
+
+            "should support toArray" : function () {
+                var A = jsn.asNDArray([[1, 5], [3, 4]]);
+                assert.deepEqual(A.toArray(), [[1, 5], [3, 4]]);
             }
         });
 
