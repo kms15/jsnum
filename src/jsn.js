@@ -237,18 +237,57 @@ define(
             },
 
 
-            /** Replace this array with an element-wise sum of this array and B.
-             *  @param B { NDArray } the elements to add to this array
+            /** Swap the contents of this array with those in B.  Combined with
+             *  collapse, this allows you to do things like swap rows or columns.
+             *  @param { NDArray } B the array with which to swap elements
              *  @returns this n-dimensional array (chainable)
              */
-            addHere : function (B) {
+            swap : function (B) {
                 return this.walkIndexes(function (index) {
-                    this.setElement(index, this.getElement(index) + B.getElement(index));
+                    var temp = this.getElement(index);
+                    this.setElement(index, B.getElement(index));
+                    B.setElement(index, temp);
                 });
             },
 
+            /** Returns a new NDArray containing the absolute value of each
+             *  element in this NDArray.
+             */
+            abs : function () {
+                return this.copy().walkIndexes(function (index) {
+                    this.setElement(index, Math.abs(this.getElement(index)));
+                });
+            },
+
+
+            /** Returns a new NDArray containing the reciprocal of each
+             *  element in this NDArray.
+             */
+            reciprocal : function () {
+                return this.copy().walkIndexes(function (index) {
+                    this.setElement(index, 1 / this.getElement(index));
+                });
+            },
+
+
+            /** Replace this array with an element-wise sum of this array and B.
+             *  @param { Number | NDArray } B the number or elements to add to this array
+             *  @returns this n-dimensional array (chainable)
+             */
+            addHere : function (B) {
+                if (typeof B === 'number') {
+                    return this.walkIndexes(function (index) {
+                        this.setElement(index, this.getElement(index) + B);
+                    });
+                } else {
+                    return this.walkIndexes(function (index) {
+                        this.setElement(index, this.getElement(index) + B.getElement(index));
+                    });
+                }
+            },
+
             /** Perform an element-wise addition with another array.
-             *  @param B { NDArray } the elements to add to this array
+             *  @param { Number | NDArray } B the number or elements to add to this array
              *  @returns a new array
              */
             add : function (B) {
@@ -257,18 +296,24 @@ define(
 
 
             /** Replace this array with an element-wise subtraction of B from this array.
-             *  @param B { NDArray } the elements to subtract from this array
+             *  @param { Number | NDArray } B the number or elements to subtract from this array
              *  @returns this n-dimensional array (chainable)
              */
             subHere : function (B) {
-                return this.walkIndexes(function (index) {
-                    this.setElement(index, this.getElement(index) - B.getElement(index));
-                });
+                if (typeof B === 'number') {
+                    return this.walkIndexes(function (index) {
+                        this.setElement(index, this.getElement(index) - B);
+                    });
+                } else {
+                    return this.walkIndexes(function (index) {
+                        this.setElement(index, this.getElement(index) - B.getElement(index));
+                    });
+                }
             },
 
 
-            /** Perform an element-wise subtraction with another array.
-             *  @param B { NDArray } the elements to subtract from this array
+            /** Perform an element-wise subtraction with B.
+             *  @param { Number | NDArray } B the number or elements to subtract from this array
              *  @returns a new array
              */
             sub : function (B) {
@@ -277,17 +322,23 @@ define(
 
 
             /** Replace this array with an element-wise multiplication with B.
-             *  @param B { NDArray } the elements to multiply by this array
+             *  @param { Number | NDArray } B the number or elements to multiply by this array
              *  @returns this n-dimensional array (chainable)
              */
             mulHere : function (B) {
-                return this.walkIndexes(function (index) {
-                    this.setElement(index, this.getElement(index) * B.getElement(index));
-                });
+                if (typeof B === 'number') {
+                    return this.walkIndexes(function (index) {
+                        this.setElement(index, this.getElement(index) * B);
+                    });
+                } else {
+                    return this.walkIndexes(function (index) {
+                        this.setElement(index, this.getElement(index) * B.getElement(index));
+                    });
+                }
             },
 
             /** Perform an element-wise multiplication with another array.
-             *  @param B { NDArray } the elements to multiply by this array
+             *  @param { Number | NDArray } B the number or elements to multiply by this array
              *  @returns a new array
              */
             mul : function (B) {
@@ -296,17 +347,23 @@ define(
 
 
             /** Replace this array with an element-wise division by B.
-             *  @param B { NDArray } the elements to divide this array by
+             *  @param { Number | NDArray } B the number or elements to divide this array by
              *  @returns this n-dimensional array (chainable)
              */
             divHere : function (B) {
-                return this.walkIndexes(function (index) {
-                    this.setElement(index, this.getElement(index) / B.getElement(index));
-                });
+                if (typeof B === 'number') {
+                    return this.walkIndexes(function (index) {
+                        this.setElement(index, this.getElement(index) / B);
+                    });
+                } else {
+                    return this.walkIndexes(function (index) {
+                        this.setElement(index, this.getElement(index) / B.getElement(index));
+                    });
+                }
             },
 
             /** Perform an element-wise division by another array.
-             *  @param B { NDArray } the elements to divide this array by
+             *  @param { Number | NDArray } B the number or elements to divide this array by
              *  @returns a new array
              */
             div : function (B) {
@@ -338,7 +395,7 @@ define(
              *  for vectors and the matrix product for matrices, with vectors
              *  being treated as rows when on the left and columns when on the
              *  right.
-             *  @param B { NDArray } the other NDArray in the multiplication (on the right)
+             *  @param { NDArray } B the other NDArray in the multiplication (on the right)
              *  @returns A new NDArray
              */
             dot : function (B) {

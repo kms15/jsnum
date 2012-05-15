@@ -273,6 +273,26 @@ define(
         });
 
         test.createSuite("unit:AbstractNDArray:math_ops", {
+            "should support swap" : function () {
+                var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
+                    B = jsn.asNDArray([[7, 2, 9], [6, 11, 4]]);
+
+                A.swap(B);
+
+                assert.deepEqual(A.toArray(), [[7, 2, 9], [6, 11, 4]]);
+                assert.deepEqual(B.toArray(), [[1, 3, 5], [4, 6, 8]]);
+            },
+
+            "should support abs" : function () {
+                var A = jsn.asNDArray([[-1, 3, -5], [4, -6, 8]]);
+                assert.deepEqual(A.abs().toArray(), [[1, 3, 5], [4, 6, 8]]);
+            },
+
+            "should support reciprocal" : function () {
+                var A = jsn.asNDArray([[-1, 2, 0.25], [0.125, -8, 4]]);
+                assert.deepEqual(A.reciprocal().toArray(), [[-1, 0.5, 4], [8, -0.125, 0.25]]);
+            },
+
             "should support addHere" : function () {
                 var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
                     B = jsn.asNDArray([[7, 2, 9], [6, 11, 4]]);
@@ -281,6 +301,7 @@ define(
                 assert.strictEqual(String(A),
                     '[[  8,  5, 14 ],\n' +
                     ' [ 10, 17, 12 ]]');
+                assert.deepEqual(B.addHere(3).toArray(), [[10, 5, 12], [9, 14, 7]]);
             },
 
             "should support add" : function () {
@@ -300,6 +321,7 @@ define(
                 assert.strictEqual(String(A),
                     '[[ -6,  1, -4 ],\n' +
                     ' [ -2, -5,  4 ]]');
+                assert.deepEqual(B.subHere(3).toArray(), [[4, -1, 6], [3, 8, 1]]);
             },
 
             "should support sub" : function () {
@@ -319,6 +341,7 @@ define(
                 assert.strictEqual(String(A),
                     '[[  7,  6, 45 ],\n' +
                     ' [ 24, 66, 32 ]]');
+                assert.deepEqual(B.mulHere(2).toArray(), [[14, 4, 18], [12, 22, 8]]);
             },
 
             "should support mul" : function () {
@@ -338,6 +361,7 @@ define(
                 assert.strictEqual(String(A),
                     '[[   0.5,  0.75, 0.625 ],\n' +
                     ' [     8,    24,     2 ]]');
+                assert.deepEqual(B.divHere(2).toArray(), [[1, 2, 4], [0.25, 0.125, 2]]);
             },
 
             "should support div" : function () {
