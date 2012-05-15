@@ -77,21 +77,21 @@ define(['tools/assert'], function (assert) {
                 break;
 
             case 'startSuite':
-                outputLine('--------------------------------------');
+                //outputLine('--------------------------------------');
                 outputLine('Running suite ' + b);
-                outputLine('--------------------------------------');
+                //outputLine('--------------------------------------');
                 break;
 
             case 'startTest':
-                outputLine(c  + ':');
+                //outputLine(c  + ':');
                 break;
 
             case 'passTest':
-                outputLine('passed');
+                //outputLine('passed');
                 break;
 
             case 'failTest':
-                outputLine('######### FAILED ##########');
+                outputLine('######### ' + c + ' FAILED ##########');
                 outputLine(d);
                 break;
 
