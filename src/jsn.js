@@ -250,6 +250,73 @@ define(
                 });
             },
 
+
+            /** Returns the largest number in the array.
+             */
+            max : function () {
+                var max = -Infinity;
+
+                this.copy().walkIndexes(function (index) {
+                    var e = this.getElement(index);
+                    if (e > max) {
+                        max = e;
+                    }
+                });
+
+                return max;
+            },
+
+
+            /** Returns the index of the largest number in the array.
+             */
+            argMax : function () {
+                var max = -Infinity, maxIndex;
+
+                this.copy().walkIndexes(function (index) {
+                    var e = this.getElement(index);
+                    if (e > max) {
+                        max = e;
+                        maxIndex = index.slice(0);
+                    }
+                });
+
+                return maxIndex;
+            },
+
+
+            /** Returns the smallest number in the array.
+             */
+            min : function () {
+                var min = Infinity;
+
+                this.copy().walkIndexes(function (index) {
+                    var e = this.getElement(index);
+                    if (e < min) {
+                        min = e;
+                    }
+                });
+
+                return min;
+            },
+
+
+            /** Returns the index of the smallest number in the array.
+             */
+            argMin : function () {
+                var min = Infinity, minIndex;
+
+                this.copy().walkIndexes(function (index) {
+                    var e = this.getElement(index);
+                    if (e < min) {
+                        min = e;
+                        minIndex = index.slice(0);
+                    }
+                });
+
+                return minIndex;
+            },
+
+
             /** Returns a new NDArray containing the absolute value of each
              *  element in this NDArray.
              */
@@ -445,8 +512,120 @@ define(
 
                     return result;
                 }
+            },
+
+            /** Decomposes this matrix into three matrices, P, L and U, such
+             *  that P is a row permutation matrix, L (lower) has no elements
+             *  above the diagonal, U (upper) has no elements below the
+             *  diagonal, and P L U = A.
+             *
+             *  Uses Crout's algorithm with scaled partial pivoting.
+             *
+             *  See pp 48-54 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.
+             *  Numerical Recipes 3rd Edition: The Art of Scientific Computing.
+             *  3rd ed. Cambridge University Press; 2007.
+             *
+             *  @returns an object with the members, P (permutation),
+             *      L (lower), U (upper), and the intermediate results
+             *      p (the row permutations performed by P), and
+             *      p_epsilon (-1 iff p is composed of an odd number of swaps,
+             *      otherwise 1).
+             */
+            LUDecomposition : function () {
+                var P, L, U, p = [], p_epsilon = 1,
+                    i, j, k,
+                    N = this.shape[0],
+                    scaling = [],
+                    pivotRow, pivotVal, testVal, pivotScalingFactor, rowScalingFactor,
+                    scratch = this.copy();
+
+                for (i = 0; i < N; i += 1) {
+                    scaling[i] = 1 / this.collapse([i]).abs().max();
+                }
+
+                // for each column...
+                for (k = 0; k < N; k += 1) {
+
+                    // find the largest scaled pivot
+                    pivotRow = k;
+                    pivotVal = Math.abs(scaling[k] * scratch.getElement([k, k]));
+                    for (i = k + 1; i < N; i += 1) {
+                        testVal = Math.abs(scaling[i] * scratch.getElement([i, k]));
+                        if (testVal > pivotVal) {
+                            pivotRow = i;
+                            pivotVal = testVal;
+                        }
+                    }
+
+                    // swap rows if needed to put the pivot value in the right place
+                    if (pivotRow !== k) {
+                        scratch.collapse([k]).swap(scratch.collapse([pivotRow]));
+                        p_epsilon = -p_epsilon; // track the permutation parity
+                        scaling[pivotRow] = scaling[k]; // fix the scaling (for the part we'll use again)
+                    }
+                    p[k] = pivotRow;
+
+                    // Press et al say that this is a good idea for some
+                    // singular matrices; we'll trust them.
+                    if (pivotVal === 0) {
+                        scratch.setElement([k, k], 1e-40); // a very small non-zero number
+                    }
+
+                    // Now reduce the remaining rows
+                    pivotScalingFactor = 1 / scratch.getElement([k, k]);
+                    for (i = k + 1; i < N; i += 1) {
+                        rowScalingFactor =  scratch.getElement([i, k]) * pivotScalingFactor;
+                        scratch.setElement([i, k], rowScalingFactor);
+                        for (j = k + 1; j < N; j += 1) {
+                            scratch.setElement([i, j], scratch.getElement([i, j]) - scratch.getElement([k, j]) * rowScalingFactor);
+                        }
+                    }
+                }
+
+                P = this.createResult(this.shape);
+                P.walkIndexes(function (index) {
+                    var val;
+                    if (index[0] === index[1]) {
+                        val = 1;
+                    } else {
+                        val = 0;
+                    }
+                    this.setElement(index, val);
+                });
+                for (i = N - 1; i >= 0; i -= 1) {
+                    if (p[i] !== i) {
+                        P.collapse([i]).swap(P.collapse([p[i]]));
+                    }
+                }
+
+                L = this.createResult(this.shape);
+                L.walkIndexes(function (index) {
+                    var val;
+                    if (index[0] < index[1]) {
+                        val = 0;
+                    } else if (index[0] === index[1]) {
+                        val = 1;
+                    } else {
+                        val = scratch.getElement(index);
+                    }
+                    this.setElement(index, val);
+                });
+
+                U = this.createResult(this.shape);
+                U.walkIndexes(function (index) {
+                    var val;
+                    if (index[0] > index[1]) {
+                        val = 0;
+                    } else {
+                        val = scratch.getElement(index);
+                    }
+                    this.setElement(index, val);
+                });
+
+                return { P: P, L: L, U: U, p: p, p_epsilon: p_epsilon };
             }
         };
+
 
         /** Creates a human-readable text version of the array
          */

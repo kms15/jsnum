@@ -272,6 +272,19 @@ define(
             }
         });
 
+        test.createSuite("unit:AbstractNDArray:matrix_operations:LUDecomposition", {
+            "should support LUDecomposition" : function () {
+                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
+                    res = A.LUDecomposition();
+                // console.log('A = \n' + A);
+                // console.log('P = \n' + res.P);
+                // console.log('L = \n' + res.L);
+                // console.log('U = \n' + res.U);
+                // console.log('P L U = \n' + res.P.dot(res.L.dot(res.U)));
+                assert.ok(jsn.areClose(res.P.dot(res.L.dot(res.U)), A));
+            },
+        });
+
         test.createSuite("unit:AbstractNDArray:math_ops", {
             "should support swap" : function () {
                 var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
@@ -286,6 +299,26 @@ define(
             "should support abs" : function () {
                 var A = jsn.asNDArray([[-1, 3, -5], [4, -6, 8]]);
                 assert.deepEqual(A.abs().toArray(), [[1, 3, 5], [4, 6, 8]]);
+            },
+
+            "should support argMax" : function () {
+                var A = jsn.asNDArray([[-1, 3, -5], [4, -6, 2]]);
+                assert.deepEqual(A.argMax(), [1, 0]);
+            },
+
+            "should support max" : function () {
+                var A = jsn.asNDArray([[-1, 3, -5], [4, -6, 2]]);
+                assert.deepEqual(A.max(), 4);
+            },
+
+            "should support argMin" : function () {
+                var A = jsn.asNDArray([[-1, 3, -5], [4, -6, 2]]);
+                assert.deepEqual(A.argMin(), [1, 1]);
+            },
+
+            "should support min" : function () {
+                var A = jsn.asNDArray([[-1, 3, -5], [4, -6, 2]]);
+                assert.deepEqual(A.min(), -6);
             },
 
             "should support reciprocal" : function () {
