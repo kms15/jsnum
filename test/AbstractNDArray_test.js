@@ -98,6 +98,17 @@ define(
                 assert.strictEqual(totalCalls, 12);
             },
 
+            "should support hasShape" : function () {
+                var A = jsn.asNDArray([[[1.5, 2, 4 ], [3.25, 5, 3]], [[5.125, 6, 1 ], [ 6, 23, 2 ]]]),
+                    B = jsn.asNDArray(4);
+                assert.ok(A.hasShape([2, 2, 3]), "match");
+                assert.ok(!A.hasShape([2, 3, 3]), "non-match");
+                assert.ok(!A.hasShape([2, 2]), "too few dimensions");
+                assert.ok(!A.hasShape([2, 2, 3, 1]), "too many dimensions");
+                assert.ok(B.hasShape([]), "0-D case");
+                assert.ok(!B.hasShape([1]), "0-D case, non-match");
+            },
+
             "should support createResult using untyped array" : function () {
                 var A = jsn.asNDArray([10.125, 3]),
                     B = A.createResult([3, 5]);
@@ -272,18 +283,66 @@ define(
             }
         });
 
+
         test.createSuite("unit:AbstractNDArray:matrix_operations:LUDecomposition", {
             "should support LUDecomposition" : function () {
-                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
+                var rowUsed = [], colUsed = [],
+                    A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
                     res = A.LUDecomposition();
                 // console.log('A = \n' + A);
                 // console.log('P = \n' + res.P);
                 // console.log('L = \n' + res.L);
                 // console.log('U = \n' + res.U);
                 // console.log('P L U = \n' + res.P.dot(res.L.dot(res.U)));
-                assert.ok(jsn.areClose(res.P.dot(res.L.dot(res.U)), A));
+                assert.ok(jsn.areClose(res.P.dot(res.L.dot(res.U)), A),
+                    "Product should be original matrix");
+                res.L.walkIndexes(function (index) {
+                    assert.ok(index[0] >= index[1] || this.getElement(index) === 0,
+                        "L should be lower diagonal");
+                });
+                res.U.walkIndexes(function (index) {
+                    assert.ok(index[0] <= index[1] || this.getElement(index) === 0,
+                        "U should be upper diagonal");
+                });
+                res.P.walkIndexes(function (index) {
+                    var val = this.getElement(index);
+                    if (val !== 0) {
+                        assert.ok(val === 1, "P should only contain 0s and 1s");
+                        assert.ok(!rowUsed[index[0]] && !colUsed[index[1]],
+                            "P should only have one non-zero element " +
+                            "in each row or column");
+                        rowUsed[index[0]] = colUsed[index[1]] = true;
+                    }
+                });
             },
+
+
+            "should error on unsuported array shapes" : function () {
+
+                assert.throws(function () {
+                    var A = jsn.asNDArray(3);
+                    A.LUDecomposition();
+                }, TypeError, "0D");
+
+                assert.throws(function () {
+                    var A = jsn.asNDArray([1, 3, 2]);
+                    A.LUDecomposition();
+                }, TypeError, "vector");
+
+                // TODO: would be nice to generalize these to higher dimensions
+                assert.throws(function () {
+                    var A = jsn.asNDArray([[[1, 3, 2], [5, 11, 13]], [[1, 3, 2], [5, 11, 13]]]);
+                    A.LUDecomposition();
+                }, TypeError, "3D NDArray");
+
+                // TODO: we can and should support rectangular matrices eventually
+                assert.throws(function () {
+                    var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13]]);
+                    A.LUDecomposition();
+                }, TypeError, "rectangular matrix");
+            }
         });
+
 
         test.createSuite("unit:AbstractNDArray:math_ops", {
             "should support swap" : function () {
@@ -337,6 +396,18 @@ define(
                 assert.deepEqual(B.addHere(3).toArray(), [[10, 5, 12], [9, 14, 7]]);
             },
 
+            "addHere should throw on invalid arguments" : function () {
+                var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]);
+
+                assert.throws(function () {
+                    A.addHere("B");
+                }, TypeError, "string");
+
+                assert.throws(function () {
+                    A.addHere(jsn.asNDArray([[1, 3, 5, 4], [4, 6, 8, 9]]));
+                }, RangeError, "wrong shape");
+            },
+
             "should support add" : function () {
                 var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
                     B = jsn.asNDArray([[7, 2, 9], [6, 11, 4]]);
@@ -357,6 +428,18 @@ define(
                 assert.deepEqual(B.subHere(3).toArray(), [[4, -1, 6], [3, 8, 1]]);
             },
 
+            "subHere should throw on invalid arguments" : function () {
+                var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]);
+
+                assert.throws(function () {
+                    A.subHere("B");
+                }, TypeError, "string");
+
+                assert.throws(function () {
+                    A.subHere(jsn.asNDArray([[1, 3, 5, 4], [4, 6, 8, 9]]));
+                }, RangeError, "wrong shape");
+            },
+
             "should support sub" : function () {
                 var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
                     B = jsn.asNDArray([[7, 2, 9], [6, 11, 4]]);
@@ -375,6 +458,18 @@ define(
                     '[[  7,  6, 45 ],\n' +
                     ' [ 24, 66, 32 ]]');
                 assert.deepEqual(B.mulHere(2).toArray(), [[14, 4, 18], [12, 22, 8]]);
+            },
+
+            "mulHere should throw on invalid arguments" : function () {
+                var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]);
+
+                assert.throws(function () {
+                    A.mulHere("B");
+                }, TypeError, "string");
+
+                assert.throws(function () {
+                    A.mulHere(jsn.asNDArray([[1, 3, 5, 4], [4, 6, 8, 9]]));
+                }, RangeError, "wrong shape");
             },
 
             "should support mul" : function () {
@@ -404,6 +499,18 @@ define(
                 assert.strictEqual(String(A.div(B)),
                     '[[   0.5,  0.75, 0.625 ],\n' +
                     ' [     8,    24,     2 ]]');
+            },
+
+            "divHere should throw on invalid arguments" : function () {
+                var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]);
+
+                assert.throws(function () {
+                    A.divHere("B");
+                }, TypeError, "string");
+
+                assert.throws(function () {
+                    A.divHere(jsn.asNDArray([[1, 3, 5, 4], [4, 6, 8, 9]]));
+                }, RangeError, "wrong shape");
             },
 
             "should support negHere" : function () {

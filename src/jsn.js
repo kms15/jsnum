@@ -151,11 +151,12 @@ define(
                 return this;
             },
 
+
             /** Calls a callback with every valid index for this array.  This
              *  is useful when you want to perform an operation on every
              *  element element of the array.  The callback passed a single
-             *      parameter which is the index to process.  The this
-             *      variable for the callback is set to the original array.
+             *  parameter which is the index to process.  The this
+             *  variable for the callback is set to the original array.
              *  @param { function } callback A function to be called with each
              *      index
              *  @returns The n-dimensional array (chainable)
@@ -179,6 +180,31 @@ define(
                 walk([], 0);
                 return this;
             },
+
+
+            /** Convenience function for checking if this.shape equals shape
+             *  (since JavaScript doesn't do deep comparison of Arrays by
+             *  default).
+             *  @param { Array } The shape to compare with this.shape
+             *  @returns True iff this.shape matches shape
+             */
+            hasShape : function (shape) {
+                var i;
+
+                if (shape === undefined || shape.length === undefined ||
+                        shape.length !== this.shape.length) {
+                    return false;
+                } else {
+                    for (i = shape.length - 1; i >= 0; i -= 1) {
+                        if (shape[i] !== this.shape[i]) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            },
+
 
             /** Create a new n-D array object that maps indexes to the selected
              *  portions of the array.  This effectively takes lower dimensional
@@ -346,6 +372,10 @@ define(
                     return this.walkIndexes(function (index) {
                         this.setElement(index, this.getElement(index) + B);
                     });
+                } else if (B.getElement === undefined) {
+                    throw new TypeError("B must be an NDArray or number");
+                } else if (!this.hasShape(B.shape)) {
+                    throw new RangeError("B must have the same shape as this");
                 } else {
                     return this.walkIndexes(function (index) {
                         this.setElement(index, this.getElement(index) + B.getElement(index));
@@ -371,6 +401,10 @@ define(
                     return this.walkIndexes(function (index) {
                         this.setElement(index, this.getElement(index) - B);
                     });
+                } else if (B.getElement === undefined) {
+                    throw new TypeError("B must be an NDArray or number");
+                } else if (!this.hasShape(B.shape)) {
+                    throw new RangeError("B must have the same shape as this");
                 } else {
                     return this.walkIndexes(function (index) {
                         this.setElement(index, this.getElement(index) - B.getElement(index));
@@ -397,6 +431,10 @@ define(
                     return this.walkIndexes(function (index) {
                         this.setElement(index, this.getElement(index) * B);
                     });
+                } else if (B.getElement === undefined) {
+                    throw new TypeError("B must be an NDArray or number");
+                } else if (!this.hasShape(B.shape)) {
+                    throw new RangeError("B must have the same shape as this");
                 } else {
                     return this.walkIndexes(function (index) {
                         this.setElement(index, this.getElement(index) * B.getElement(index));
@@ -422,6 +460,10 @@ define(
                     return this.walkIndexes(function (index) {
                         this.setElement(index, this.getElement(index) / B);
                     });
+                } else if (B.getElement === undefined) {
+                    throw new TypeError("B must be an NDArray or number");
+                } else if (!this.hasShape(B.shape)) {
+                    throw new RangeError("B must have the same shape as this");
                 } else {
                     return this.walkIndexes(function (index) {
                         this.setElement(index, this.getElement(index) / B.getElement(index));
@@ -538,6 +580,10 @@ define(
                     scaling = [],
                     pivotRow, pivotVal, testVal, pivotScalingFactor, rowScalingFactor,
                     scratch = this.copy();
+
+                if (this.shape.length !== 2 || this.shape[0] !== this.shape[1]) {
+                    throw new TypeError("LUDecomposition currently only supports square matrices");
+                }
 
                 for (i = 0; i < N; i += 1) {
                     scaling[i] = 1 / this.collapse([i]).abs().max();
