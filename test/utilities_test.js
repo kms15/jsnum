@@ -121,6 +121,15 @@ define(
                 }, RangeError, "nan length");
                 assert.throws(function () { jsn.AbstractNDArray.checkShape([2.5, 3, 3]); },
                     TypeError, "fractional length");
+            },
+
+            "should support solveLinearSystem" : function () {
+                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
+                    x = jsn.asNDArray([4, 5, 2]),
+                    b = A.dot(x),
+                    xNew = jsn.solveLinearSystem(A, b);
+
+                assert.ok(jsn.areClose(x, xNew));
             }
         });
 

@@ -768,6 +768,42 @@ define(
         };
 
 
+        /** Verifies that the argument is a valid shape for an n-dimensional
+         * array (i.e. a JavasScript array of non-negative integers).
+         * @param { Array<int> } shape The shape array to check.
+         * @throws { TypeError | RangeError }
+         */
+        AbstractNDArray.checkShape = function (shape) {
+            var i;
+
+            if (!Array.isArray(shape)) {
+                throw new TypeError(
+                    "Non-array given as a shape."
+                );
+            }
+
+            for (i = 0; i < shape.length; i += 1) {
+                if (typeof shape[i] !== 'number') {
+                    throw new TypeError(
+                        "Encountered non-numeric length \"" +
+                            shape[i] + "\"."
+                    );
+                }
+
+                if (shape[i] <= 0 || isNaN(shape[i])) {
+                    throw new RangeError(
+                        "Encountered non-positive length " + shape[i]
+                    );
+                }
+
+                if (shape[i] !== Math.floor(shape[i])) {
+                    throw new TypeError("Non-integer length " + shape[i]);
+                }
+
+            }
+        };
+
+
 
         /** An implementation of an NDArray that stores arbitrary types of elements.
          * This is likely to work for most uses, but more specialized types of
@@ -936,41 +972,60 @@ define(
         }
 
 
-        /** Verifies that the argument is a valid shape for an n-dimensional
-         * array (i.e. a JavasScript array of non-negative integers).
-         * @param { Array<int> } shape The shape array to check.
-         * @throws { TypeError | RangeError }
+        /** Solve a linear system of the form A x = b.  Most of the work is
+         *  goes into doing the LU decomposition of A, so if you are solving
+         *  the same equation with different right hand sides you may want to
+         *  compute the LU decomposition once and pass it in directly.  .
+         *
+         *  See pp 48-54 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.
+         *  Numerical Recipes 3rd Edition: The Art of Scientific Computing.
+         *  3rd ed. Cambridge University Press; 2007.
+         *
+         *  @param {NDArray | LU decomposition} A the matrix on the left or
+         *      its LU Decomposition.
+         *  @param {NDArray} b the result vector (or matrix)
+         *  @result a vector (or matrix) x such that A x = b
          */
-        AbstractNDArray.checkShape = function (shape) {
-            var i;
+        function solveLinearSystem(A, b) {
+            var lu = A.LUDecomposition(), N = b.shape[0],
+                x = b.createResult(b.shape), y = b.createResult(b.shape),
+                i, j, swap, sum;
 
-            if (!Array.isArray(shape)) {
-                throw new TypeError(
-                    "Non-array given as a shape."
-                );
+            // swap the rows in the answer to match L and U
+            b = b.copy();
+            for (i = 0; i < N; i += 1) {
+                if (lu.p[i] !== i) {
+                    swap = b.getElement([i]);
+                    b.setElement([i], b.getElement([lu.p[i]]));
+                    b.setElement([lu.p[i]], swap);
+                }
             }
 
-            for (i = 0; i < shape.length; i += 1) {
-                if (typeof shape[i] !== 'number') {
-                    throw new TypeError(
-                        "Encountered non-numeric length \"" +
-                            shape[i] + "\"."
-                    );
+            // use forward substitution to find y such that L y
+            for (i = 0; i < N; i += 1) {
+                sum = 0;
+                for (j = 0; j < i; j += 1) {
+                    sum += lu.L.getElement([i, j]) * y.getElement([j]);
                 }
 
-                if (shape[i] <= 0 || isNaN(shape[i])) {
-                    throw new RangeError(
-                        "Encountered non-positive length " + shape[i]
-                    );
-                }
-
-                if (shape[i] !== Math.floor(shape[i])) {
-                    throw new TypeError("Non-integer length " + shape[i]);
-                }
-
+                y.setElement([i], (b.getElement([i]) - sum) / lu.L.getElement([i, i]));
             }
-        };
 
+            // use backward substitution to find x such that U x = y
+            for (i = N - 1; i >= 0; i -= 1) {
+                sum = 0;
+                for (j = i + 1; j < N; j += 1) {
+                    sum += lu.U.getElement([i, j]) * x.getElement([j]);
+                }
+
+                x.setElement([i], (y.getElement([i]) - sum) / lu.U.getElement([i, i]));
+            }
+
+            return x;
+        }
+
+
+        jsn.solveLinearSystem = solveLinearSystem;
         jsn.asNDArray = asNDArray;
         jsn.areClose = areClose;
         jsn.AbstractNDArray = AbstractNDArray;
