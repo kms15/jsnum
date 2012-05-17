@@ -1,4 +1,4 @@
-JSN: JavaScript Numerics
+JSNum: JavaScript Numerics
 ========================
 
 This is a library designed to provide basic numerical algorithms for
