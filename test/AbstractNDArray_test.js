@@ -134,6 +134,14 @@ define(
             "should support toArray" : function () {
                 var A = jsn.asNDArray([[1, 5], [3, 4]]);
                 assert.deepEqual(A.toArray(), [[1, 5], [3, 4]]);
+            },
+
+            "should support isReadOnly" : function () {
+                var A = jsn.asNDArray([[1, 5], [3, 4]]);
+
+                assert.ok(!A.isReadOnly());
+                A.setElement = jsn.AbstractNDArray.prototype.setElement;
+                assert.ok(A.isReadOnly());
             }
         });
 
@@ -151,7 +159,6 @@ define(
                     '  [ 10.125 ]]\n' +
                     ']');
 
-                //assert.strictEqual(String(A.collapse([,,0,0])),
                 assert.strictEqual(
                     String(A.collapse([undefined, undefined, 0, 0])),
                     '[[   1.5, 5.125 ],\n' +
@@ -178,6 +185,10 @@ define(
                     ' [   7.5, 8.625 ]]');
                 assert.strictEqual(B.setElement([0], 3), B,
                     "set element is chainable");
+            },
+
+            "collapse should respect isReadOnly" : function () {
+                assert.ok(jsn.eye(3).collapse([1]).isReadOnly());
             },
 
             "collapse should not track original index array" : function () {
@@ -314,6 +325,10 @@ define(
                         rowUsed[index[0]] = colUsed[index[1]] = true;
                     }
                 });
+
+                assert.ok(res.P.isReadOnly(), "P should be readonly");
+                assert.ok(res.L.isReadOnly(), "L should be readonly");
+                assert.ok(res.U.isReadOnly(), "U should be readonly");
             },
 
 
@@ -378,6 +393,8 @@ define(
                 );
                 assert.deepEqual(new jsn.UntypedNDArray([2, 3, 4, 5]).transpose().shape,
                     [5, 4, 3, 2], "4D");
+
+                assert.ok(jsn.eye(3).transpose().isReadOnly(), "should respect read-only");
             }
         });
 

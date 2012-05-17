@@ -157,6 +157,16 @@ define(
             },
 
 
+            /** Returns true if this is a read-only array (and thus can be
+             *  used but not modified).  This is the case if the setElement
+             *  function of AbstractNDArray has not been overridden.
+             */
+            isReadOnly : function () {
+                return (this.setElement ===
+                    jsn.AbstractNDArray.prototype.setElement);
+            },
+
+
             /** Calls a callback with every valid index for this array.  This
              *  is useful when you want to perform an operation on every
              *  element element of the array.  The callback passed a single
@@ -259,10 +269,12 @@ define(
                     return that.getElement(expandIndexes(reducedIndexes));
                 };
 
-                o.setElement = function (reducedIndexes, value) {
-                    that.setElement(expandIndexes(reducedIndexes), value);
-                    return this;
-                };
+                if (!this.isReadOnly()) {
+                    o.setElement = function (reducedIndexes, value) {
+                        that.setElement(expandIndexes(reducedIndexes), value);
+                        return this;
+                    };
+                }
 
                 return o;
             },
@@ -652,6 +664,7 @@ define(
                     }
                 }
                 P.det = function () { return p_epsilon; };
+                P.setElement = jsn.AbstractNDArray.prototype.setElement;
 
                 L = this.createResult(this.shape);
                 L.walkIndexes(function (index) {
@@ -665,6 +678,7 @@ define(
                     }
                     this.setElement(index, val);
                 });
+                L.setElement = jsn.AbstractNDArray.prototype.setElement;
 
                 U = this.createResult(this.shape);
                 U.walkIndexes(function (index) {
@@ -676,6 +690,7 @@ define(
                     }
                     this.setElement(index, val);
                 });
+                U.setElement = jsn.AbstractNDArray.prototype.setElement;
 
                 return { P: P, L: L, U: U, p: p };
             },
@@ -748,10 +763,12 @@ define(
                     return that.getElement(permute(index));
                 };
 
-                result.setElement = function (index, value) {
-                    that.setElement(permute(index), value);
-                    return this;
-                };
+                if (!this.isReadOnly()) {
+                    result.setElement = function (index, value) {
+                        that.setElement(permute(index), value);
+                        return this;
+                    };
+                }
 
                 return result;
             }
