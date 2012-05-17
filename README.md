@@ -1,9 +1,11 @@
 JSN: JavaScript Numerics
 ========================
 
-This is a library designed to provide basic numerical algorithms for 
-JavaScript.  It is currently under construction, but you can look at the 
-Wiki to get an idea of the direction the project is headed.  
+This is a library designed to provide basic numerical algorithms for
+JavaScript.  While still early in the project, basic support for
+multidimensional arrays and core matrix operations are working
+(e.g. matrix inversion, LU decomposition, and solving linear systems
+of equations).
 
 License
 -------
