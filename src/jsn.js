@@ -41,7 +41,7 @@ define(
              * @abstract
              */
             getElement : function (index) {
-                throw new TypeError("call to an abstract method");
+                throw new TypeError("abstract array class (getElement has not been defined)");
             },
 
             /** Sets the value of one element of the array.  This must be overloaded in derived
@@ -52,7 +52,7 @@ define(
              * @abstract
              */
             setElement : function (index, newValue) {
-                throw new TypeError("call to an abstract method");
+                throw new TypeError("Attempt to set an element of a read-only array (try using copy() first)");
             },
 
             /** The lengths of each dimension of the n-dimensional array.  This must
@@ -513,7 +513,7 @@ define(
 
                 if (this.shape[this.shape.length - 1] !== B.shape[0]) {
                     throw new RangeError("Can not multiply array of shape " +
-                        this.shape + " by array of shape " + this.shape);
+                        this.shape + " by array of shape " + B.shape);
                 }
 
                 function dotToResult(result, A, B) {
@@ -975,7 +975,7 @@ define(
         /** Solve a linear system of the form A x = b.  Most of the work is
          *  goes into doing the LU decomposition of A, so if you are solving
          *  the same equation with different right hand sides you may want to
-         *  compute the LU decomposition once and pass it in directly.  .
+         *  compute the LU decomposition once and pass it in directly.
          *
          *  See pp 48-54 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.
          *  Numerical Recipes 3rd Edition: The Art of Scientific Computing.
@@ -987,38 +987,72 @@ define(
          *  @result a vector (or matrix) x such that A x = b
          */
         function solveLinearSystem(A, b) {
-            var lu = A.LUDecomposition(), N = b.shape[0],
-                x = b.createResult(b.shape), y = b.createResult(b.shape),
-                i, j, swap, sum;
+            var lu, N, x, y, i, j, swap, sum, selector;
 
-            // swap the rows in the answer to match L and U
-            b = b.copy();
-            for (i = 0; i < N; i += 1) {
-                if (lu.p[i] !== i) {
-                    swap = b.getElement([i]);
-                    b.setElement([i], b.getElement([lu.p[i]]));
-                    b.setElement([lu.p[i]], swap);
-                }
+            if (A.L !== undefined && A.U !== undefined) {
+                lu = A;
+            } else {
+                lu = A.LUDecomposition();
             }
 
-            // use forward substitution to find y such that L y
-            for (i = 0; i < N; i += 1) {
-                sum = 0;
-                for (j = 0; j < i; j += 1) {
-                    sum += lu.L.getElement([i, j]) * y.getElement([j]);
-                }
-
-                y.setElement([i], (b.getElement([i]) - sum) / lu.L.getElement([i, i]));
+            if (b.shape === undefined) {
+                throw new TypeError("b must be an NDArray");
             }
 
-            // use backward substitution to find x such that U x = y
-            for (i = N - 1; i >= 0; i -= 1) {
-                sum = 0;
-                for (j = i + 1; j < N; j += 1) {
-                    sum += lu.U.getElement([i, j]) * x.getElement([j]);
+            N = b.shape[0];
+            x = b.createResult(b.shape);
+
+            if (lu.L.shape[0] !== N) {
+                throw new RangeError("The length of the first dimension of A (" +
+                    lu.L.shape[0] + ") does not match that of b (" + N + ")");
+            }
+
+            if (b.shape.length > 1) {
+                // b is a matrix, so solve for each of the columns individually
+                b.collapse([0]).walkIndexes(function (index) {
+                    var i, colX, fullIndex = index.slice(0);
+                    fullIndex.unshift(undefined);
+
+                    // solve the system and copy the result into the column
+                    colX = solveLinearSystem(lu, b.collapse(fullIndex));
+                    for (i = 0; i < N; i += 1) {
+                        fullIndex[0] = i;
+                        x.setElement(fullIndex, colX.getElement([i]));
+                    }
+                });
+
+            } else { // b is a vector
+
+                // swap the rows in the answer to match L and U
+                b = b.copy();
+                for (i = 0; i < N; i += 1) {
+                    if (lu.p[i] !== i) {
+                        swap = b.getElement([i]);
+                        b.setElement([i], b.getElement([lu.p[i]]));
+                        b.setElement([lu.p[i]], swap);
+                    }
                 }
 
-                x.setElement([i], (y.getElement([i]) - sum) / lu.U.getElement([i, i]));
+                // use forward substitution to find y such that L y
+                y = b.createResult(b.shape);
+                for (i = 0; i < N; i += 1) {
+                    sum = 0;
+                    for (j = 0; j < i; j += 1) {
+                        sum += lu.L.getElement([i, j]) * y.getElement([j]);
+                    }
+
+                    y.setElement([i], (b.getElement([i]) - sum) / lu.L.getElement([i, i]));
+                }
+
+                // use backward substitution to find x such that U x = y
+                for (i = N - 1; i >= 0; i -= 1) {
+                    sum = 0;
+                    for (j = i + 1; j < N; j += 1) {
+                        sum += lu.U.getElement([i, j]) * x.getElement([j]);
+                    }
+
+                    x.setElement([i], (y.getElement([i]) - sum) / lu.U.getElement([i, i]));
+                }
             }
 
             return x;

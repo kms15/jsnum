@@ -101,6 +101,7 @@ define(
             },
         });
 
+
         test.createSuite("unit:miscUtils", {
             "should support checkShape" : function () {
 
@@ -121,17 +122,72 @@ define(
                 }, RangeError, "nan length");
                 assert.throws(function () { jsn.AbstractNDArray.checkShape([2.5, 3, 3]); },
                     TypeError, "fractional length");
-            },
+            }
+        });
 
-            "should support solveLinearSystem" : function () {
+
+        test.createSuite("unit:miscUtils:solveLinearSystem", {
+            "should support vectors" : function () {
                 var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
                     x = jsn.asNDArray([4, 5, 2]),
                     b = A.dot(x),
                     xNew = jsn.solveLinearSystem(A, b);
 
                 assert.ok(jsn.areClose(x, xNew));
+            },
+
+            "should support matrices" : function () {
+                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
+                    X = jsn.asNDArray([[4, 5], [2, 3], [5, 8]]),
+                    B = A.dot(X),
+                    XNew = jsn.solveLinearSystem(A, B);
+
+                assert.ok(jsn.areClose(X, XNew));
+            },
+
+            "should use previous LU decomposition" : function () {
+                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
+                    X = jsn.asNDArray([[4, 5], [2, 3], [5, 8]]),
+                    B = A.dot(X),
+                    x = jsn.asNDArray([4, 5, 2]),
+                    b = A.dot(x),
+                    lu = A.LUDecomposition(),
+                    xNew = jsn.solveLinearSystem(lu, b),
+                    XNew = jsn.solveLinearSystem(lu, B);
+
+                assert.ok(jsn.areClose(x, xNew));
+                assert.ok(jsn.areClose(X, XNew));
+            },
+
+            "should check for incompatible shapes" : function () {
+                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
+                    B = jsn.asNDArray([[4, 5, 2], [3, 5, 8]]),
+                    b = jsn.asNDArray([4, 5, 2, 8]);
+
+                assert.throws(function () {
+                    jsn.solveLinearSystem(A, B);
+                }, RangeError, "matrix");
+
+                assert.throws(function () {
+                    jsn.solveLinearSystem(A, b);
+                }, RangeError, "vector");
+            },
+
+            "should check for non-matrix arguments" : function () {
+                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
+                    X = jsn.asNDArray([[4, 5], [2, 3], [5, 8]]),
+                    B = A.dot(X);
+
+                assert.throws(function () {
+                    jsn.solveLinearSystem("", B);
+                }, TypeError, "A string");
+
+                assert.throws(function () {
+                    jsn.solveLinearSystem(A, "");
+                }, TypeError, "B string");
             }
         });
+
 
         test.createSuite("unit:miscUtils:areClose", {
             "should use abstol when out of range for reltol" : function () {
