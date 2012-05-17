@@ -357,6 +357,27 @@ define(
 
                 assert.ok(jsn.areClose(A.det(), 102));
                 assert.ok(jsn.areClose(B.det(), -470));
+            },
+
+            "should support transpose" : function () {
+                assert.deepEqual(jsn.asNDArray(2).transpose().toArray(), 2, "0D");
+                assert.deepEqual(
+                    jsn.asNDArray([1, 3, 2]).transpose().toArray(),
+                    [1, 3, 2],
+                    "1D"
+                );
+                assert.deepEqual(
+                    jsn.asNDArray([[1, 3, 2], [5, 11, 13]]).transpose().toArray(),
+                    [[1, 5], [3, 11], [2, 13]],
+                    "2D"
+                );
+                assert.deepEqual(
+                    jsn.asNDArray([[[1, 3], [2, 2]], [[5, 11], [4, 13]]]).transpose().toArray(),
+                    [[[1, 5], [2, 4]], [[3, 11], [2, 13]]],
+                    "3D"
+                );
+                assert.deepEqual(new jsn.UntypedNDArray([2, 3, 4, 5]).transpose().shape,
+                    [5, 4, 3, 2], "4D");
             }
         });
 

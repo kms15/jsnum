@@ -17,6 +17,7 @@ define(
             throw new TypeError("call to an abstract method");
         }
 
+
         /** A base class for n-dimensional arrays that provides a rich set of
          * functionality building on a small set of functions required in
          * derived classes.  To create a new n-D array class, you can simply
@@ -29,10 +30,12 @@ define(
                 "should not be directly instantiated - please use an child class.");
         }
 
+
         AbstractNDArray.prototype = {
             //
             // Abstract methods
             //
+
 
             /** Reads one element of the array.  This must be overloaded in derived
              * classes.
@@ -44,6 +47,7 @@ define(
                 throw new TypeError("abstract array class (getElement has not been defined)");
             },
 
+
             /** Sets the value of one element of the array.  This must be overloaded in derived
              * classes if the array is not read only.
              * @param { Array<int> } index A list of indexes for the desired element.
@@ -54,6 +58,7 @@ define(
             setElement : function (index, newValue) {
                 throw new TypeError("Attempt to set an element of a read-only array (try using copy() first)");
             },
+
 
             /** The lengths of each dimension of the n-dimensional array.  This must
               * be overloaded in derived classes
@@ -383,6 +388,7 @@ define(
                 }
             },
 
+
             /** Perform an element-wise addition with another array.
              *  @param { Number | NDArray } B the number or elements to add to this array
              *  @returns a new array
@@ -441,6 +447,7 @@ define(
                     });
                 }
             },
+
 
             /** Perform an element-wise multiplication with another array.
              *  @param { Number | NDArray } B the number or elements to multiply by this array
@@ -555,6 +562,7 @@ define(
                     return result;
                 }
             },
+
 
             /** Decomposes this matrix into three matrices, P, L and U, such
              *  that P is a row permutation matrix, L (lower) has no elements
@@ -697,6 +705,53 @@ define(
                     result *= lu.L.getElement([i, i]);
                     result *= lu.U.getElement([i, i]);
                 }
+
+                return result;
+            },
+
+
+            /** Get the transpose of this array.  For a 0 or 1 dimensional
+             *  array, this is just the array itself.  For a 2 dimensional array
+             *  or higher, the order of the indexing of the dimensions is
+             *  reversed.  Note that for a matrix, this is the same as the
+             *  matrix transpose.  The transpose is a new view of the original
+             *  array, i.e. calling setElement will change the corresponding
+             *  element in the original array.
+             *
+             *  @returns The transpose of this array.
+             */
+            transpose : function () {
+                var that = this, newShape, i, permutation = [], result;
+
+                for (i = this.shape.length - 1; i >= 0; i -= 1) {
+                    permutation[i] = this.shape.length - 1 - i;
+                }
+
+                function permute(index) {
+                    var newIndex = [];
+
+                    for (i = that.shape.length - 1; i >= 0; i -= 1) {
+                        newIndex[i] = index[permutation[i]];
+                    }
+
+                    return newIndex;
+                }
+
+                newShape = permute(this.shape);
+
+                result = Object.create(AbstractNDArray.prototype);
+
+                Object.defineProperty(result, "shape",
+                    { value : newShape, writable : false });
+
+                result.getElement = function (index) {
+                    return that.getElement(permute(index));
+                };
+
+                result.setElement = function (index, value) {
+                    that.setElement(permute(index), value);
+                    return this;
+                };
 
                 return result;
             }
