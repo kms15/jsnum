@@ -136,6 +136,14 @@ define(
                 assert.deepEqual(A.toArray(), [[1, 5], [3, 4]]);
             },
 
+            "should support valueOf" : function () {
+                var A = jsn.asNDArray(3),
+                    B = jsn.asNDArray([2, 3]);
+                assert.strictEqual(2 * A, 6, "0D case");
+                assert.ok(isNaN(2 * B), "n-D, n > 0 case");
+                assert.strictEqual(B.valueOf(), B, "explicit function call");
+            },
+
             "should support isReadOnly" : function () {
                 var A = jsn.asNDArray([[1, 5], [3, 4]]);
 

@@ -775,6 +775,20 @@ define(
         };
 
 
+        /** For a 0D array, returns the element in the array.  For higher
+         *  dimensional arrays the original array is returned.  This allows
+         *  you to use 0-dimensional arrays as numbers in calculations,
+         *  e.g. 3 * A.
+         */
+        AbstractNDArray.prototype.valueOf = function () {
+            if (this.shape.length === 0) {
+                return this.getElement([]);
+            } else {
+                return this;
+            }
+        };
+
+
         /** Creates a human-readable text version of the array
          */
         AbstractNDArray.prototype.toString = function () {
