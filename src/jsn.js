@@ -643,6 +643,7 @@ define(
                         P.collapse([i]).swap(P.collapse([p[i]]));
                     }
                 }
+                P.det = function () { return p_epsilon; };
 
                 L = this.createResult(this.shape);
                 L.walkIndexes(function (index) {
@@ -668,7 +669,36 @@ define(
                     this.setElement(index, val);
                 });
 
-                return { P: P, L: L, U: U, p: p, p_epsilon: p_epsilon };
+                return { P: P, L: L, U: U, p: p };
+            },
+
+            /** Find the inverse of this matrix.  If this is an N × N square
+             *  non-singular matrix this function finds the inverse of the
+             *  matrix, using jsn.linSolve (which uses LU Decomposition).
+             *  @returns The inverse of this matrix.
+             */
+            inverse : function () {
+                return jsn.solveLinearSystem(this, jsn.eye(this.shape[0]));
+            },
+
+            /** Find the determinant of this matrix.  If this is an N × N
+             *  square matrix this function finds the determinant of the
+             *  matrix, using jsn.linSolve (which uses LU Decomposition).
+             *  @returns The determinant of this matrix.
+             */
+            det : function () {
+                var lu = this.LUDecomposition(), N = this.shape[0], i, result;
+
+                // determinant of a product is the product of the determinants,
+                // and the determinant of an upper or lower triangular matrix
+                // is just the product of the diagonal elements.
+                result = lu.P.det();
+                for (i = 0; i < N; i += 1) {
+                    result *= lu.L.getElement([i, i]);
+                    result *= lu.U.getElement([i, i]);
+                }
+
+                return result;
             }
         };
 
@@ -972,6 +1002,23 @@ define(
         }
 
 
+        /** Create an N × N identity matrix.
+         *
+         *  @param {Number} N the rank (size) of the identity matrix to create
+         *  @result an N × N identity matrix.
+         */
+        function eye(N) {
+            var I = Object.create(AbstractNDArray.prototype);
+            Object.defineProperty(I, "shape",
+                { value : [N, N], writable : false });
+            I.getElement = function (index) {
+                return index[0] === index[1] ? 1 : 0;
+            };
+
+            return I;
+        }
+
+
         /** Solve a linear system of the form A x = b.  Most of the work is
          *  goes into doing the LU decomposition of A, so if you are solving
          *  the same equation with different right hand sides you may want to
@@ -1059,6 +1106,7 @@ define(
         }
 
 
+        jsn.eye = eye;
         jsn.solveLinearSystem = solveLinearSystem;
         jsn.asNDArray = asNDArray;
         jsn.areClose = areClose;

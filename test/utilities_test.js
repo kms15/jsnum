@@ -122,6 +122,12 @@ define(
                 }, RangeError, "nan length");
                 assert.throws(function () { jsn.AbstractNDArray.checkShape([2.5, 3, 3]); },
                     TypeError, "fractional length");
+            },
+
+            "should support eye" : function () {
+                assert.deepEqual(jsn.eye(1).toArray(), [[1]]);
+                assert.deepEqual(jsn.eye(2).toArray(), [[1, 0], [0, 1]]);
+                assert.deepEqual(jsn.eye(3).toArray(), [[1, 0, 0], [0, 1, 0], [0, 0, 1]]);
             }
         });
 

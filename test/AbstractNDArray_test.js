@@ -344,6 +344,23 @@ define(
         });
 
 
+        test.createSuite("unit:AbstractNDArray:matrix_operations:misc", {
+            "should support inverse" : function () {
+                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]);
+
+                assert.ok(jsn.areClose(A.dot(A.inverse()), jsn.eye(3)));
+            },
+
+            "should support det" : function () {
+                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
+                    B = jsn.asNDArray([[1, 3, 2], [5, 11, -13], [8, 2, 7]]);
+
+                assert.ok(jsn.areClose(A.det(), 102));
+                assert.ok(jsn.areClose(B.det(), -470));
+            }
+        });
+
+
         test.createSuite("unit:AbstractNDArray:math_ops", {
             "should support swap" : function () {
                 var A = jsn.asNDArray([[1, 3, 5], [4, 6, 8]]),
