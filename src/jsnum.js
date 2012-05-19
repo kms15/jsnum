@@ -96,7 +96,7 @@ define(
                     that = this;
 
                 return result.walkIndexes(function (index) {
-                    result.setElement(index, that.getElement(index));
+                    result.setElement(index, that.val(index));
                 });
             },
 
@@ -105,7 +105,8 @@ define(
              * This function throws an exception if indexes is not an array of
              * integers with the same length as the shape.  If you would like
              * to allow undefined values (and shorter arrays), set
-             * opts.allowUndefined to be true.
+             * opts.allowUndefined to be true.  By default negative indexes
+             * are allowed; to disable this set opts.nonnegative to true.
              * @param { Array<int> } indexes The indexes to check.
              * @param { object | undefined } opts A dictionary of options.
              * @throws { TypeError | RangeError }
@@ -131,7 +132,9 @@ define(
 
                 for (i = 0; i < indexes.length; i += 1) {
                     if (typeof indexes[i] === 'number') {
-                        if (!(indexes[i] >= 0 && indexes[i] < this.shape[i])) {
+                        if (!(indexes[i] >=
+                                ((opts && opts.nonnegative) ? 0 : -this.shape[i]) &&
+                                indexes[i] < this.shape[i])) {
                             throw new RangeError(
                                 "Index out of range, " +
                                     indexes[i] + " is not within (0, " +
@@ -287,8 +290,8 @@ define(
              */
             swap : function (B) {
                 return this.walkIndexes(function (index) {
-                    var temp = this.getElement(index);
-                    this.setElement(index, B.getElement(index));
+                    var temp = this.val(index);
+                    this.setElement(index, B.val(index));
                     B.setElement(index, temp);
                 });
             },
@@ -300,7 +303,7 @@ define(
                 var max = -Infinity;
 
                 this.copy().walkIndexes(function (index) {
-                    var e = this.getElement(index);
+                    var e = this.val(index);
                     if (e > max) {
                         max = e;
                     }
@@ -316,7 +319,7 @@ define(
                 var max = -Infinity, maxIndex;
 
                 this.copy().walkIndexes(function (index) {
-                    var e = this.getElement(index);
+                    var e = this.val(index);
                     if (e > max) {
                         max = e;
                         maxIndex = index.slice(0);
@@ -333,7 +336,7 @@ define(
                 var min = Infinity;
 
                 this.copy().walkIndexes(function (index) {
-                    var e = this.getElement(index);
+                    var e = this.val(index);
                     if (e < min) {
                         min = e;
                     }
@@ -349,7 +352,7 @@ define(
                 var min = Infinity, minIndex;
 
                 this.copy().walkIndexes(function (index) {
-                    var e = this.getElement(index);
+                    var e = this.val(index);
                     if (e < min) {
                         min = e;
                         minIndex = index.slice(0);
@@ -365,7 +368,7 @@ define(
              */
             abs : function () {
                 return this.copy().walkIndexes(function (index) {
-                    this.setElement(index, Math.abs(this.getElement(index)));
+                    this.setElement(index, Math.abs(this.val(index)));
                 });
             },
 
@@ -375,7 +378,7 @@ define(
              */
             reciprocal : function () {
                 return this.copy().walkIndexes(function (index) {
-                    this.setElement(index, 1 / this.getElement(index));
+                    this.setElement(index, 1 / this.val(index));
                 });
             },
 
@@ -387,7 +390,7 @@ define(
             addHere : function (B) {
                 if (typeof B === 'number') {
                     return this.walkIndexes(function (index) {
-                        this.setElement(index, this.getElement(index) + B);
+                        this.setElement(index, this.val(index) + B);
                     });
                 } else if (B.getElement === undefined) {
                     throw new TypeError("B must be an NDArray or number");
@@ -395,7 +398,7 @@ define(
                     throw new RangeError("B must have the same shape as this");
                 } else {
                     return this.walkIndexes(function (index) {
-                        this.setElement(index, this.getElement(index) + B.getElement(index));
+                        this.setElement(index, this.val(index) + B.val(index));
                     });
                 }
             },
@@ -417,7 +420,7 @@ define(
             subHere : function (B) {
                 if (typeof B === 'number') {
                     return this.walkIndexes(function (index) {
-                        this.setElement(index, this.getElement(index) - B);
+                        this.setElement(index, this.val(index) - B);
                     });
                 } else if (B.getElement === undefined) {
                     throw new TypeError("B must be an NDArray or number");
@@ -425,7 +428,7 @@ define(
                     throw new RangeError("B must have the same shape as this");
                 } else {
                     return this.walkIndexes(function (index) {
-                        this.setElement(index, this.getElement(index) - B.getElement(index));
+                        this.setElement(index, this.val(index) - B.val(index));
                     });
                 }
             },
@@ -447,7 +450,7 @@ define(
             mulHere : function (B) {
                 if (typeof B === 'number') {
                     return this.walkIndexes(function (index) {
-                        this.setElement(index, this.getElement(index) * B);
+                        this.setElement(index, this.val(index) * B);
                     });
                 } else if (B.getElement === undefined) {
                     throw new TypeError("B must be an NDArray or number");
@@ -455,7 +458,7 @@ define(
                     throw new RangeError("B must have the same shape as this");
                 } else {
                     return this.walkIndexes(function (index) {
-                        this.setElement(index, this.getElement(index) * B.getElement(index));
+                        this.setElement(index, this.val(index) * B.val(index));
                     });
                 }
             },
@@ -477,7 +480,7 @@ define(
             divHere : function (B) {
                 if (typeof B === 'number') {
                     return this.walkIndexes(function (index) {
-                        this.setElement(index, this.getElement(index) / B);
+                        this.setElement(index, this.val(index) / B);
                     });
                 } else if (B.getElement === undefined) {
                     throw new TypeError("B must be an NDArray or number");
@@ -485,7 +488,7 @@ define(
                     throw new RangeError("B must have the same shape as this");
                 } else {
                     return this.walkIndexes(function (index) {
-                        this.setElement(index, this.getElement(index) / B.getElement(index));
+                        this.setElement(index, this.val(index) / B.val(index));
                     });
                 }
             },
@@ -504,7 +507,7 @@ define(
              */
             negHere : function () {
                 return this.walkIndexes(function (index) {
-                    this.setElement(index, -this.getElement(index));
+                    this.setElement(index, -this.val(index));
                 });
             },
 
@@ -547,9 +550,9 @@ define(
                             dotToResult(result.at([i]), A, B.at([undefined, i]));
                         }
                     } else {
-                        total = A.getElement([0]) * B.getElement([0]);
+                        total = A.val([0]) * B.val([0]);
                         for (i = A.shape[0] - 1; i > 0; i -= 1) {
-                            total += A.getElement([i]) * B.getElement([i]);
+                            total += A.val([i]) * B.val([i]);
                         }
                         result.setElement([], total);
                     }
@@ -565,7 +568,7 @@ define(
                 var i, result = [];
 
                 if (this.shape.length === 0) {
-                    return this.getElement([]);
+                    return this.val();
                 } else {
                     for (i = 0; i < this.shape[0]; i += 1) {
                         result[i] = this.at([i]).toArray();
@@ -614,9 +617,9 @@ define(
 
                     // find the largest scaled pivot
                     pivotRow = k;
-                    pivotVal = Math.abs(scaling[k] * scratch.getElement([k, k]));
+                    pivotVal = Math.abs(scaling[k] * scratch.val([k, k]));
                     for (i = k + 1; i < N; i += 1) {
-                        testVal = Math.abs(scaling[i] * scratch.getElement([i, k]));
+                        testVal = Math.abs(scaling[i] * scratch.val([i, k]));
                         if (testVal > pivotVal) {
                             pivotRow = i;
                             pivotVal = testVal;
@@ -638,12 +641,12 @@ define(
                     }
 
                     // Now reduce the remaining rows
-                    pivotScalingFactor = 1 / scratch.getElement([k, k]);
+                    pivotScalingFactor = 1 / scratch.val([k, k]);
                     for (i = k + 1; i < N; i += 1) {
-                        rowScalingFactor =  scratch.getElement([i, k]) * pivotScalingFactor;
+                        rowScalingFactor =  scratch.val([i, k]) * pivotScalingFactor;
                         scratch.setElement([i, k], rowScalingFactor);
                         for (j = k + 1; j < N; j += 1) {
-                            scratch.setElement([i, j], scratch.getElement([i, j]) - scratch.getElement([k, j]) * rowScalingFactor);
+                            scratch.setElement([i, j], scratch.val([i, j]) - scratch.val([k, j]) * rowScalingFactor);
                         }
                     }
                 }
@@ -674,7 +677,7 @@ define(
                     } else if (index[0] === index[1]) {
                         val = 1;
                     } else {
-                        val = scratch.getElement(index);
+                        val = scratch.val(index);
                     }
                     this.setElement(index, val);
                 });
@@ -686,7 +689,7 @@ define(
                     if (index[0] > index[1]) {
                         val = 0;
                     } else {
-                        val = scratch.getElement(index);
+                        val = scratch.val(index);
                     }
                     this.setElement(index, val);
                 });
@@ -717,8 +720,8 @@ define(
                 // is just the product of the diagonal elements.
                 result = lu.P.det();
                 for (i = 0; i < N; i += 1) {
-                    result *= lu.L.getElement([i, i]);
-                    result *= lu.U.getElement([i, i]);
+                    result *= lu.L.val([i, i]);
+                    result *= lu.U.val([i, i]);
                 }
 
                 return result;
@@ -760,7 +763,7 @@ define(
                     { value : newShape, writable : false });
 
                 result.getElement = function (index) {
-                    return that.getElement(permute(index));
+                    return that.val(permute(index));
                 };
 
                 if (!this.isReadOnly()) {
@@ -775,20 +778,6 @@ define(
         };
 
 
-        /** For a 0D array, returns the element in the array.  For higher
-         *  dimensional arrays the original array is returned.  This allows
-         *  you to use 0-dimensional arrays as numbers in calculations,
-         *  e.g. 3 * A.
-         */
-        AbstractNDArray.prototype.valueOf = function () {
-            if (this.shape.length === 0) {
-                return this.getElement([]);
-            } else {
-                return this;
-            }
-        };
-
-
         /** Gets a particular element from the array.  This is similar to
          *  getElement, but provides better error checking and support for
          *  negative indexes.
@@ -797,10 +786,21 @@ define(
          *      (optional for a 0-D array).
          */
         AbstractNDArray.prototype.val = function (index) {
+            var i;
+
             if (index === undefined) {
                 index = [];
+            } else {
+                this.checkIndexes(index);
+                index = index.slice(0);
             }
-            this.checkIndexes(index);
+
+            // handle negative indexes
+            for (i = index.length - 1; i >= 0; i -= 1) {
+                if (index[i] < 0) {
+                    index[i] += this.shape[i];
+                }
+            }
 
             return this.getElement(index);
         };
@@ -827,7 +827,7 @@ define(
 
                 if (array.shape.length === 0) {
                     return Math.max(minFieldWidth,
-                            String(array.getElement([])).length);
+                            String(array.val()).length);
                 } else {
                     result = minFieldWidth;
 
@@ -845,7 +845,7 @@ define(
 
                 result = '[ ';
                 for (i = 0; i < array.shape[0]; i += 1) {
-                    result += padLeft(array.getElement([i]), fieldWidth);
+                    result += padLeft(array.val([i]), fieldWidth);
                     if (i < array.shape[0] - 1) {
                         result += ', ';
                     } else {
@@ -876,7 +876,7 @@ define(
                 var result, i;
 
                 if (array.shape.length === 0) {
-                    result = '( ' + array.getElement([]) + ' )';
+                    result = '( ' + array.val() + ' )';
                 } else if (array.shape.length === 1) {
                     result = format1D(array, fieldWidth);
                 } else if (array.shape.length === 2) {
@@ -1010,7 +1010,7 @@ define(
             var o = Object.create(AbstractNDArray.prototype), val, shape;
 
             // if it's already an array, we're done
-            if (vals.getElement !== undefined) {
+            if (vals.val !== undefined) {
                 return vals;
             }
 
@@ -1089,8 +1089,8 @@ define(
                 }
 
                 val1.walkIndexes(function (index) {
-                    if (!areClose(val1.getElement(index),
-                            val2.getElement(index), abstol, reltol)) {
+                    if (!areClose(val1.val(index),
+                            val2.val(index), abstol, reltol)) {
                         close = false;
                     }
                 });
@@ -1167,7 +1167,7 @@ define(
                     colX = solveLinearSystem(lu, b.at(fullIndex));
                     for (i = 0; i < N; i += 1) {
                         fullIndex[0] = i;
-                        x.setElement(fullIndex, colX.getElement([i]));
+                        x.setElement(fullIndex, colX.val([i]));
                     }
                 });
 
@@ -1177,8 +1177,8 @@ define(
                 b = b.copy();
                 for (i = 0; i < N; i += 1) {
                     if (lu.p[i] !== i) {
-                        swap = b.getElement([i]);
-                        b.setElement([i], b.getElement([lu.p[i]]));
+                        swap = b.val([i]);
+                        b.setElement([i], b.val([lu.p[i]]));
                         b.setElement([lu.p[i]], swap);
                     }
                 }
@@ -1188,20 +1188,20 @@ define(
                 for (i = 0; i < N; i += 1) {
                     sum = 0;
                     for (j = 0; j < i; j += 1) {
-                        sum += lu.L.getElement([i, j]) * y.getElement([j]);
+                        sum += lu.L.val([i, j]) * y.val([j]);
                     }
 
-                    y.setElement([i], (b.getElement([i]) - sum) / lu.L.getElement([i, i]));
+                    y.setElement([i], (b.val([i]) - sum) / lu.L.val([i, i]));
                 }
 
                 // use backward substitution to find x such that U x = y
                 for (i = N - 1; i >= 0; i -= 1) {
                     sum = 0;
                     for (j = i + 1; j < N; j += 1) {
-                        sum += lu.U.getElement([i, j]) * x.getElement([j]);
+                        sum += lu.U.val([i, j]) * x.val([j]);
                     }
 
-                    x.setElement([i], (y.getElement([i]) - sum) / lu.U.getElement([i, i]));
+                    x.setElement([i], (y.val([i]) - sum) / lu.U.val([i, i]));
                 }
             }
 

@@ -41,6 +41,7 @@ define(
 
                 // should not throw with valid data
                 result = A.checkIndexes([1, 0, 1, 0]);
+                result = A.checkIndexes([1, 0, -2, 0]);
                 assert.strictEqual(result, A);
 
                 assert.throws(function () { A.checkIndexes([0, 0, 0]); },
@@ -64,10 +65,10 @@ define(
                 assert.throws(function () { A.checkIndexes('a'); },
                     TypeError, "non-list");
 
-                assert.throws(function () { A.checkIndexes([1, 0, -1, 0]); },
-                    RangeError, "negative index");
                 assert.throws(function () { A.checkIndexes([1, 0, 1, 1]); },
                     RangeError, "index too large");
+                assert.throws(function () { A.checkIndexes([1, 0, -1, 0], { nonnegative: true }); },
+                    RangeError, "index too negative");
                 assert.throws(function () { A.checkIndexes([1, 0.2, 1, 0]); },
                     TypeError, "fractional index");
                 assert.throws(function () {
@@ -136,14 +137,6 @@ define(
                 assert.deepEqual(A.toArray(), [[1, 5], [3, 4]]);
             },
 
-            "should support valueOf" : function () {
-                var A = jsnum.asNDArray(3),
-                    B = jsnum.asNDArray([2, 3]);
-                assert.strictEqual(2 * A, 6, "0D case");
-                assert.ok(isNaN(2 * B), "n-D, n > 0 case");
-                assert.strictEqual(B.valueOf(), B, "explicit function call");
-            },
-
             "should support isReadOnly" : function () {
                 var A = jsnum.asNDArray([[1, 5], [3, 4]]);
 
@@ -158,6 +151,14 @@ define(
 
                 assert.strictEqual(A.val([0, 1]), 5, "with index");
                 assert.strictEqual(B.val(), 7, "without index");
+                assert.strictEqual(A.val([-1, 1]), 4, "negative index 1");
+                assert.strictEqual(A.val([1, -2]), 3, "negative index 2");
+            },
+
+            "val should call checkIndexes" : function () {
+                var A = jsnum.asNDArray([[1, 5], [3, 4]]);
+
+                A.getElement = function () {};
                 assert.calls(A, "checkIndexes", function () {
                     A.val([1, 0]);
                 });
@@ -327,15 +328,15 @@ define(
                 assert.ok(jsnum.areClose(res.P.dot(res.L.dot(res.U)), A),
                     "Product should be original matrix");
                 res.L.walkIndexes(function (index) {
-                    assert.ok(index[0] >= index[1] || this.getElement(index) === 0,
+                    assert.ok(index[0] >= index[1] || this.val(index) === 0,
                         "L should be lower diagonal");
                 });
                 res.U.walkIndexes(function (index) {
-                    assert.ok(index[0] <= index[1] || this.getElement(index) === 0,
+                    assert.ok(index[0] <= index[1] || this.val(index) === 0,
                         "U should be upper diagonal");
                 });
                 res.P.walkIndexes(function (index) {
-                    var val = this.getElement(index);
+                    var val = this.val(index);
                     if (val !== 0) {
                         assert.ok(val === 1, "P should only contain 0s and 1s");
                         assert.ok(!rowUsed[index[0]] && !colUsed[index[1]],
