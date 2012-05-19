@@ -150,15 +150,26 @@ define(
                 assert.ok(!A.isReadOnly());
                 A.setElement = jsnum.AbstractNDArray.prototype.setElement;
                 assert.ok(A.isReadOnly());
+            },
+
+            "should support val" : function () {
+                var A = jsnum.asNDArray([[1, 5], [3, 4]]),
+                    B = jsnum.asNDArray(7);
+
+                assert.strictEqual(A.val([0,1]), 5, "with index");
+                assert.strictEqual(B.val(), 7, "without index");
+                assert.calls(A, "checkIndexes", function () {
+                    A.val([1, 0]);
+                });
             }
         });
 
         test.createSuite("unit:AbstractNDArray:views", {
-            "should support collapse" : function () {
+            "should support at" : function () {
                 var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
                     [[[7.5], [8.625]], [[9.25], [10.125]]]]);
 
-                assert.strictEqual(String(A.collapse([1])),
+                assert.strictEqual(String(A.at([1])),
                     '[\n' +
                     ' [[    7.5 ],\n' +
                     '  [  8.625 ]],\n' +
@@ -168,20 +179,20 @@ define(
                     ']');
 
                 assert.strictEqual(
-                    String(A.collapse([undefined, undefined, 0, 0])),
+                    String(A.at([undefined, undefined, 0, 0])),
                     '[[   1.5, 5.125 ],\n' +
                         ' [   7.5,  9.25 ]]'
                 );
 
-                assert.strictEqual(String(A.collapse([1, 1, 0, 0])),
+                assert.strictEqual(String(A.at([1, 1, 0, 0])),
                     '( 9.25 )');
             },
 
-            "collapse should support setElement" : function () {
+            "at should support setElement" : function () {
                 var A = jsnum.asNDArray(
                     [[1.5, 3.25], [5.125, 6.125], [7.5, 8.625]]
                 ),
-                    B = A.collapse([undefined, 1]);
+                    B = A.at([undefined, 1]);
 
                 B.setElement([1], 2);
 
@@ -195,59 +206,59 @@ define(
                     "set element is chainable");
             },
 
-            "collapse should respect isReadOnly" : function () {
-                assert.ok(jsnum.eye(3).collapse([1]).isReadOnly());
+            "at should respect isReadOnly" : function () {
+                assert.ok(jsnum.eye(3).at([1]).isReadOnly());
             },
 
-            "collapse should not track original index array" : function () {
+            "at should not track original index array" : function () {
                 var A = jsnum.asNDArray([[1.5, 3.25],
                     [5.125, 6.125], [7.5, 8.625]]),
                     l = [undefined, 1],
-                    B = A.collapse(l);
+                    B = A.at(l);
 
                 l[1] = 0;
                 assert.strictEqual(String(B),
                     '[  3.25, 6.125, 8.625 ]');
             },
 
-            "collapse should call checkIndexes" : function () {
+            "at should call checkIndexes" : function () {
                 var A = jsnum.asNDArray([[1.5, 3.25],
                     [5.125, 6.125], [7.5, 8.625]]);
 
                 assert.calls(A, "checkIndexes", function () {
-                    A.collapse([1, 0]);
+                    A.at([1, 0]);
                 });
             },
 
 
-            "collapse(...).getElement should call check indexes" :
+            "at(...).getElement should call check indexes" :
                 function () {
 
                     var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
                         [[[7.5], [8.625]], [[9.25], [10.125]]]]),
-                        B = A.collapse([1, undefined, 1]);
+                        B = A.at([1, undefined, 1]);
 
                     assert.calls(B, "checkIndexes", function () {
                         B.getElement([1, 0]);
                     });
                 },
 
-            "collapse(...).setElement should call check indexes" :
+            "at(...).setElement should call check indexes" :
                 function () {
 
                     var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
                         [[[7.5], [8.625]], [[9.25], [10.125]]]]),
-                        B = A.collapse([1, undefined, 1]);
+                        B = A.at([1, undefined, 1]);
 
                     assert.calls(B, "checkIndexes", function () {
                         B.setElement([1, 0], 3);
                     });
                 },
 
-            "collapse(...).shape should not be writable" : function () {
+            "at(...).shape should not be writable" : function () {
                 var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
                     [[[7.5], [8.625]], [[9.25], [10.125]]]]),
-                    B = A.collapse([1, undefined, 1]);
+                    B = A.at([1, undefined, 1]);
 
                 assert.throws(function () { B.shape = [1, 1]; });
             },

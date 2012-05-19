@@ -233,7 +233,7 @@ define(
              *  @returns A (writable) lower dimensional view of the given slice
              *      of the original array.
              */
-            collapse : function (indexes) {
+            at : function (indexes) {
                 var o, i, map = [], newShape = [], newIndexes = [], that = this;
 
                 this.checkIndexes(indexes, { allowUndefined : true });
@@ -281,7 +281,7 @@ define(
 
 
             /** Swap the contents of this array with those in B.  Combined with
-             *  collapse, this allows you to do things like swap rows or columns.
+             *  at, this allows you to do things like swap rows or columns.
              *  @param { NDArray } B the array with which to swap elements
              *  @returns this n-dimensional array (chainable)
              */
@@ -540,11 +540,11 @@ define(
 
                     if (A.shape.length > 1) {
                         for (i = A.shape[0] - 1; i >= 0; i -= 1) {
-                            dotToResult(result.collapse([i]), A.collapse([i]), B);
+                            dotToResult(result.at([i]), A.at([i]), B);
                         }
                     } else if (B.shape.length > 1) {
                         for (i = B.shape[1] - 1; i >= 0; i -= 1) {
-                            dotToResult(result.collapse([i]), A, B.collapse([undefined, i]));
+                            dotToResult(result.at([i]), A, B.at([undefined, i]));
                         }
                     } else {
                         total = A.getElement([0]) * B.getElement([0]);
@@ -568,7 +568,7 @@ define(
                     return this.getElement([]);
                 } else {
                     for (i = 0; i < this.shape[0]; i += 1) {
-                        result[i] = this.collapse([i]).toArray();
+                        result[i] = this.at([i]).toArray();
                     }
 
                     return result;
@@ -606,7 +606,7 @@ define(
                 }
 
                 for (i = 0; i < N; i += 1) {
-                    scaling[i] = 1 / this.collapse([i]).abs().max();
+                    scaling[i] = 1 / this.at([i]).abs().max();
                 }
 
                 // for each column...
@@ -625,7 +625,7 @@ define(
 
                     // swap rows if needed to put the pivot value in the right place
                     if (pivotRow !== k) {
-                        scratch.collapse([k]).swap(scratch.collapse([pivotRow]));
+                        scratch.at([k]).swap(scratch.at([pivotRow]));
                         p_epsilon = -p_epsilon; // track the permutation parity
                         scaling[pivotRow] = scaling[k]; // fix the scaling (for the part we'll use again)
                     }
@@ -660,7 +660,7 @@ define(
                 });
                 for (i = N - 1; i >= 0; i -= 1) {
                     if (p[i] !== i) {
-                        P.collapse([i]).swap(P.collapse([p[i]]));
+                        P.at([i]).swap(P.at([p[i]]));
                     }
                 }
                 P.det = function () { return p_epsilon; };
@@ -789,6 +789,23 @@ define(
         };
 
 
+        /** Gets a particular element from the array.  This is similar to
+         *  getElement, but provides better error checking and support for
+         *  negative indexes.
+         *
+         *  @param {Array<int>} index The index of the element to retrieve
+         *      (optional for a 0-D array).
+         */
+        AbstractNDArray.prototype.val = function (index) {
+            if (index === undefined) {
+                index = [];
+            }
+            this.checkIndexes(index);
+
+            return this.getElement(index);
+        };
+
+
         /** Creates a human-readable text version of the array
          */
         AbstractNDArray.prototype.toString = function () {
@@ -815,7 +832,7 @@ define(
                     result = minFieldWidth;
 
                     for (i = 0; i < array.shape[0]; i += 1) {
-                        result = getMaxFieldWidth(array.collapse([i]), result);
+                        result = getMaxFieldWidth(array.at([i]), result);
                     }
 
                     return result;
@@ -844,7 +861,7 @@ define(
 
                 result = padLeft('', indent) + '[';
                 for (i = 0; i < array.shape[0]; i += 1) {
-                    result += format1D(array.collapse([i]), fieldWidth);
+                    result += format1D(array.at([i]), fieldWidth);
                     if (i < array.shape[0] - 1) {
                         result += ',\n' + padLeft('', indent + 1);
                     } else {
@@ -867,7 +884,7 @@ define(
                 } else {
                     result = padLeft('', indent) + '[\n';
                     for (i = 0; i < array.shape[0]; i += 1) {
-                        result += formatND(array.collapse([i]), fieldWidth,
+                        result += formatND(array.at([i]), fieldWidth,
                                 indent + 1);
                         if (i < array.shape[0] - 1) {
                             result += ',\n\n';
@@ -1021,7 +1038,7 @@ define(
                     }
 
                     for (i = 0; i < o.shape[0]; i += 1) {
-                        copyVals(o.collapse([i]), vals[i]);
+                        copyVals(o.at([i]), vals[i]);
                     }
                 }
             }
@@ -1142,12 +1159,12 @@ define(
 
             if (b.shape.length > 1) {
                 // b is a matrix, so solve for each of the columns individually
-                b.collapse([0]).walkIndexes(function (index) {
+                b.at([0]).walkIndexes(function (index) {
                     var i, colX, fullIndex = index.slice(0);
                     fullIndex.unshift(undefined);
 
                     // solve the system and copy the result into the column
-                    colX = solveLinearSystem(lu, b.collapse(fullIndex));
+                    colX = solveLinearSystem(lu, b.at(fullIndex));
                     for (i = 0; i < N; i += 1) {
                         fullIndex[0] = i;
                         x.setElement(fullIndex, colX.getElement([i]));
