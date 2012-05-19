@@ -207,6 +207,15 @@ define(
                     "set element is chainable");
             },
 
+            "at should support negative indexes" : function () {
+                var A = jsnum.asNDArray(
+                    [[1.5, 3.25], [5.125, 6.125], [7.5, 8.625]]
+                );
+
+                assert.strictEqual(A.at([undefined, -1]).toString(),
+                    '[  3.25, 6.125, 8.625 ]');
+            },
+
             "at should respect isReadOnly" : function () {
                 assert.ok(jsnum.eye(3).at([1]).isReadOnly());
             },

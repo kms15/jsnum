@@ -258,7 +258,11 @@ define(
                 }
 
                 for (i = 0; i < this.shape.length; i += 1) {
-                    newIndexes.push(indexes[i]);
+                    if (indexes[i] < 0) {
+                        newIndexes.push(indexes[i] + this.shape[i]);
+                    } else {
+                        newIndexes.push(indexes[i]);
+                    }
                     if (indexes[i] === undefined) {
                         newShape.push(this.shape[i]);
                         map.push(i);
