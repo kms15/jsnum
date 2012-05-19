@@ -7,11 +7,11 @@
 define(
     [],
     /** central module for the JSN library
-     *  @exports jsn
+     *  @exports jsnum
      */
     function () {
         "use strict";
-        var jsn = {};
+        var jsnum = {};
 
         function abstractMethod() {
             throw new TypeError("call to an abstract method");
@@ -163,7 +163,7 @@ define(
              */
             isReadOnly : function () {
                 return (this.setElement ===
-                    jsn.AbstractNDArray.prototype.setElement);
+                    jsnum.AbstractNDArray.prototype.setElement);
             },
 
 
@@ -664,7 +664,7 @@ define(
                     }
                 }
                 P.det = function () { return p_epsilon; };
-                P.setElement = jsn.AbstractNDArray.prototype.setElement;
+                P.setElement = jsnum.AbstractNDArray.prototype.setElement;
 
                 L = this.createResult(this.shape);
                 L.walkIndexes(function (index) {
@@ -678,7 +678,7 @@ define(
                     }
                     this.setElement(index, val);
                 });
-                L.setElement = jsn.AbstractNDArray.prototype.setElement;
+                L.setElement = jsnum.AbstractNDArray.prototype.setElement;
 
                 U = this.createResult(this.shape);
                 U.walkIndexes(function (index) {
@@ -690,23 +690,23 @@ define(
                     }
                     this.setElement(index, val);
                 });
-                U.setElement = jsn.AbstractNDArray.prototype.setElement;
+                U.setElement = jsnum.AbstractNDArray.prototype.setElement;
 
                 return { P: P, L: L, U: U, p: p };
             },
 
             /** Find the inverse of this matrix.  If this is an N × N square
              *  non-singular matrix this function finds the inverse of the
-             *  matrix, using jsn.linSolve (which uses LU Decomposition).
+             *  matrix, using jsnum.linSolve (which uses LU Decomposition).
              *  @returns The inverse of this matrix.
              */
             inverse : function () {
-                return jsn.solveLinearSystem(this, jsn.eye(this.shape[0]));
+                return jsnum.solveLinearSystem(this, jsnum.eye(this.shape[0]));
             },
 
             /** Find the determinant of this matrix.  If this is an N × N
              *  square matrix this function finds the determinant of the
-             *  matrix, using jsn.linSolve (which uses LU Decomposition).
+             *  matrix, using jsnum.linSolve (which uses LU Decomposition).
              *  @returns The determinant of this matrix.
              */
             det : function () {
@@ -1026,7 +1026,7 @@ define(
                 }
             }
 
-            o = new jsn.UntypedNDArray(shape);
+            o = new jsnum.UntypedNDArray(shape);
             copyVals(o, vals);
 
             return o;
@@ -1192,13 +1192,13 @@ define(
         }
 
 
-        jsn.eye = eye;
-        jsn.solveLinearSystem = solveLinearSystem;
-        jsn.asNDArray = asNDArray;
-        jsn.areClose = areClose;
-        jsn.AbstractNDArray = AbstractNDArray;
-        jsn.UntypedNDArray = UntypedNDArray;
+        jsnum.eye = eye;
+        jsnum.solveLinearSystem = solveLinearSystem;
+        jsnum.asNDArray = asNDArray;
+        jsnum.areClose = areClose;
+        jsnum.AbstractNDArray = AbstractNDArray;
+        jsnum.UntypedNDArray = UntypedNDArray;
 
-        return jsn;
+        return jsnum;
     }
 );

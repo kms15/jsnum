@@ -1,19 +1,19 @@
 /*global define */
 define(
-    ['tools/test', 'tools/assert', 'src/jsn'],
-    function (test, assert, jsn) {
+    ['tools/test', 'tools/assert', 'src/jsnum'],
+    function (test, assert, jsnum) {
         "use strict";
 
         test.createSuite("unit:asNDArray", {
             "should build from scalar" : function () {
-                var A = jsn.asNDArray(3.25);
+                var A = jsnum.asNDArray(3.25);
 
                 assert.strictEqual(String(A), '( 3.25 )');
                 assert.strictEqual(A.shape.length, 0);
             },
 
             "should build from 1D list" : function () {
-                var A = jsn.asNDArray([1.5, 3.25, 5.125]);
+                var A = jsnum.asNDArray([1.5, 3.25, 5.125]);
 
                 assert.strictEqual(String(A),
                     '[   1.5,  3.25, 5.125 ]');
@@ -21,8 +21,8 @@ define(
             },
 
             "should build from 2D list" : function () {
-                var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]),
-                    B = jsn.asNDArray([[1.5, 3.25, 5.125], [6, 7.5, 8.625]]);
+                var A = jsnum.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]),
+                    B = jsnum.asNDArray([[1.5, 3.25, 5.125], [6, 7.5, 8.625]]);
 
                 assert.strictEqual(String(A),
                     '[[   1.5,  3.25 ],\n' +
@@ -36,7 +36,7 @@ define(
             },
 
             "should build from higher dimensional list" : function () {
-                var A = jsn.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
+                var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
                     [[[7.5], [8.625]], [[9.25], [10.125]]]]);
 
                 assert.strictEqual(String(A),
@@ -62,7 +62,7 @@ define(
 
             "should make a copy of values" : function () {
                 var a = [[1, 2], [3, 4]],
-                    A = jsn.asNDArray(a);
+                    A = jsnum.asNDArray(a);
 
                 a[0][1] = 5;
                 assert.strictEqual(String(A),
@@ -71,32 +71,32 @@ define(
             },
 
             "if passed an ndarray should return the array" : function () {
-                var A = jsn.asNDArray([[1, 2], [3, 4]]),
-                    B = jsn.asNDArray(A);
+                var A = jsnum.asNDArray([[1, 2], [3, 4]]),
+                    B = jsnum.asNDArray(A);
 
                 assert.strictEqual(B, A);
             },
 
             "should use (tested) UntypedNDArray class" : function () {
-                var A = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]),
-                    B = jsn.asNDArray(3);
+                var A = jsnum.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]),
+                    B = jsnum.asNDArray(3);
 
-                assert.ok(A instanceof jsn.UntypedNDArray);
-                assert.ok(B instanceof jsn.UntypedNDArray);
+                assert.ok(A instanceof jsnum.UntypedNDArray);
+                assert.ok(B instanceof jsnum.UntypedNDArray);
             },
 
             "should not accept ragged arrays" : function () {
                 assert.throws(function () {
-                    jsn.asNDArray([[1, 2], [3, 4, 5]]);
+                    jsnum.asNDArray([[1, 2], [3, 4, 5]]);
                 }, TypeError, "first shorter");
                 assert.throws(function () {
-                    jsn.asNDArray([[1, 2, 3], [4, 5]]);
+                    jsnum.asNDArray([[1, 2, 3], [4, 5]]);
                 }, TypeError, "later shorter");
                 assert.throws(function () {
-                    jsn.asNDArray([[[1, 2], 3], [4, 5]]);
+                    jsnum.asNDArray([[[1, 2], 3], [4, 5]]);
                 }, TypeError, "first element deeper");
                 assert.throws(function () {
-                    jsn.asNDArray([[1, 2], [[3, 4], 5]]);
+                    jsnum.asNDArray([[1, 2], [[3, 4], 5]]);
                 }, TypeError, "later element deeper");
             },
         });
@@ -106,90 +106,90 @@ define(
             "should support checkShape" : function () {
 
                 // should not throw with valid data
-                jsn.AbstractNDArray.checkShape([2, 3, 1, 6]);
-                jsn.AbstractNDArray.checkShape([]);
+                jsnum.AbstractNDArray.checkShape([2, 3, 1, 6]);
+                jsnum.AbstractNDArray.checkShape([]);
 
-                assert.throws(function () { jsn.AbstractNDArray.checkShape('a'); },
+                assert.throws(function () { jsnum.AbstractNDArray.checkShape('a'); },
                     TypeError, "non-Array");
-                assert.throws(function () { jsn.AbstractNDArray.checkShape([1, 'a', 2]); },
+                assert.throws(function () { jsnum.AbstractNDArray.checkShape([1, 'a', 2]); },
                     TypeError, "non-numeric length");
-                assert.throws(function () { jsn.AbstractNDArray.checkShape([1, 3, 0]); },
+                assert.throws(function () { jsnum.AbstractNDArray.checkShape([1, 3, 0]); },
                     RangeError, "zero length");
-                assert.throws(function () { jsn.AbstractNDArray.checkShape([-2, 3, 3]); },
+                assert.throws(function () { jsnum.AbstractNDArray.checkShape([-2, 3, 3]); },
                     RangeError, "negative length");
                 assert.throws(function () {
-                    jsn.AbstractNDArray.checkShape([2, Number.NaN, 3]);
+                    jsnum.AbstractNDArray.checkShape([2, Number.NaN, 3]);
                 }, RangeError, "nan length");
-                assert.throws(function () { jsn.AbstractNDArray.checkShape([2.5, 3, 3]); },
+                assert.throws(function () { jsnum.AbstractNDArray.checkShape([2.5, 3, 3]); },
                     TypeError, "fractional length");
             },
 
             "should support eye" : function () {
-                assert.deepEqual(jsn.eye(1).toArray(), [[1]]);
-                assert.deepEqual(jsn.eye(2).toArray(), [[1, 0], [0, 1]]);
-                assert.deepEqual(jsn.eye(3).toArray(), [[1, 0, 0], [0, 1, 0], [0, 0, 1]]);
+                assert.deepEqual(jsnum.eye(1).toArray(), [[1]]);
+                assert.deepEqual(jsnum.eye(2).toArray(), [[1, 0], [0, 1]]);
+                assert.deepEqual(jsnum.eye(3).toArray(), [[1, 0, 0], [0, 1, 0], [0, 0, 1]]);
             }
         });
 
 
         test.createSuite("unit:miscUtils:solveLinearSystem", {
             "should support vectors" : function () {
-                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
-                    x = jsn.asNDArray([4, 5, 2]),
+                var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
+                    x = jsnum.asNDArray([4, 5, 2]),
                     b = A.dot(x),
-                    xNew = jsn.solveLinearSystem(A, b);
+                    xNew = jsnum.solveLinearSystem(A, b);
 
-                assert.ok(jsn.areClose(x, xNew));
+                assert.ok(jsnum.areClose(x, xNew));
             },
 
             "should support matrices" : function () {
-                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
-                    X = jsn.asNDArray([[4, 5], [2, 3], [5, 8]]),
+                var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
+                    X = jsnum.asNDArray([[4, 5], [2, 3], [5, 8]]),
                     B = A.dot(X),
-                    XNew = jsn.solveLinearSystem(A, B);
+                    XNew = jsnum.solveLinearSystem(A, B);
 
-                assert.ok(jsn.areClose(X, XNew));
+                assert.ok(jsnum.areClose(X, XNew));
             },
 
             "should use previous LU decomposition" : function () {
-                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
-                    X = jsn.asNDArray([[4, 5], [2, 3], [5, 8]]),
+                var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
+                    X = jsnum.asNDArray([[4, 5], [2, 3], [5, 8]]),
                     B = A.dot(X),
-                    x = jsn.asNDArray([4, 5, 2]),
+                    x = jsnum.asNDArray([4, 5, 2]),
                     b = A.dot(x),
                     lu = A.LUDecomposition(),
-                    xNew = jsn.solveLinearSystem(lu, b),
-                    XNew = jsn.solveLinearSystem(lu, B);
+                    xNew = jsnum.solveLinearSystem(lu, b),
+                    XNew = jsnum.solveLinearSystem(lu, B);
 
-                assert.ok(jsn.areClose(x, xNew));
-                assert.ok(jsn.areClose(X, XNew));
+                assert.ok(jsnum.areClose(x, xNew));
+                assert.ok(jsnum.areClose(X, XNew));
             },
 
             "should check for incompatible shapes" : function () {
-                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
-                    B = jsn.asNDArray([[4, 5, 2], [3, 5, 8]]),
-                    b = jsn.asNDArray([4, 5, 2, 8]);
+                var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
+                    B = jsnum.asNDArray([[4, 5, 2], [3, 5, 8]]),
+                    b = jsnum.asNDArray([4, 5, 2, 8]);
 
                 assert.throws(function () {
-                    jsn.solveLinearSystem(A, B);
+                    jsnum.solveLinearSystem(A, B);
                 }, RangeError, "matrix");
 
                 assert.throws(function () {
-                    jsn.solveLinearSystem(A, b);
+                    jsnum.solveLinearSystem(A, b);
                 }, RangeError, "vector");
             },
 
             "should check for non-matrix arguments" : function () {
-                var A = jsn.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
-                    X = jsn.asNDArray([[4, 5], [2, 3], [5, 8]]),
+                var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
+                    X = jsnum.asNDArray([[4, 5], [2, 3], [5, 8]]),
                     B = A.dot(X);
 
                 assert.throws(function () {
-                    jsn.solveLinearSystem("", B);
+                    jsnum.solveLinearSystem("", B);
                 }, TypeError, "A string");
 
                 assert.throws(function () {
-                    jsn.solveLinearSystem(A, "");
+                    jsnum.solveLinearSystem(A, "");
                 }, TypeError, "B string");
             }
         });
@@ -197,62 +197,62 @@ define(
 
         test.createSuite("unit:miscUtils:areClose", {
             "should use abstol when out of range for reltol" : function () {
-                assert.ok(!jsn.areClose(1, 0.74, 0.25, 0.125));
-                assert.ok(jsn.areClose(1, 0.75, 0.25, 0.125));
-                assert.ok(jsn.areClose(1, 0.76, 0.25, 0.125));
-                assert.ok(jsn.areClose(1, 1.25, 0.25, 0.125));
-                assert.ok(jsn.areClose(1, 1.24, 0.25, 0.125));
-                assert.ok(!jsn.areClose(1, 1.26, 0.25, 0.125));
+                assert.ok(!jsnum.areClose(1, 0.74, 0.25, 0.125));
+                assert.ok(jsnum.areClose(1, 0.75, 0.25, 0.125));
+                assert.ok(jsnum.areClose(1, 0.76, 0.25, 0.125));
+                assert.ok(jsnum.areClose(1, 1.25, 0.25, 0.125));
+                assert.ok(jsnum.areClose(1, 1.24, 0.25, 0.125));
+                assert.ok(!jsnum.areClose(1, 1.26, 0.25, 0.125));
             },
 
             "should use reltol when out of range for abstol" : function () {
-                assert.ok(!jsn.areClose(100, 87.4, 0.25, 0.125));
-                assert.ok(jsn.areClose(100, 87.5, 0.25, 0.125));
-                assert.ok(jsn.areClose(100, 87.6, 0.25, 0.125));
+                assert.ok(!jsnum.areClose(100, 87.4, 0.25, 0.125));
+                assert.ok(jsnum.areClose(100, 87.5, 0.25, 0.125));
+                assert.ok(jsnum.areClose(100, 87.6, 0.25, 0.125));
 
-                assert.ok(!jsn.areClose(87.4, 100, 0.25, 0.125));
-                assert.ok(jsn.areClose(87.5, 100, 0.25, 0.125));
-                assert.ok(jsn.areClose(87.6, 100, 0.25, 0.125));
+                assert.ok(!jsnum.areClose(87.4, 100, 0.25, 0.125));
+                assert.ok(jsnum.areClose(87.5, 100, 0.25, 0.125));
+                assert.ok(jsnum.areClose(87.6, 100, 0.25, 0.125));
             },
 
             "should throw an exception if given negative tolerances" : function () {
-                assert.throws(function () { jsn.areClose(10, 11, 1, -1); },
+                assert.throws(function () { jsnum.areClose(10, 11, 1, -1); },
                     RangeError);
-                assert.throws(function () { jsn.areClose(10, 11, -1, 1); },
+                assert.throws(function () { jsnum.areClose(10, 11, -1, 1); },
                     RangeError);
             },
 
             "should use default reltol of 1e-9" : function () {
-                assert.ok(!jsn.areClose(100, 100 * (1 - 1.1e-9)));
-                assert.ok(jsn.areClose(100, 100 * (1 - 0.9e-9)));
+                assert.ok(!jsnum.areClose(100, 100 * (1 - 1.1e-9)));
+                assert.ok(jsnum.areClose(100, 100 * (1 - 0.9e-9)));
             },
 
             "should use default abstol of 1e-9" : function () {
-                assert.ok(!jsn.areClose(0, 1.1e-9));
-                assert.ok(jsn.areClose(0, 0.9e-9));
+                assert.ok(!jsnum.areClose(0, 1.1e-9));
+                assert.ok(jsnum.areClose(0, 0.9e-9));
             },
 
             "should support NDArrays" : function () {
-                var A = jsn.asNDArray([[1, 2], [3, 4]]),
-                    B = jsn.asNDArray([[1, 2.5], [3, 4]]);
-                assert.ok(jsn.areClose(A, B, 0.5));
-                assert.ok(!jsn.areClose(A, B, 0.4));
+                var A = jsnum.asNDArray([[1, 2], [3, 4]]),
+                    B = jsnum.asNDArray([[1, 2.5], [3, 4]]);
+                assert.ok(jsnum.areClose(A, B, 0.5));
+                assert.ok(!jsnum.areClose(A, B, 0.4));
             },
 
             "should throw exception for non-arrays and non-numbers" : function () {
-                var A = jsn.asNDArray([[1, 2], [3, 4]]);
-                assert.throws(function () { jsn.areClose("a", "b"); },
+                var A = jsnum.asNDArray([[1, 2], [3, 4]]);
+                assert.throws(function () { jsnum.areClose("a", "b"); },
                     TypeError);
-                assert.throws(function () { jsn.areClose(1, A); },
+                assert.throws(function () { jsnum.areClose(1, A); },
                     TypeError);
             },
 
             "should throw exception if arrays are different shapes" : function () {
-                var A = jsn.asNDArray([[1, 2], [3, 4]]),
-                    B = jsn.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]),
-                    C = jsn.asNDArray([1, 2]);
-                assert.throws(function () { jsn.areClose(A, B); }, RangeError);
-                assert.throws(function () { jsn.areClose(C, A); }, RangeError);
+                var A = jsnum.asNDArray([[1, 2], [3, 4]]),
+                    B = jsnum.asNDArray([[1.5, 3.25], [5.125, 6], [7.5, 8.625]]),
+                    C = jsnum.asNDArray([1, 2]);
+                assert.throws(function () { jsnum.areClose(A, B); }, RangeError);
+                assert.throws(function () { jsnum.areClose(C, A); }, RangeError);
             }
         });
     }
