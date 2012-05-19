@@ -31,754 +31,752 @@ define(
         }
 
 
-        AbstractNDArray.prototype = {
-            //
-            // Abstract methods
-            //
+        //
+        // Abstract methods
+        //
 
 
-            /** Reads one element of the array.  This must be overloaded in derived
-             * classes.
-             * @param { Array<int> } index A list of indexes for the desired element.
-             * @returns The value of the array element at index
-             * @abstract
-             */
-            getElement : function (index) {
-                throw new TypeError("abstract array class (getElement has not been defined)");
-            },
+        /** Reads one element of the array.  This must be overloaded in derived
+         * classes.
+         * @param { Array<int> } index A list of indexes for the desired element.
+         * @returns The value of the array element at index
+         * @abstract
+         */
+        AbstractNDArray.prototype.getElement = function (index) {
+            throw new TypeError("abstract array class (getElement has not been defined)");
+        };
 
 
-            /** Sets the value of one element of the array.  This must be overloaded in derived
-             * classes if the array is not read only.
-             * @param { Array<int> } index A list of indexes for the desired element.
-             * @param newValue The new value to assign to the array element at index.
-             * @returns The array (chainable)
-             * @abstract
-             */
-            setElement : function (index, newValue) {
-                throw new TypeError("Attempt to set an element of a read-only array (try using copy() first)");
-            },
+        /** Sets the value of one element of the array.  This must be overloaded in derived
+         * classes if the array is not read only.
+         * @param { Array<int> } index A list of indexes for the desired element.
+         * @param newValue The new value to assign to the array element at index.
+         * @returns The array (chainable)
+         * @abstract
+         */
+        AbstractNDArray.prototype.setElement = function (index, newValue) {
+            throw new TypeError("Attempt to set an element of a read-only array (try using copy() first)");
+        };
 
 
-            /** The lengths of each dimension of the n-dimensional array.  This must
-              * be overloaded in derived classes
-              * @type Array<int>
-              * @readonly
-              */
-            shape: undefined,
+        /** The lengths of each dimension of the n-dimensional array.  This must
+          * be overloaded in derived classes
+          * @type Array<int>
+          * @readonly
+          */
+        AbstractNDArray.prototype.shape = undefined;
 
 
-            //
-            // Built-in methods
-            //
+        //
+        // Built-in methods
+        //
 
-            /** Create an array for storing the result of a mathematical
-             * operation.  By default this is just an UntypedNDArray, but
-             * derived classes can overload this to specialize
-             * the generated results based on what they know about the data
-             * (for example it may be all 32 bit IEEE floating point).
-             * @virtual
-             * @param { Array<int> } shape The length of each of the
-             *      dimensions of the new array.
-             * @returns A new writable n-Dimensional array
-             */
-            createResult : function (shape) {
-                return new UntypedNDArray(shape);
-            },
-
-
-            /** Create a copy of this array.
-             * @returns A new n-dimensional array containing a shallow copy
-             *     of the contents of this array.
-             */
-            copy : function () {
-                var result = this.createResult(this.shape),
-                    that = this;
-
-                return result.walkIndexes(function (index) {
-                    result.setElement(index, that.val(index));
-                });
-            },
+        /** Create an array for storing the result of a mathematical
+         * operation.  By default this is just an UntypedNDArray, but
+         * derived classes can overload this to specialize
+         * the generated results based on what they know about the data
+         * (for example it may be all 32 bit IEEE floating point).
+         * @virtual
+         * @param { Array<int> } shape The length of each of the
+         *      dimensions of the new array.
+         * @returns A new writable n-Dimensional array
+         */
+        AbstractNDArray.prototype.createResult = function (shape) {
+            return new UntypedNDArray(shape);
+        };
 
 
-            /** Checks a given list of indexes to make sure they are valid.
-             * This function throws an exception if indexes is not an array of
-             * integers with the same length as the shape.  If you would like
-             * to allow undefined values (and shorter arrays), set
-             * opts.allowUndefined to be true.  By default negative indexes
-             * are allowed; to disable this set opts.nonnegative to true.
-             * @param { Array<int> } indexes The indexes to check.
-             * @param { object | undefined } opts A dictionary of options.
-             * @throws { TypeError | RangeError }
-             * @returns The n-dimensional array (chainable)
-             */
-            checkIndexes : function (indexes, opts) {
-                var i;
+        /** Create a copy of this array.
+         * @returns A new n-dimensional array containing a shallow copy
+         *     of the contents of this array.
+         */
+        AbstractNDArray.prototype.copy = function () {
+            var result = this.createResult(this.shape),
+                that = this;
 
-                if (!Array.isArray(indexes)) {
-                    throw new TypeError(
-                        "Non-array given as an index."
-                    );
+            return result.walkIndexes(function (index) {
+                result.setElement(index, that.val(index));
+            });
+        };
+
+
+        /** Checks a given list of indexes to make sure they are valid.
+         * This function throws an exception if indexes is not an array of
+         * integers with the same length as the shape.  If you would like
+         * to allow undefined values (and shorter arrays), set
+         * opts.allowUndefined to be true.  By default negative indexes
+         * are allowed; to disable this set opts.nonnegative to true.
+         * @param { Array<int> } indexes The indexes to check.
+         * @param { object | undefined } opts A dictionary of options.
+         * @throws { TypeError | RangeError }
+         * @returns The n-dimensional array (chainable)
+         */
+        AbstractNDArray.prototype.checkIndexes = function (indexes, opts) {
+            var i;
+
+            if (!Array.isArray(indexes)) {
+                throw new TypeError(
+                    "Non-array given as an index."
+                );
+            }
+
+            if (indexes.length !== this.shape.length) {
+                if (!opts || !opts.allowUndefined ||
+                        indexes.length > this.shape.length) {
+                    throw new RangeError("Expected " +
+                        this.shape.length + " indexes but given " +
+                        indexes.length + " indexes.");
                 }
+            }
 
-                if (indexes.length !== this.shape.length) {
+            for (i = 0; i < indexes.length; i += 1) {
+                if (typeof indexes[i] === 'number') {
+                    if (!(indexes[i] >=
+                            ((opts && opts.nonnegative) ? 0 : -this.shape[i]) &&
+                            indexes[i] < this.shape[i])) {
+                        throw new RangeError(
+                            "Index out of range, " +
+                                indexes[i] + " is not within (0, " +
+                                this.shape[i] + ")."
+                        );
+                    }
+
+                    if (indexes[i] && indexes[i] !== Math.floor(indexes[i])) {
+                        throw new TypeError("Non-integer index " + indexes[i]);
+                    }
+                } else {
                     if (!opts || !opts.allowUndefined ||
-                            indexes.length > this.shape.length) {
-                        throw new RangeError("Expected " +
-                            this.shape.length + " indexes but given " +
-                            indexes.length + " indexes.");
+                            indexes[i] !== undefined) {
+                        throw new TypeError(
+                            "Encountered non-numeric index \"" +
+                                indexes[i] + "\"."
+                        );
                     }
                 }
+            }
 
-                for (i = 0; i < indexes.length; i += 1) {
-                    if (typeof indexes[i] === 'number') {
-                        if (!(indexes[i] >=
-                                ((opts && opts.nonnegative) ? 0 : -this.shape[i]) &&
-                                indexes[i] < this.shape[i])) {
-                            throw new RangeError(
-                                "Index out of range, " +
-                                    indexes[i] + " is not within (0, " +
-                                    this.shape[i] + ")."
-                            );
-                        }
-
-                        if (indexes[i] && indexes[i] !== Math.floor(indexes[i])) {
-                            throw new TypeError("Non-integer index " + indexes[i]);
-                        }
-                    } else {
-                        if (!opts || !opts.allowUndefined ||
-                                indexes[i] !== undefined) {
-                            throw new TypeError(
-                                "Encountered non-numeric index \"" +
-                                    indexes[i] + "\"."
-                            );
-                        }
-                    }
-                }
-
-                return this;
-            },
+            return this;
+        };
 
 
-            /** Returns true if this is a read-only array (and thus can be
-             *  used but not modified).  This is the case if the setElement
-             *  function of AbstractNDArray has not been overridden.
-             */
-            isReadOnly : function () {
-                return (this.setElement ===
-                    jsnum.AbstractNDArray.prototype.setElement);
-            },
+        /** Returns true if this is a read-only array (and thus can be
+         *  used but not modified).  This is the case if the setElement
+         *  function of AbstractNDArray has not been overridden.
+         */
+        AbstractNDArray.prototype.isReadOnly = function () {
+            return (this.setElement ===
+                jsnum.AbstractNDArray.prototype.setElement);
+        };
 
 
-            /** Calls a callback with every valid index for this array.  This
-             *  is useful when you want to perform an operation on every
-             *  element element of the array.  The callback passed a single
-             *  parameter which is the index to process.  The this
-             *  variable for the callback is set to the original array.
-             *  @param { function } callback A function to be called with each
-             *      index
-             *  @returns The n-dimensional array (chainable)
-             */
-            walkIndexes : function (callback) {
-                var shape = this.shape, that = this;
+        /** Calls a callback with every valid index for this array.  This
+         *  is useful when you want to perform an operation on every
+         *  element element of the array.  The callback passed a single
+         *  parameter which is the index to process.  The this
+         *  variable for the callback is set to the original array.
+         *  @param { function } callback A function to be called with each
+         *      index
+         *  @returns The n-dimensional array (chainable)
+         */
+        AbstractNDArray.prototype.walkIndexes = function (callback) {
+            var shape = this.shape, that = this;
 
-                function walk(index, pos) {
-                    var i;
-
-                    if (pos >= shape.length) {
-                        callback.call(that, index);
-                    } else {
-                        for (i = shape[pos] - 1; i >= 0; i -= 1) {
-                            index[pos] = i;
-                            walk(index, pos + 1);
-                        }
-                    }
-                }
-
-                walk([], 0);
-                return this;
-            },
-
-
-            /** Convenience function for checking if this.shape equals shape
-             *  (since JavaScript doesn't do deep comparison of Arrays by
-             *  default).
-             *  @param { Array } The shape to compare with this.shape
-             *  @returns True iff this.shape matches shape
-             */
-            hasShape : function (shape) {
+            function walk(index, pos) {
                 var i;
 
-                if (shape === undefined || shape.length === undefined ||
-                        shape.length !== this.shape.length) {
-                    return false;
+                if (pos >= shape.length) {
+                    callback.call(that, index);
                 } else {
-                    for (i = shape.length - 1; i >= 0; i -= 1) {
-                        if (shape[i] !== this.shape[i]) {
-                            return false;
-                        }
+                    for (i = shape[pos] - 1; i >= 0; i -= 1) {
+                        index[pos] = i;
+                        walk(index, pos + 1);
                     }
-
-                    return true;
                 }
-            },
+            }
+
+            walk([], 0);
+            return this;
+        };
 
 
-            /** Create a new n-D array object that maps indexes to the selected
-             *  portions of the array.  This effectively takes lower dimensional
-             *  slices out of the array, for example supplying two of the four
-             *  indexes for a four dimensional array (leaving the others as
-             *  "undefined") would pick a two dimensional slice of the array
-             *  with the elements that have matching values in the two indexes
-             *  provided.
-             *  @param { Array } indexes An array of integers or undefined,
-             *      specifying which values to fix.
-             *  @returns A (writable) lower dimensional view of the given slice
-             *      of the original array.
-             */
-            at : function (indexes) {
-                var o, i, map = [], newShape = [], newIndexes = [], that = this;
+        /** Convenience function for checking if this.shape equals shape
+         *  (since JavaScript doesn't do deep comparison of Arrays by
+         *  default).
+         *  @param { Array } The shape to compare with this.shape
+         *  @returns True iff this.shape matches shape
+         */
+        AbstractNDArray.prototype.hasShape = function (shape) {
+            var i;
 
-                this.checkIndexes(indexes, { allowUndefined : true });
-
-                function expandIndexes(reducedIndexes) {
-                    var expandedIndexes = [], i;
-                    o.checkIndexes(reducedIndexes);
-
-
-                    // build a full length index
-                    for (i = 0; i < newIndexes.length; i += 1) {
-                        expandedIndexes.push(newIndexes[i]);
-                    }
-                    for (i = 0; i < map.length; i += 1) {
-                        expandedIndexes[map[i]] = reducedIndexes[i];
-                    }
-
-                    return expandedIndexes;
-                }
-
-                for (i = 0; i < this.shape.length; i += 1) {
-                    if (indexes[i] < 0) {
-                        newIndexes.push(indexes[i] + this.shape[i]);
-                    } else {
-                        newIndexes.push(indexes[i]);
-                    }
-                    if (indexes[i] === undefined) {
-                        newShape.push(this.shape[i]);
-                        map.push(i);
+            if (shape === undefined || shape.length === undefined ||
+                    shape.length !== this.shape.length) {
+                return false;
+            } else {
+                for (i = shape.length - 1; i >= 0; i -= 1) {
+                    if (shape[i] !== this.shape[i]) {
+                        return false;
                     }
                 }
 
-                o = Object.create(AbstractNDArray.prototype);
-                Object.defineProperty(o, "shape",
-                    { value : newShape, writable : false });
-                o.getElement = function (reducedIndexes) {
-                    return that.getElement(expandIndexes(reducedIndexes));
+                return true;
+            }
+        };
+
+
+        /** Create a new n-D array object that maps indexes to the selected
+         *  portions of the array.  This effectively takes lower dimensional
+         *  slices out of the array, for example supplying two of the four
+         *  indexes for a four dimensional array (leaving the others as
+         *  "undefined") would pick a two dimensional slice of the array
+         *  with the elements that have matching values in the two indexes
+         *  provided.
+         *  @param { Array } indexes An array of integers or undefined,
+         *      specifying which values to fix.
+         *  @returns A (writable) lower dimensional view of the given slice
+         *      of the original array.
+         */
+        AbstractNDArray.prototype.at = function (indexes) {
+            var o, i, map = [], newShape = [], newIndexes = [], that = this;
+
+            this.checkIndexes(indexes, { allowUndefined : true });
+
+            function expandIndexes(reducedIndexes) {
+                var expandedIndexes = [], i;
+                o.checkIndexes(reducedIndexes);
+
+
+                // build a full length index
+                for (i = 0; i < newIndexes.length; i += 1) {
+                    expandedIndexes.push(newIndexes[i]);
+                }
+                for (i = 0; i < map.length; i += 1) {
+                    expandedIndexes[map[i]] = reducedIndexes[i];
+                }
+
+                return expandedIndexes;
+            }
+
+            for (i = 0; i < this.shape.length; i += 1) {
+                if (indexes[i] < 0) {
+                    newIndexes.push(indexes[i] + this.shape[i]);
+                } else {
+                    newIndexes.push(indexes[i]);
+                }
+                if (indexes[i] === undefined) {
+                    newShape.push(this.shape[i]);
+                    map.push(i);
+                }
+            }
+
+            o = Object.create(AbstractNDArray.prototype);
+            Object.defineProperty(o, "shape",
+                { value : newShape, writable : false });
+            o.getElement = function (reducedIndexes) {
+                return that.getElement(expandIndexes(reducedIndexes));
+            };
+
+            if (!this.isReadOnly()) {
+                o.setElement = function (reducedIndexes, value) {
+                    that.setElement(expandIndexes(reducedIndexes), value);
+                    return this;
                 };
+            }
 
-                if (!this.isReadOnly()) {
-                    o.setElement = function (reducedIndexes, value) {
-                        that.setElement(expandIndexes(reducedIndexes), value);
-                        return this;
-                    };
+            return o;
+        };
+
+
+        /** Swap the contents of this array with those in B.  Combined with
+         *  at, this allows you to do things like swap rows or columns.
+         *  @param { NDArray } B the array with which to swap elements
+         *  @returns this n-dimensional array (chainable)
+         */
+        AbstractNDArray.prototype.swap = function (B) {
+            return this.walkIndexes(function (index) {
+                var temp = this.val(index);
+                this.setElement(index, B.val(index));
+                B.setElement(index, temp);
+            });
+        };
+
+
+        /** Returns the largest number in the array.
+         */
+        AbstractNDArray.prototype.max = function () {
+            var max = -Infinity;
+
+            this.copy().walkIndexes(function (index) {
+                var e = this.val(index);
+                if (e > max) {
+                    max = e;
                 }
+            });
 
-                return o;
-            },
+            return max;
+        };
 
 
-            /** Swap the contents of this array with those in B.  Combined with
-             *  at, this allows you to do things like swap rows or columns.
-             *  @param { NDArray } B the array with which to swap elements
-             *  @returns this n-dimensional array (chainable)
-             */
-            swap : function (B) {
+        /** Returns the index of the largest number in the array.
+         */
+        AbstractNDArray.prototype.argMax = function () {
+            var max = -Infinity, maxIndex;
+
+            this.copy().walkIndexes(function (index) {
+                var e = this.val(index);
+                if (e > max) {
+                    max = e;
+                    maxIndex = index.slice(0);
+                }
+            });
+
+            return maxIndex;
+        };
+
+
+        /** Returns the smallest number in the array.
+         */
+        AbstractNDArray.prototype.min = function () {
+            var min = Infinity;
+
+            this.copy().walkIndexes(function (index) {
+                var e = this.val(index);
+                if (e < min) {
+                    min = e;
+                }
+            });
+
+            return min;
+        };
+
+
+        /** Returns the index of the smallest number in the array.
+         */
+        AbstractNDArray.prototype.argMin = function () {
+            var min = Infinity, minIndex;
+
+            this.copy().walkIndexes(function (index) {
+                var e = this.val(index);
+                if (e < min) {
+                    min = e;
+                    minIndex = index.slice(0);
+                }
+            });
+
+            return minIndex;
+        };
+
+
+        /** Returns a new NDArray containing the absolute value of each
+         *  element in this NDArray.
+         */
+        AbstractNDArray.prototype.abs = function () {
+            return this.copy().walkIndexes(function (index) {
+                this.setElement(index, Math.abs(this.val(index)));
+            });
+        };
+
+
+        /** Returns a new NDArray containing the reciprocal of each
+         *  element in this NDArray.
+         */
+        AbstractNDArray.prototype.reciprocal = function () {
+            return this.copy().walkIndexes(function (index) {
+                this.setElement(index, 1 / this.val(index));
+            });
+        };
+
+
+        /** Replace this array with an element-wise sum of this array and B.
+         *  @param { Number | NDArray } B the number or elements to add to this array
+         *  @returns this n-dimensional array (chainable)
+         */
+        AbstractNDArray.prototype.addHere = function (B) {
+            if (typeof B === 'number') {
                 return this.walkIndexes(function (index) {
-                    var temp = this.val(index);
-                    this.setElement(index, B.val(index));
-                    B.setElement(index, temp);
+                    this.setElement(index, this.val(index) + B);
                 });
-            },
-
-
-            /** Returns the largest number in the array.
-             */
-            max : function () {
-                var max = -Infinity;
-
-                this.copy().walkIndexes(function (index) {
-                    var e = this.val(index);
-                    if (e > max) {
-                        max = e;
-                    }
-                });
-
-                return max;
-            },
-
-
-            /** Returns the index of the largest number in the array.
-             */
-            argMax : function () {
-                var max = -Infinity, maxIndex;
-
-                this.copy().walkIndexes(function (index) {
-                    var e = this.val(index);
-                    if (e > max) {
-                        max = e;
-                        maxIndex = index.slice(0);
-                    }
-                });
-
-                return maxIndex;
-            },
-
-
-            /** Returns the smallest number in the array.
-             */
-            min : function () {
-                var min = Infinity;
-
-                this.copy().walkIndexes(function (index) {
-                    var e = this.val(index);
-                    if (e < min) {
-                        min = e;
-                    }
-                });
-
-                return min;
-            },
-
-
-            /** Returns the index of the smallest number in the array.
-             */
-            argMin : function () {
-                var min = Infinity, minIndex;
-
-                this.copy().walkIndexes(function (index) {
-                    var e = this.val(index);
-                    if (e < min) {
-                        min = e;
-                        minIndex = index.slice(0);
-                    }
-                });
-
-                return minIndex;
-            },
-
-
-            /** Returns a new NDArray containing the absolute value of each
-             *  element in this NDArray.
-             */
-            abs : function () {
-                return this.copy().walkIndexes(function (index) {
-                    this.setElement(index, Math.abs(this.val(index)));
-                });
-            },
-
-
-            /** Returns a new NDArray containing the reciprocal of each
-             *  element in this NDArray.
-             */
-            reciprocal : function () {
-                return this.copy().walkIndexes(function (index) {
-                    this.setElement(index, 1 / this.val(index));
-                });
-            },
-
-
-            /** Replace this array with an element-wise sum of this array and B.
-             *  @param { Number | NDArray } B the number or elements to add to this array
-             *  @returns this n-dimensional array (chainable)
-             */
-            addHere : function (B) {
-                if (typeof B === 'number') {
-                    return this.walkIndexes(function (index) {
-                        this.setElement(index, this.val(index) + B);
-                    });
-                } else if (B.getElement === undefined) {
-                    throw new TypeError("B must be an NDArray or number");
-                } else if (!this.hasShape(B.shape)) {
-                    throw new RangeError("B must have the same shape as this");
-                } else {
-                    return this.walkIndexes(function (index) {
-                        this.setElement(index, this.val(index) + B.val(index));
-                    });
-                }
-            },
-
-
-            /** Perform an element-wise addition with another array.
-             *  @param { Number | NDArray } B the number or elements to add to this array
-             *  @returns a new array
-             */
-            add : function (B) {
-                return this.copy().addHere(B);
-            },
-
-
-            /** Replace this array with an element-wise subtraction of B from this array.
-             *  @param { Number | NDArray } B the number or elements to subtract from this array
-             *  @returns this n-dimensional array (chainable)
-             */
-            subHere : function (B) {
-                if (typeof B === 'number') {
-                    return this.walkIndexes(function (index) {
-                        this.setElement(index, this.val(index) - B);
-                    });
-                } else if (B.getElement === undefined) {
-                    throw new TypeError("B must be an NDArray or number");
-                } else if (!this.hasShape(B.shape)) {
-                    throw new RangeError("B must have the same shape as this");
-                } else {
-                    return this.walkIndexes(function (index) {
-                        this.setElement(index, this.val(index) - B.val(index));
-                    });
-                }
-            },
-
-
-            /** Perform an element-wise subtraction with B.
-             *  @param { Number | NDArray } B the number or elements to subtract from this array
-             *  @returns a new array
-             */
-            sub : function (B) {
-                return this.copy().subHere(B);
-            },
-
-
-            /** Replace this array with an element-wise multiplication with B.
-             *  @param { Number | NDArray } B the number or elements to multiply by this array
-             *  @returns this n-dimensional array (chainable)
-             */
-            mulHere : function (B) {
-                if (typeof B === 'number') {
-                    return this.walkIndexes(function (index) {
-                        this.setElement(index, this.val(index) * B);
-                    });
-                } else if (B.getElement === undefined) {
-                    throw new TypeError("B must be an NDArray or number");
-                } else if (!this.hasShape(B.shape)) {
-                    throw new RangeError("B must have the same shape as this");
-                } else {
-                    return this.walkIndexes(function (index) {
-                        this.setElement(index, this.val(index) * B.val(index));
-                    });
-                }
-            },
-
-
-            /** Perform an element-wise multiplication with another array.
-             *  @param { Number | NDArray } B the number or elements to multiply by this array
-             *  @returns a new array
-             */
-            mul : function (B) {
-                return this.copy().mulHere(B);
-            },
-
-
-            /** Replace this array with an element-wise division by B.
-             *  @param { Number | NDArray } B the number or elements to divide this array by
-             *  @returns this n-dimensional array (chainable)
-             */
-            divHere : function (B) {
-                if (typeof B === 'number') {
-                    return this.walkIndexes(function (index) {
-                        this.setElement(index, this.val(index) / B);
-                    });
-                } else if (B.getElement === undefined) {
-                    throw new TypeError("B must be an NDArray or number");
-                } else if (!this.hasShape(B.shape)) {
-                    throw new RangeError("B must have the same shape as this");
-                } else {
-                    return this.walkIndexes(function (index) {
-                        this.setElement(index, this.val(index) / B.val(index));
-                    });
-                }
-            },
-
-            /** Perform an element-wise division by another array.
-             *  @param { Number | NDArray } B the number or elements to divide this array by
-             *  @returns a new array
-             */
-            div : function (B) {
-                return this.copy().divHere(B);
-            },
-
-
-            /** Replace this array with its element-wise negation.
-             *  @returns this n-dimensional array (chainable)
-             */
-            negHere : function () {
+            } else if (B.getElement === undefined) {
+                throw new TypeError("B must be an NDArray or number");
+            } else if (!this.hasShape(B.shape)) {
+                throw new RangeError("B must have the same shape as this");
+            } else {
                 return this.walkIndexes(function (index) {
-                    this.setElement(index, -this.val(index));
+                    this.setElement(index, this.val(index) + B.val(index));
                 });
-            },
-
-            /** Perform an element-wise negation.
-             *  @returns a new array
-             */
-            neg : function () {
-                return this.copy().negHere();
-            },
+            }
+        };
 
 
-            /** Perform a matrix product with another array.
-             *  In particular, this function takes the dot product of the last
-             *  dimension of the first array (this) and the first dimension
-             *  of the second array (B).  This is equivalent to the dot product
-             *  for vectors and the matrix product for matrices, with vectors
-             *  being treated as rows when on the left and columns when on the
-             *  right.
-             *  @param { NDArray } B the other NDArray in the multiplication (on the right)
-             *  @returns A new NDArray
-             */
-            dot : function (B) {
-                var newShape = this.shape.slice(0, -1).concat(B.shape.slice(1)),
-                    result = this.createResult(newShape);
+        /** Perform an element-wise addition with another array.
+         *  @param { Number | NDArray } B the number or elements to add to this array
+         *  @returns a new array
+         */
+        AbstractNDArray.prototype.add = function (B) {
+            return this.copy().addHere(B);
+        };
 
-                if (this.shape[this.shape.length - 1] !== B.shape[0]) {
-                    throw new RangeError("Can not multiply array of shape " +
-                        this.shape + " by array of shape " + B.shape);
-                }
 
-                function dotToResult(result, A, B) {
-                    var i, total;
+        /** Replace this array with an element-wise subtraction of B from this array.
+         *  @param { Number | NDArray } B the number or elements to subtract from this array
+         *  @returns this n-dimensional array (chainable)
+         */
+        AbstractNDArray.prototype.subHere = function (B) {
+            if (typeof B === 'number') {
+                return this.walkIndexes(function (index) {
+                    this.setElement(index, this.val(index) - B);
+                });
+            } else if (B.getElement === undefined) {
+                throw new TypeError("B must be an NDArray or number");
+            } else if (!this.hasShape(B.shape)) {
+                throw new RangeError("B must have the same shape as this");
+            } else {
+                return this.walkIndexes(function (index) {
+                    this.setElement(index, this.val(index) - B.val(index));
+                });
+            }
+        };
 
-                    if (A.shape.length > 1) {
-                        for (i = A.shape[0] - 1; i >= 0; i -= 1) {
-                            dotToResult(result.at([i]), A.at([i]), B);
-                        }
-                    } else if (B.shape.length > 1) {
-                        for (i = B.shape[1] - 1; i >= 0; i -= 1) {
-                            dotToResult(result.at([i]), A, B.at([undefined, i]));
-                        }
-                    } else {
-                        total = A.val([0]) * B.val([0]);
-                        for (i = A.shape[0] - 1; i > 0; i -= 1) {
-                            total += A.val([i]) * B.val([i]);
-                        }
-                        result.setElement([], total);
+
+        /** Perform an element-wise subtraction with B.
+         *  @param { Number | NDArray } B the number or elements to subtract from this array
+         *  @returns a new array
+         */
+        AbstractNDArray.prototype.sub = function (B) {
+            return this.copy().subHere(B);
+        };
+
+
+        /** Replace this array with an element-wise multiplication with B.
+         *  @param { Number | NDArray } B the number or elements to multiply by this array
+         *  @returns this n-dimensional array (chainable)
+         */
+        AbstractNDArray.prototype.mulHere = function (B) {
+            if (typeof B === 'number') {
+                return this.walkIndexes(function (index) {
+                    this.setElement(index, this.val(index) * B);
+                });
+            } else if (B.getElement === undefined) {
+                throw new TypeError("B must be an NDArray or number");
+            } else if (!this.hasShape(B.shape)) {
+                throw new RangeError("B must have the same shape as this");
+            } else {
+                return this.walkIndexes(function (index) {
+                    this.setElement(index, this.val(index) * B.val(index));
+                });
+            }
+        };
+
+
+        /** Perform an element-wise multiplication with another array.
+         *  @param { Number | NDArray } B the number or elements to multiply by this array
+         *  @returns a new array
+         */
+        AbstractNDArray.prototype.mul = function (B) {
+            return this.copy().mulHere(B);
+        };
+
+
+        /** Replace this array with an element-wise division by B.
+         *  @param { Number | NDArray } B the number or elements to divide this array by
+         *  @returns this n-dimensional array (chainable)
+         */
+        AbstractNDArray.prototype.divHere = function (B) {
+            if (typeof B === 'number') {
+                return this.walkIndexes(function (index) {
+                    this.setElement(index, this.val(index) / B);
+                });
+            } else if (B.getElement === undefined) {
+                throw new TypeError("B must be an NDArray or number");
+            } else if (!this.hasShape(B.shape)) {
+                throw new RangeError("B must have the same shape as this");
+            } else {
+                return this.walkIndexes(function (index) {
+                    this.setElement(index, this.val(index) / B.val(index));
+                });
+            }
+        };
+
+        /** Perform an element-wise division by another array.
+         *  @param { Number | NDArray } B the number or elements to divide this array by
+         *  @returns a new array
+         */
+        AbstractNDArray.prototype.div = function (B) {
+            return this.copy().divHere(B);
+        };
+
+
+        /** Replace this array with its element-wise negation.
+         *  @returns this n-dimensional array (chainable)
+         */
+        AbstractNDArray.prototype.negHere = function () {
+            return this.walkIndexes(function (index) {
+                this.setElement(index, -this.val(index));
+            });
+        };
+
+        /** Perform an element-wise negation.
+         *  @returns a new array
+         */
+        AbstractNDArray.prototype.neg = function () {
+            return this.copy().negHere();
+        };
+
+
+        /** Perform a matrix product with another array.
+         *  In particular, this function takes the dot product of the last
+         *  dimension of the first array (this) and the first dimension
+         *  of the second array (B).  This is equivalent to the dot product
+         *  for vectors and the matrix product for matrices, with vectors
+         *  being treated as rows when on the left and columns when on the
+         *  right.
+         *  @param { NDArray } B the other NDArray in the multiplication (on the right)
+         *  @returns A new NDArray
+         */
+        AbstractNDArray.prototype.dot = function (B) {
+            var newShape = this.shape.slice(0, -1).concat(B.shape.slice(1)),
+                result = this.createResult(newShape);
+
+            if (this.shape[this.shape.length - 1] !== B.shape[0]) {
+                throw new RangeError("Can not multiply array of shape " +
+                    this.shape + " by array of shape " + B.shape);
+            }
+
+            function dotToResult(result, A, B) {
+                var i, total;
+
+                if (A.shape.length > 1) {
+                    for (i = A.shape[0] - 1; i >= 0; i -= 1) {
+                        dotToResult(result.at([i]), A.at([i]), B);
                     }
-                }
-
-                dotToResult(result, this, B);
-                return result;
-            },
-
-            /** converts this NDArray to a nested Array
-             */
-            toArray : function () {
-                var i, result = [];
-
-                if (this.shape.length === 0) {
-                    return this.val();
+                } else if (B.shape.length > 1) {
+                    for (i = B.shape[1] - 1; i >= 0; i -= 1) {
+                        dotToResult(result.at([i]), A, B.at([undefined, i]));
+                    }
                 } else {
-                    for (i = 0; i < this.shape[0]; i += 1) {
-                        result[i] = this.at([i]).toArray();
+                    total = A.val([0]) * B.val([0]);
+                    for (i = A.shape[0] - 1; i > 0; i -= 1) {
+                        total += A.val([i]) * B.val([i]);
                     }
-
-                    return result;
+                    result.setElement([], total);
                 }
-            },
+            }
 
+            dotToResult(result, this, B);
+            return result;
+        };
 
-            /** Decomposes this matrix into three matrices, P, L and U, such
-             *  that P is a row permutation matrix, L (lower) has no elements
-             *  above the diagonal, U (upper) has no elements below the
-             *  diagonal, and P L U = A.
-             *
-             *  Uses Crout's algorithm with scaled partial pivoting.
-             *
-             *  See pp 48-54 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.
-             *  Numerical Recipes 3rd Edition: The Art of Scientific Computing.
-             *  3rd ed. Cambridge University Press; 2007.
-             *
-             *  @returns an object with the members, P (permutation),
-             *      L (lower), U (upper), and the intermediate results
-             *      p (the row permutations performed by P), and
-             *      p_epsilon (-1 iff p is composed of an odd number of swaps,
-             *      otherwise 1).
-             */
-            LUDecomposition : function () {
-                var P, L, U, p = [], p_epsilon = 1,
-                    i, j, k,
-                    N = this.shape[0],
-                    scaling = [],
-                    pivotRow, pivotVal, testVal, pivotScalingFactor, rowScalingFactor,
-                    scratch = this.copy();
+        /** converts this NDArray to a nested Array
+         */
+        AbstractNDArray.prototype.toArray = function () {
+            var i, result = [];
 
-                if (this.shape.length !== 2 || this.shape[0] !== this.shape[1]) {
-                    throw new TypeError("LUDecomposition currently only supports square matrices");
-                }
-
-                for (i = 0; i < N; i += 1) {
-                    scaling[i] = 1 / this.at([i]).abs().max();
-                }
-
-                // for each column...
-                for (k = 0; k < N; k += 1) {
-
-                    // find the largest scaled pivot
-                    pivotRow = k;
-                    pivotVal = Math.abs(scaling[k] * scratch.val([k, k]));
-                    for (i = k + 1; i < N; i += 1) {
-                        testVal = Math.abs(scaling[i] * scratch.val([i, k]));
-                        if (testVal > pivotVal) {
-                            pivotRow = i;
-                            pivotVal = testVal;
-                        }
-                    }
-
-                    // swap rows if needed to put the pivot value in the right place
-                    if (pivotRow !== k) {
-                        scratch.at([k]).swap(scratch.at([pivotRow]));
-                        p_epsilon = -p_epsilon; // track the permutation parity
-                        scaling[pivotRow] = scaling[k]; // fix the scaling (for the part we'll use again)
-                    }
-                    p[k] = pivotRow;
-
-                    // Press et al say that this is a good idea for some
-                    // singular matrices; we'll trust them.
-                    if (pivotVal === 0) {
-                        scratch.setElement([k, k], 1e-40); // a very small non-zero number
-                    }
-
-                    // Now reduce the remaining rows
-                    pivotScalingFactor = 1 / scratch.val([k, k]);
-                    for (i = k + 1; i < N; i += 1) {
-                        rowScalingFactor =  scratch.val([i, k]) * pivotScalingFactor;
-                        scratch.setElement([i, k], rowScalingFactor);
-                        for (j = k + 1; j < N; j += 1) {
-                            scratch.setElement([i, j], scratch.val([i, j]) - scratch.val([k, j]) * rowScalingFactor);
-                        }
-                    }
-                }
-
-                P = this.createResult(this.shape);
-                P.walkIndexes(function (index) {
-                    var val;
-                    if (index[0] === index[1]) {
-                        val = 1;
-                    } else {
-                        val = 0;
-                    }
-                    this.setElement(index, val);
-                });
-                for (i = N - 1; i >= 0; i -= 1) {
-                    if (p[i] !== i) {
-                        P.at([i]).swap(P.at([p[i]]));
-                    }
-                }
-                P.det = function () { return p_epsilon; };
-                P.setElement = jsnum.AbstractNDArray.prototype.setElement;
-
-                L = this.createResult(this.shape);
-                L.walkIndexes(function (index) {
-                    var val;
-                    if (index[0] < index[1]) {
-                        val = 0;
-                    } else if (index[0] === index[1]) {
-                        val = 1;
-                    } else {
-                        val = scratch.val(index);
-                    }
-                    this.setElement(index, val);
-                });
-                L.setElement = jsnum.AbstractNDArray.prototype.setElement;
-
-                U = this.createResult(this.shape);
-                U.walkIndexes(function (index) {
-                    var val;
-                    if (index[0] > index[1]) {
-                        val = 0;
-                    } else {
-                        val = scratch.val(index);
-                    }
-                    this.setElement(index, val);
-                });
-                U.setElement = jsnum.AbstractNDArray.prototype.setElement;
-
-                return { P: P, L: L, U: U, p: p };
-            },
-
-            /** Find the inverse of this matrix.  If this is an N × N square
-             *  non-singular matrix this function finds the inverse of the
-             *  matrix, using jsnum.linSolve (which uses LU Decomposition).
-             *  @returns The inverse of this matrix.
-             */
-            inverse : function () {
-                return jsnum.solveLinearSystem(this, jsnum.eye(this.shape[0]));
-            },
-
-            /** Find the determinant of this matrix.  If this is an N × N
-             *  square matrix this function finds the determinant of the
-             *  matrix, using jsnum.linSolve (which uses LU Decomposition).
-             *  @returns The determinant of this matrix.
-             */
-            det : function () {
-                var lu = this.LUDecomposition(), N = this.shape[0], i, result;
-
-                // determinant of a product is the product of the determinants,
-                // and the determinant of an upper or lower triangular matrix
-                // is just the product of the diagonal elements.
-                result = lu.P.det();
-                for (i = 0; i < N; i += 1) {
-                    result *= lu.L.val([i, i]);
-                    result *= lu.U.val([i, i]);
-                }
-
-                return result;
-            },
-
-
-            /** Get the transpose of this array.  For a 0 or 1 dimensional
-             *  array, this is just the array itself.  For a 2 dimensional array
-             *  or higher, the order of the indexing of the dimensions is
-             *  reversed.  Note that for a matrix, this is the same as the
-             *  matrix transpose.  The transpose is a new view of the original
-             *  array, i.e. calling setElement will change the corresponding
-             *  element in the original array.
-             *
-             *  @returns The transpose of this array.
-             */
-            transpose : function () {
-                var that = this, newShape, i, permutation = [], result;
-
-                for (i = this.shape.length - 1; i >= 0; i -= 1) {
-                    permutation[i] = this.shape.length - 1 - i;
-                }
-
-                function permute(index) {
-                    var newIndex = [];
-
-                    for (i = that.shape.length - 1; i >= 0; i -= 1) {
-                        newIndex[i] = index[permutation[i]];
-                    }
-
-                    return newIndex;
-                }
-
-                newShape = permute(this.shape);
-
-                result = Object.create(AbstractNDArray.prototype);
-
-                Object.defineProperty(result, "shape",
-                    { value : newShape, writable : false });
-
-                result.getElement = function (index) {
-                    return that.val(permute(index));
-                };
-
-                if (!this.isReadOnly()) {
-                    result.setElement = function (index, value) {
-                        that.setElement(permute(index), value);
-                        return this;
-                    };
+            if (this.shape.length === 0) {
+                return this.val();
+            } else {
+                for (i = 0; i < this.shape[0]; i += 1) {
+                    result[i] = this.at([i]).toArray();
                 }
 
                 return result;
             }
+        };
+
+
+        /** Decomposes this matrix into three matrices, P, L and U, such
+         *  that P is a row permutation matrix, L (lower) has no elements
+         *  above the diagonal, U (upper) has no elements below the
+         *  diagonal, and P L U = A.
+         *
+         *  Uses Crout's algorithm with scaled partial pivoting.
+         *
+         *  See pp 48-54 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.
+         *  Numerical Recipes 3rd Edition: The Art of Scientific Computing.
+         *  3rd ed. Cambridge University Press; 2007.
+         *
+         *  @returns an object with the members, P (permutation),
+         *      L (lower), U (upper), and the intermediate results
+         *      p (the row permutations performed by P), and
+         *      p_epsilon (-1 iff p is composed of an odd number of swaps,
+         *      otherwise 1).
+         */
+        AbstractNDArray.prototype.LUDecomposition = function () {
+            var P, L, U, p = [], p_epsilon = 1,
+                i, j, k,
+                N = this.shape[0],
+                scaling = [],
+                pivotRow, pivotVal, testVal, pivotScalingFactor, rowScalingFactor,
+                scratch = this.copy();
+
+            if (this.shape.length !== 2 || this.shape[0] !== this.shape[1]) {
+                throw new TypeError("LUDecomposition currently only supports square matrices");
+            }
+
+            for (i = 0; i < N; i += 1) {
+                scaling[i] = 1 / this.at([i]).abs().max();
+            }
+
+            // for each column...
+            for (k = 0; k < N; k += 1) {
+
+                // find the largest scaled pivot
+                pivotRow = k;
+                pivotVal = Math.abs(scaling[k] * scratch.val([k, k]));
+                for (i = k + 1; i < N; i += 1) {
+                    testVal = Math.abs(scaling[i] * scratch.val([i, k]));
+                    if (testVal > pivotVal) {
+                        pivotRow = i;
+                        pivotVal = testVal;
+                    }
+                }
+
+                // swap rows if needed to put the pivot value in the right place
+                if (pivotRow !== k) {
+                    scratch.at([k]).swap(scratch.at([pivotRow]));
+                    p_epsilon = -p_epsilon; // track the permutation parity
+                    scaling[pivotRow] = scaling[k]; // fix the scaling (for the part we'll use again)
+                }
+                p[k] = pivotRow;
+
+                // Press et al say that this is a good idea for some
+                // singular matrices; we'll trust them.
+                if (pivotVal === 0) {
+                    scratch.setElement([k, k], 1e-40); // a very small non-zero number
+                }
+
+                // Now reduce the remaining rows
+                pivotScalingFactor = 1 / scratch.val([k, k]);
+                for (i = k + 1; i < N; i += 1) {
+                    rowScalingFactor =  scratch.val([i, k]) * pivotScalingFactor;
+                    scratch.setElement([i, k], rowScalingFactor);
+                    for (j = k + 1; j < N; j += 1) {
+                        scratch.setElement([i, j], scratch.val([i, j]) - scratch.val([k, j]) * rowScalingFactor);
+                    }
+                }
+            }
+
+            P = this.createResult(this.shape);
+            P.walkIndexes(function (index) {
+                var val;
+                if (index[0] === index[1]) {
+                    val = 1;
+                } else {
+                    val = 0;
+                }
+                this.setElement(index, val);
+            });
+            for (i = N - 1; i >= 0; i -= 1) {
+                if (p[i] !== i) {
+                    P.at([i]).swap(P.at([p[i]]));
+                }
+            }
+            P.det = function () { return p_epsilon; };
+            P.setElement = jsnum.AbstractNDArray.prototype.setElement;
+
+            L = this.createResult(this.shape);
+            L.walkIndexes(function (index) {
+                var val;
+                if (index[0] < index[1]) {
+                    val = 0;
+                } else if (index[0] === index[1]) {
+                    val = 1;
+                } else {
+                    val = scratch.val(index);
+                }
+                this.setElement(index, val);
+            });
+            L.setElement = jsnum.AbstractNDArray.prototype.setElement;
+
+            U = this.createResult(this.shape);
+            U.walkIndexes(function (index) {
+                var val;
+                if (index[0] > index[1]) {
+                    val = 0;
+                } else {
+                    val = scratch.val(index);
+                }
+                this.setElement(index, val);
+            });
+            U.setElement = jsnum.AbstractNDArray.prototype.setElement;
+
+            return { P: P, L: L, U: U, p: p };
+        };
+
+        /** Find the inverse of this matrix.  If this is an N × N square
+         *  non-singular matrix this function finds the inverse of the
+         *  matrix, using jsnum.linSolve (which uses LU Decomposition).
+         *  @returns The inverse of this matrix.
+         */
+        AbstractNDArray.prototype.inverse = function () {
+            return jsnum.solveLinearSystem(this, jsnum.eye(this.shape[0]));
+        };
+
+        /** Find the determinant of this matrix.  If this is an N × N
+         *  square matrix this function finds the determinant of the
+         *  matrix, using jsnum.linSolve (which uses LU Decomposition).
+         *  @returns The determinant of this matrix.
+         */
+        AbstractNDArray.prototype.det = function () {
+            var lu = this.LUDecomposition(), N = this.shape[0], i, result;
+
+            // determinant of a product is the product of the determinants,
+            // and the determinant of an upper or lower triangular matrix
+            // is just the product of the diagonal elements.
+            result = lu.P.det();
+            for (i = 0; i < N; i += 1) {
+                result *= lu.L.val([i, i]);
+                result *= lu.U.val([i, i]);
+            }
+
+            return result;
+        };
+
+
+        /** Get the transpose of this array.  For a 0 or 1 dimensional
+         *  array, this is just the array itself.  For a 2 dimensional array
+         *  or higher, the order of the indexing of the dimensions is
+         *  reversed.  Note that for a matrix, this is the same as the
+         *  matrix transpose.  The transpose is a new view of the original
+         *  array, i.e. calling setElement will change the corresponding
+         *  element in the original array.
+         *
+         *  @returns The transpose of this array.
+         */
+        AbstractNDArray.prototype.transpose = function () {
+            var that = this, newShape, i, permutation = [], result;
+
+            for (i = this.shape.length - 1; i >= 0; i -= 1) {
+                permutation[i] = this.shape.length - 1 - i;
+            }
+
+            function permute(index) {
+                var newIndex = [];
+
+                for (i = that.shape.length - 1; i >= 0; i -= 1) {
+                    newIndex[i] = index[permutation[i]];
+                }
+
+                return newIndex;
+            }
+
+            newShape = permute(this.shape);
+
+            result = Object.create(AbstractNDArray.prototype);
+
+            Object.defineProperty(result, "shape",
+                { value : newShape, writable : false });
+
+            result.getElement = function (index) {
+                return that.val(permute(index));
+            };
+
+            if (!this.isReadOnly()) {
+                result.setElement = function (index, value) {
+                    that.setElement(permute(index), value);
+                    return this;
+                };
+            }
+
+            return result;
         };
 
 
