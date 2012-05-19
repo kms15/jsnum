@@ -156,7 +156,7 @@ define(
                 var A = jsnum.asNDArray([[1, 5], [3, 4]]),
                     B = jsnum.asNDArray(7);
 
-                assert.strictEqual(A.val([0,1]), 5, "with index");
+                assert.strictEqual(A.val([0, 1]), 5, "with index");
                 assert.strictEqual(B.val(), 7, "without index");
                 assert.calls(A, "checkIndexes", function () {
                     A.val([1, 0]);
