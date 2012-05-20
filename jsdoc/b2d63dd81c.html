@@ -1,0 +1,3547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: AbstractNDArray</title>
+    
+    <script src="http://shjs.sourceforge.net/sh_main.min.js"> </script>
+    <script src="http://shjs.sourceforge.net/lang/sh_javascript.min.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/node-dark.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Class: AbstractNDArray</h1>
+    
+    
+
+<section>
+    
+<header>
+    <h2>
+        <span class="ancestors"><a href="module-jsnum.html">jsnum</a>~</span>
+    
+    AbstractNDArray
+    </h2>
+    
+</header>  
+
+<article>
+    <div class="container-overview">
+    
+    
+    
+        
+<dt>
+    <h4 class="name" id="AbstractNDArray"><span class="type-signature"></span>new AbstractNDArray</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        A base class for n-dimensional arrays that provides a rich set of
+functionality building on a small set of functions required in
+derived classes.  To create a new n-D array class, you can simply
+create a new class inheriting from this one that implements
+getElement, shape, and (for writable arrays) setElement.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 28</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+    
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        <h3 class="subsection-title">Members</h3>
+        
+        <dl>
+            
+<dt>
+    <h4 class="name" id="shape"><span class="type-signature">&lt;readonly> </span>shape<span class="type-signature"> :Array&lt;int></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The lengths of each dimension of the n-dimensional array.  This must
+be overloaded in derived classes
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 67</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        </dl>
+    
+    
+    
+        <h3 class="subsection-title">Methods</h3>
+        
+        <dl>
+            
+<dt>
+    <h4 class="name" id="abs"><span class="type-signature"></span>abs</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns a new NDArray containing the absolute value of each
+ element in this NDArray.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 396</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="add"><span class="type-signature"></span>add</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Perform an element-wise addition with another array.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>B</code></td>
+            
+            
+            <td class="type">
+            
+                        Number
+                         | 
+                    
+                        NDArray
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">the number or elements to add to this array</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 438</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    a new array
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="addHere"><span class="type-signature"></span>addHere</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Replace this array with an element-wise sum of this array and B.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>B</code></td>
+            
+            
+            <td class="type">
+            
+                        Number
+                         | 
+                    
+                        NDArray
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">the number or elements to add to this array</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 417</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    this n-dimensional array (chainable)
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="argMax"><span class="type-signature"></span>argMax</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the index of the largest number in the array.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 345</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="argMin"><span class="type-signature"></span>argMin</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the index of the smallest number in the array.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 378</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="at"><span class="type-signature"></span>at</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Create a new n-D array object that maps indexes to the selected
+ portions of the array.  This effectively takes lower dimensional
+ slices out of the array, for example supplying two of the four
+ indexes for a four dimensional array (leaving the others as
+ "undefined") would pick a two dimensional slice of the array
+ with the elements that have matching values in the two indexes
+ provided.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>indexes</code></td>
+            
+            
+            <td class="type">
+            
+                        Array
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">An array of integers or undefined,
+     specifying which values to fix.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 250</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    A (writable) lower dimensional view of the given slice
+     of the original array.
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="checkIndexes"><span class="type-signature"></span>checkIndexes</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Checks a given list of indexes to make sure they are valid.
+This function throws an exception if indexes is not an array of
+integers with the same length as the shape.  If you would like
+to allow undefined values (and shorter arrays), set
+opts.allowUndefined to be true.  By default negative indexes
+are allowed; to disable this set opts.nonnegative to true.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>indexes</code></td>
+            
+            
+            <td class="type">
+            
+                        Array&lt;int>
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The indexes to check.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+            
+            <td class="type">
+            
+                        object
+                         | 
+                    
+                        undefined
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">A dictionary of options.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 114</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    <h5>Throws:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">TypeError</span> |
+		
+		<span class="param-type">RangeError</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The n-dimensional array (chainable)
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="copy"><span class="type-signature"></span>copy</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Create a copy of this array.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 93</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    A new n-dimensional array containing a shallow copy
+    of the contents of this array.
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="createResult"><span class="type-signature">&lt;virtual> </span>createResult</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Create an array for storing the result of a mathematical
+operation.  By default this is just an UntypedNDArray, but
+derived classes can overload this to specialize
+the generated results based on what they know about the data
+(for example it may be all 32 bit IEEE floating point).
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>shape</code></td>
+            
+            
+            <td class="type">
+            
+                        Array&lt;int>
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The length of each of the
+     dimensions of the new array.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 84</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    A new writable n-Dimensional array
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="det"><span class="type-signature"></span>det</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Find the determinant of this matrix.  If this is an N × N
+ square matrix this function finds the determinant of the
+ matrix, using jsnum.linSolve (which uses LU Decomposition).
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 742</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The determinant of this matrix.
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="div"><span class="type-signature"></span>div</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Perform an element-wise division by another array.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>B</code></td>
+            
+            
+            <td class="type">
+            
+                        Number
+                         | 
+                    
+                        NDArray
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">the number or elements to divide this array by</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 527</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    a new array
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="divHere"><span class="type-signature"></span>divHere</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Replace this array with an element-wise division by B.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>B</code></td>
+            
+            
+            <td class="type">
+            
+                        Number
+                         | 
+                    
+                        NDArray
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">the number or elements to divide this array by</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 507</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    this n-dimensional array (chainable)
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="dot"><span class="type-signature"></span>dot</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Perform a matrix product with another array.
+ In particular, this function takes the dot product of the last
+ dimension of the first array (this) and the first dimension
+ of the second array (B).  This is equivalent to the dot product
+ for vectors and the matrix product for matrices, with vectors
+ being treated as rows when on the left and columns when on the
+ right.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>B</code></td>
+            
+            
+            <td class="type">
+            
+                        NDArray
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">the other NDArray in the multiplication (on the right)</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 559</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    A new NDArray
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getElement"><span class="type-signature">&lt;virtual> </span>getElement</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Reads one element of the array.  This must be overloaded in derived
+classes.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+            
+            <td class="type">
+            
+                        Array&lt;int>
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">A list of indexes for the desired element.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 45</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The value of the array element at index
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="hasShape"><span class="type-signature"></span>hasShape</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Convenience function for checking if this.shape equals shape
+ (since JavaScript doesn't do deep comparison of Arrays by
+ default).
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>The</code></td>
+            
+            
+            <td class="type">
+            
+                        Array
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">shape to compare with this.shape</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 220</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    True iff this.shape matches shape
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="inverse"><span class="type-signature"></span>inverse</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Find the inverse of this matrix.  If this is an N × N square
+ non-singular matrix this function finds the inverse of the
+ matrix, using jsnum.linSolve (which uses LU Decomposition).
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 733</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The inverse of this matrix.
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="isReadOnly"><span class="type-signature"></span>isReadOnly</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns true if this is a read-only array (and thus can be
+ used but not modified).  This is the case if the setElement
+ function of AbstractNDArray has not been overridden.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 178</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="LUDecomposition"><span class="type-signature"></span>LUDecomposition</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Decomposes this matrix into three matrices, P, L and U, such
+ that P is a row permutation matrix, L (lower) has no elements
+ above the diagonal, U (upper) has no elements below the
+ diagonal, and P L U = A.
+
+ Uses Crout's algorithm with scaled partial pivoting.
+
+ See pp 48-54 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.
+ Numerical Recipes 3rd Edition: The Art of Scientific Computing.
+ 3rd ed. Cambridge University Press; 2007.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 626</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    an object with the members, P (permutation),
+     L (lower), U (upper), and the intermediate results
+     p (the row permutations performed by P), and
+     p_epsilon (-1 iff p is composed of an odd number of swaps,
+     otherwise 1).
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="max"><span class="type-signature"></span>max</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the largest number in the array.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 329</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="min"><span class="type-signature"></span>min</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the smallest number in the array.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 362</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="mul"><span class="type-signature"></span>mul</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Perform an element-wise multiplication with another array.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>B</code></td>
+            
+            
+            <td class="type">
+            
+                        Number
+                         | 
+                    
+                        NDArray
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">the number or elements to multiply by this array</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 498</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    a new array
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="mulHere"><span class="type-signature"></span>mulHere</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Replace this array with an element-wise multiplication with B.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>B</code></td>
+            
+            
+            <td class="type">
+            
+                        Number
+                         | 
+                    
+                        NDArray
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">the number or elements to multiply by this array</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 477</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    this n-dimensional array (chainable)
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="neg"><span class="type-signature"></span>neg</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Perform an element-wise negation.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 544</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    a new array
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="negHere"><span class="type-signature"></span>negHere</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Replace this array with its element-wise negation.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 535</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    this n-dimensional array (chainable)
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="reciprocal"><span class="type-signature"></span>reciprocal</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns a new NDArray containing the reciprocal of each
+ element in this NDArray.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 406</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setElement"><span class="type-signature">&lt;virtual> </span>setElement</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Sets the value of one element of the array.  This must be overloaded in derived
+classes if the array is not read only.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+            
+            <td class="type">
+            
+                        Array&lt;int>
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">A list of indexes for the desired element.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>newValue</code></td>
+            
+            
+            <td class="type">
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The new value to assign to the array element at index.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 57</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The array (chainable)
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="sub"><span class="type-signature"></span>sub</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Perform an element-wise subtraction with B.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>B</code></td>
+            
+            
+            <td class="type">
+            
+                        Number
+                         | 
+                    
+                        NDArray
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">the number or elements to subtract from this array</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 468</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    a new array
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="subHere"><span class="type-signature"></span>subHere</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Replace this array with an element-wise subtraction of B from this array.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>B</code></td>
+            
+            
+            <td class="type">
+            
+                        Number
+                         | 
+                    
+                        NDArray
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">the number or elements to subtract from this array</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 447</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    this n-dimensional array (chainable)
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="swap"><span class="type-signature"></span>swap</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Swap the contents of this array with those in B.  Combined with
+ at, this allows you to do things like swap rows or columns.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>B</code></td>
+            
+            
+            <td class="type">
+            
+                        NDArray
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">the array with which to swap elements</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 318</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    this n-dimensional array (chainable)
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="toArray"><span class="type-signature"></span>toArray</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        converts this NDArray to a nested Array
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 594</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="toString"><span class="type-signature"></span>toString</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Creates a human-readable text version of the array
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 837</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="transpose"><span class="type-signature"></span>transpose</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Get the transpose of this array.  For a 0 or 1 dimensional
+ array, this is just the array itself.  For a 2 dimensional array
+ or higher, the order of the indexing of the dimensions is
+ reversed.  Note that for a matrix, this is the same as the
+ matrix transpose.  The transpose is a new view of the original
+ array, i.e. calling setElement will change the corresponding
+ element in the original array.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 768</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The transpose of this array.
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="val"><span class="type-signature"></span>val</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Gets a particular element from the array.  This is similar to
+ getElement, but provides better error checking and support for
+ negative indexes.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+            
+            <td class="type">
+            
+                        Array&lt;int>
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The index of the element to retrieve
+     (optional for a 0-D array).</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 814</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="walkIndexes"><span class="type-signature"></span>walkIndexes</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Calls a callback with every valid index for this array.  This
+ is useful when you want to perform an operation on every
+ element element of the array.  The callback passed a single
+ parameter which is the index to process.  The this
+ variable for the callback is set to the original array.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+            
+            <td class="type">
+            
+                        function
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">A function to be called with each
+     index</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 193</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The n-dimensional array (chainable)
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="checkShape"><span class="type-signature">&lt;static> </span>checkShape</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Verifies that the argument is a valid shape for an n-dimensional
+array (i.e. a JavasScript array of non-negative integers).
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>shape</code></td>
+            
+            
+            <td class="type">
+            
+                        Array&lt;int>
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The shape array to check.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 935</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    <h5>Throws:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">TypeError</span> |
+		
+		<span class="param-type">RangeError</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+    
+    
+</dd>
+
+        </dl>
+    
+    
+    
+    
+    
+</article>
+
+</section>  
+
+
+</div>
+
+<nav>
+    <h3>Modules</h3><ul><li><a href="module-jsnum.html">jsnum</a></li></ul><h3>Classes</h3><ul><li><a href="b2d63dd81c.html">AbstractNDArray</a></li><li><a href="1e10049b07.html">UntypedNDArray</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/micmath/jsdoc">JSDoc 3</a> on Sun May 20 2012 20:55:55 GMT-0000 (UTC)
+</footer>
+
+<script> sh_highlightDocument(); </script>
+</body>
+</html>
