@@ -22,9 +22,9 @@ define([], function () {
     };
     assert.AssertionError.prototype = Object.create(Error);
     assert.AssertionError.prototype.toString = function () {
-        return "Assertion failed: " + this.message +
-            (this.expected ? "  Expected: " + this.expected : "") +
-            (this.actual ? "  Actual: " + this.actual : "");
+        return "Assertion failed: " + (this.message ? this.message : "") +
+            "  Expected: " + this.expected +
+            "  Actual: " + this.actual;
     };
 
     assert.ok = function (guard, message_opt) {

@@ -112,7 +112,8 @@ define(
          * @returns The n-dimensional array (chainable)
          */
         AbstractNDArray.prototype.checkIndexes = function (indexes, opts) {
-            var i;
+            var i, j, rePositiveInt = /^[0-9]+$/;
+            opts = opts || {};
 
             if (!Array.isArray(indexes)) {
                 throw new TypeError(
@@ -120,33 +121,27 @@ define(
                 );
             }
 
-            if (indexes.length !== this.shape.length) {
-                if (!opts || !opts.allowUndefined ||
-                        indexes.length > this.shape.length) {
-                    throw new RangeError("Expected " +
-                        this.shape.length + " indexes but given " +
-                        indexes.length + " indexes.");
-                }
-            }
-
-            for (i = 0; i < indexes.length; i += 1) {
+            for (i = 0, j = 0; i < indexes.length && j < this.shape.length; i += 1) {
                 if (typeof indexes[i] === 'number') {
                     if (!(indexes[i] >=
-                            ((opts && opts.nonnegative) ? 0 : -this.shape[i]) &&
-                            indexes[i] < this.shape[i])) {
+                            ((opts && opts.nonnegative) ? 0 : -this.shape[j]) &&
+                            indexes[i] < this.shape[j])) {
                         throw new RangeError(
                             "Index out of range, " +
                                 indexes[i] + " is not within (0, " +
-                                this.shape[i] + ")."
+                                this.shape[j] + ")."
                         );
                     }
 
                     if (indexes[i] && indexes[i] !== Math.floor(indexes[i])) {
                         throw new TypeError("Non-integer index " + indexes[i]);
                     }
+
+                    j += 1;
                 } else {
-                    if (!opts || !opts.allowUndefined ||
-                            indexes[i] !== undefined) {
+                    if (opts.allowUndefined && indexes[i] === undefined) {
+                        j += 1;
+                    } else if (!opts.allowDummy || !rePositiveInt.test(indexes[i])) {
                         throw new TypeError(
                             "Encountered non-numeric index \"" +
                                 indexes[i] + "\"."
@@ -154,6 +149,23 @@ define(
                     }
                 }
             }
+            if (opts.allowDummy) {
+                // trailing dummy indexes are OK
+                while (i < indexes.length && typeof indexes[i] === 'string' &&
+                        rePositiveInt.test(indexes[i])) {
+                    i += 1;
+                }
+            }
+
+            if (j !== this.shape.length || i !== indexes.length) {
+                if (!opts || !opts.allowUndefined ||
+                        j >= this.shape.length) {
+                    throw new RangeError("Expected " +
+                        this.shape.length + " indexes but given " +
+                        j + " indexes.");
+                }
+            }
+
 
             return this;
         };
@@ -236,9 +248,9 @@ define(
          *      of the original array.
          */
         AbstractNDArray.prototype.at = function (indexes) {
-            var o, i, map = [], newShape = [], newIndexes = [], that = this;
+            var o, i, mapFrom = [], mapTo = [], newShape = [], newIndexes = [], that = this;
 
-            this.checkIndexes(indexes, { allowUndefined : true });
+            this.checkIndexes(indexes, { allowUndefined : true, allowDummy : true });
 
             function expandIndexes(reducedIndexes) {
                 var expandedIndexes = [], i;
@@ -249,23 +261,35 @@ define(
                 for (i = 0; i < newIndexes.length; i += 1) {
                     expandedIndexes.push(newIndexes[i]);
                 }
-                for (i = 0; i < map.length; i += 1) {
-                    expandedIndexes[map[i]] = reducedIndexes[i];
+                for (i = 0; i < mapFrom.length; i += 1) {
+                    expandedIndexes[mapTo[i]] = reducedIndexes[mapFrom[i]];
                 }
 
                 return expandedIndexes;
             }
 
-            for (i = 0; i < this.shape.length; i += 1) {
-                if (indexes[i] < 0) {
-                    newIndexes.push(indexes[i] + this.shape[i]);
+            i = 0;
+
+            while (newIndexes.length < this.shape.length) {
+                if (indexes[i] === undefined) {
+                    mapFrom.push(newShape.length);
+                    mapTo.push(newIndexes.length);
+                    newShape.push(this.shape[newIndexes.length]);
+                }
+
+                if (typeof indexes[i] === 'string') { // dummy index
+                    newShape.push(indexes[i].valueOf());
+                } else if (indexes[i] < 0) {
+                    newIndexes.push(indexes[i] + this.shape[newIndexes.length]);
                 } else {
                     newIndexes.push(indexes[i]);
                 }
-                if (indexes[i] === undefined) {
-                    newShape.push(this.shape[i]);
-                    map.push(i);
-                }
+                i += 1;
+            }
+            // process any trailing dummy indexes
+            while (i < indexes.length) {
+                newShape.push(indexes[i].valueOf());
+                i += 1;
             }
 
             o = Object.create(AbstractNDArray.prototype);
@@ -1210,7 +1234,19 @@ define(
             return x;
         }
 
+        /*jslint vars: true */
 
+        /** Machine epsilon.
+         *  The value 1 + eps is the smallest number greater than one that can
+         *  be represented with JavaScript's floating point arithmetic.  This
+         *  gives the limit of roundoff error for computations; for example
+         *  1 + eps/2 will be rounded down to 1.
+         */
+        var eps = Math.pow(2, -52);
+
+        /*jslint vars: false */
+
+        jsnum.eps = eps;
         jsnum.eye = eye;
         jsnum.solveLinearSystem = solveLinearSystem;
         jsnum.asNDArray = asNDArray;

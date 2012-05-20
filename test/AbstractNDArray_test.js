@@ -53,13 +53,35 @@ define(
                     RangeError,
                     "too many indices"
                 );
-                assert.throws(function () { A.checkIndexes([1, 'a', 0, 0]); },
+                assert.throws(function () { A.checkIndexes([1, '3', 0, 0]); },
                     TypeError, "non-numeric index");
+                A.checkIndexes([1, '3', 0, 0],
+                    { allowDummy : true, allowUndefined : true });
+                assert.throws(
+                    function () {
+                        A.checkIndexes([1, '3a', 0, 0], { allowDommy : true });
+                    },
+                    TypeError,
+                    "non-numeric index with allowDummy = true"
+                );
+                A.checkIndexes([1, '3', 0, 0, 0], { allowDummy : true });
                 assert.throws(
                     function () { A.checkIndexes([1, undefined, 0, 0]); },
                     TypeError,
-                    "non-numeric index"
+                    "non-numeric index with undefined"
                 );
+                A.checkIndexes([1, 0, 0, 0, '3'], { allowDummy : true });
+                assert.throws(
+                    function () {
+                        var B = jsnum.asNDArray([[1], [3], [4]]);
+                        B.checkIndexes([0, "3", 1],
+                            { allowDummy : true });
+                    },
+                    RangeError,
+                    "should test length of correct dimension with dummy"
+                );
+                jsnum.asNDArray([[1], [3], [4]]).checkIndexes([1, "3", 0],
+                    { allowDummy : true });
                 A.checkIndexes([1, undefined, 0, 0],
                     { allowUndefined : true });
                 assert.throws(function () { A.checkIndexes('a'); },
@@ -165,7 +187,7 @@ define(
             }
         });
 
-        test.createSuite("unit:AbstractNDArray:views", {
+        test.createSuite("unit:AbstractNDArray:views:at", {
             "should support at" : function () {
                 var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
                     [[[7.5], [8.625]], [[9.25], [10.125]]]]);
@@ -272,6 +294,24 @@ define(
 
                 assert.throws(function () { B.shape = [1, 1]; });
             },
+
+            "at should support dummy indexes" : function () {
+                var A = jsnum.asNDArray([[1.5, 3.25], [5.125, 6.125]]),
+                    B = A.at([undefined, "4", undefined]),
+                    C = A.at([undefined, "3", 1]),
+                    D = A.at([1, 0, "3"]);
+
+                assert.deepEqual(B.shape, [2, 4, 2]);
+                assert.deepEqual(B.toArray(), [
+                    [[1.5, 3.25], [1.5, 3.25], [1.5, 3.25], [1.5, 3.25]],
+                    [[5.125, 6.125], [5.125, 6.125], [5.125, 6.125], [5.125, 6.125]]
+                ]);
+                assert.deepEqual(C.shape, [2, 3]);
+                assert.deepEqual(C.toArray(),
+                    [[3.25, 3.25, 3.25], [6.125, 6.125, 6.125]]);
+                assert.deepEqual(D.shape, [3]);
+                assert.deepEqual(D.toArray(), [5.125, 5.125, 5.125]);
+            }
         });
 
         test.createSuite("unit:AbstractNDArray:matrix_operations:dot", {
@@ -329,11 +369,6 @@ define(
                 var rowUsed = [], colUsed = [],
                     A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
                     res = A.LUDecomposition();
-                // console.log('A = \n' + A);
-                // console.log('P = \n' + res.P);
-                // console.log('L = \n' + res.L);
-                // console.log('U = \n' + res.U);
-                // console.log('P L U = \n' + res.P.dot(res.L.dot(res.U)));
                 assert.ok(jsnum.areClose(res.P.dot(res.L.dot(res.U)), A),
                     "Product should be original matrix");
                 res.L.walkIndexes(function (index) {

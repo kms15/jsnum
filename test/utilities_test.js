@@ -128,6 +128,11 @@ define(
                 assert.deepEqual(jsnum.eye(1).toArray(), [[1]]);
                 assert.deepEqual(jsnum.eye(2).toArray(), [[1, 0], [0, 1]]);
                 assert.deepEqual(jsnum.eye(3).toArray(), [[1, 0, 0], [0, 1, 0], [0, 0, 1]]);
+            },
+
+            "should support eps" : function () {
+                assert.notStrictEqual(1 + jsnum.eps, 1, "not too small");
+                assert.strictEqual(1 + jsnum.eps / 2, 1, "not too large");
             }
         });
 
