@@ -37,10 +37,22 @@ of equations).</p>
 
 <div class="highlight">
 <pre>
-var A = jsnum.asNDArray([1, 3], [4, 5]),
-    B = jsnum.asNDArray([4, 5]);
+var A, b, c, p, x;
 
-A.dot(B);
+// create a matrix
+A = jsnum.asNDArray([[1, 3], [4, 5]]),
+
+// create two vectors
+b = jsnum.asNDArray([4, 5]),
+c = jsnum.asNDArray([3, 4]),
+
+// set p to be the matrix A times the vector b plus the vector c
+// i.e. p = A b + c
+p = A.dot(b).add(c);
+
+// find a vector x such that A x = b
+x = jsnum.solveLinearSystem(A, b);
+
 </pre>
 </div>
 
