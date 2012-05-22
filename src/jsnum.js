@@ -546,6 +546,43 @@ define(
         };
 
 
+        /** Calculate the sum of all of the elements in this array.
+         */
+        AbstractNDArray.prototype.sum = function () {
+            var total = 0;
+            this.walkIndexes(function (index) {
+                total += this.val(index);
+            });
+            return total;
+        };
+
+
+        /** Calculate the square root of the sum of the squares of all of the
+         *  elements in this array.  For a vector, this is the Euclidean norm,
+         *  and for a matrix, this is the Frobenius norm.
+         */
+        AbstractNDArray.prototype.norm = function () {
+            var total = 0;
+            this.walkIndexes(function (index) {
+                var val = this.val(index);
+                total += val * val;
+            });
+            return Math.sqrt(total);
+        };
+
+
+        /** Returns true iff this is an orthogonal matrix, meaning that all of
+         *  the rows (and columns) are orthogonal unit vectors, and that the
+         *  transpose of the matrix is equal to its inverse.
+         */
+        AbstractNDArray.prototype.isOrthogonal = function () {
+            if (this.shape.length !== 2 || this.shape[0] !== this.shape[1]) {
+                return false;
+            }
+            return jsnum.areClose(this.dot(this.transpose()), jsnum.eye(this.shape[0]));
+        };
+
+
         /** Perform a matrix product with another array.
          *  In particular, this function takes the dot product of the last
          *  dimension of the first array (this) and the first dimension
@@ -752,6 +789,48 @@ define(
             }
 
             return result;
+        };
+
+
+        /** Compute the Householder transformation that will zero all but the
+         *  first element of this vector.  A vector v, a matrix P, and a scalar
+         *  beta are returned, such that v[0] = 1, P = I - beta v v^t, and
+         *  P.dot(this) has zeros everywhere except for the first element.
+         *
+         *  Based on algorithm 5.1.1 in
+         *  Golub GH, Loan CF van V. Matrix Computations. 3rd ed. The Johns
+         *  Hopkins University Press; 1996.
+         *
+         *  @returns an object with the members, v (Householder vector),
+         *      P (Householder matrix), and beta
+         */
+        AbstractNDArray.prototype.householderTransform = function () {
+            var v = this.copy(), x0 = this.val([0]), offNorm2, beta, norm, P;
+
+            // magnitude squared of components other than the first
+            offNorm2 = v.dot(v).val() - x0 * x0;
+
+            if (offNorm2 === 0) {
+                // x is already of the form [1 0 0 ... 0]
+                beta = 2;
+                v.setElement([0], 1);
+            } else {
+                norm = this.norm();
+
+                if (x0 <= 0) {
+                    v.setElement([0], x0 - norm);
+                } else {
+                    v.setElement([0], -offNorm2 / (x0 + norm));
+                }
+
+                beta = 2 * v.val([0]) * v.val([0]) / (offNorm2 + v.val([0]) * v.val([0]));
+                v.divHere(v.val([0]));
+            }
+
+            P = jsnum.eye(this.shape[0]).sub(v.at([undefined, "1"]).
+                dot(v.at(["1", undefined])).mul(beta));
+
+            return { beta : beta, v : v, P : P };
         };
 
 

@@ -459,6 +459,49 @@ define(
                     [5, 4, 3, 2], "4D");
 
                 assert.ok(jsnum.eye(3).transpose().isReadOnly(), "should respect read-only");
+            },
+
+            "should support isOrthogonal" : function () {
+                var sqrt2 = Math.pow(2, 0.5),
+                    A = jsnum.asNDArray([[1, -1], [1, 1]]).mul(1 / sqrt2),
+                    B = jsnum.eye(3),
+                    C = jsnum.asNDArray([[7, 2, 9], [6, 11, 4], [2, 8, 5]]),
+                    D = jsnum.asNDArray([[1, 0, 0], [0, 1, 0], [0, 1 / sqrt2, 1 / sqrt2]]),
+                    E = jsnum.asNDArray([[1, 3, 5], [4, 6, 8]]),
+                    F = jsnum.asNDArray([[[1, 3], [2, 2]], [[5, 11], [4, 13]]]);
+
+
+                assert.ok(A.isOrthogonal(), "simple 2D");
+                assert.ok(B.isOrthogonal(), "I_3");
+                assert.ok(!C.isOrthogonal(), "Counterexample 1");
+                assert.ok(!D.isOrthogonal(), "Counterexample 2");
+                assert.ok(!E.isOrthogonal(), "rectangular matrix");
+                assert.ok(!F.isOrthogonal(), "non-matrix");
+            },
+
+            "should support householderTransform" : function () {
+                var a = jsnum.asNDArray([3, -3, 4, 2]),
+                    b = jsnum.asNDArray([-2, -3, 4, 2]),
+                    c = jsnum.asNDArray([-4, 0, 0, 0]);
+
+                function check(x) {
+                    var house = x.householderTransform(),
+                        Px = house.P.dot(x);
+                    assert.strictEqual(house.v.val([0]), 1, "1 as first element");
+                    assert.ok(jsnum.areClose(house.P,
+                        jsnum.eye(4).sub(house.v.at([undefined, "1"]).
+                            dot(house.v.at(["1", undefined])).mul(house.beta))),
+                        "P = I - beta v v^t");
+                    assert.ok(house.P.isOrthogonal(), "P is orthogonal");
+                    assert.ok(jsnum.areClose(x.norm(), Px.norm()),
+                        "The norm of Px is the same as the norm of x");
+                    assert.ok(jsnum.areClose(Px.val([0]), Px.norm()),
+                        "P x has only one non-zero element");
+                }
+
+                check(a);
+                check(b);
+                check(c);
             }
         });
 
@@ -647,6 +690,26 @@ define(
                 assert.strictEqual(String(A.neg()),
                     '[[ -1,  3, -5 ],\n' +
                     ' [ -4, -6, -8 ]]');
+            },
+
+            "should support sum" : function () {
+                var A = jsnum.asNDArray(3),
+                    B = jsnum.asNDArray([2, 1, 4]),
+                    C = jsnum.asNDArray([[1, 3], [6, 7]]);
+
+                assert.strictEqual(A.sum(), 3);
+                assert.strictEqual(B.sum(), 7);
+                assert.strictEqual(C.sum(), 17);
+            },
+
+            "should support norm" : function () {
+                var A = jsnum.asNDArray(7),
+                    B = jsnum.asNDArray([3, 4]),
+                    C = jsnum.asNDArray([[5, 1, 3], [1, 6, 7]]);
+
+                assert.strictEqual(A.norm(), 7);
+                assert.strictEqual(B.norm(), 5);
+                assert.strictEqual(C.norm(), 11);
             }
         });
     }
