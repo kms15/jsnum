@@ -482,7 +482,8 @@ define(
             "should support householderTransform" : function () {
                 var a = jsnum.asNDArray([3, -3, 4, 2]),
                     b = jsnum.asNDArray([-2, -3, 4, 2]),
-                    c = jsnum.asNDArray([-4, 0, 0, 0]);
+                    c = jsnum.asNDArray([-4, 0, 0, 0]),
+                    d = jsnum.asNDArray([5, 0, 0, 0]);
 
                 function check(x) {
                     var house = x.householderTransform(),
@@ -499,9 +500,11 @@ define(
                         "P x has only one non-zero element");
                 }
 
+                // check several different types of vectors
                 check(a);
                 check(b);
                 check(c);
+                check(d);
             }
         });
 

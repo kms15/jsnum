@@ -811,8 +811,12 @@ define(
             offNorm2 = v.dot(v).val() - x0 * x0;
 
             if (offNorm2 === 0) {
-                // x is already of the form [1 0 0 ... 0]
-                beta = 2;
+                // x is already of the form [x0 0 0 ... 0]
+                if (x0 < 0) {
+                    beta = 2;
+                } else {
+                    beta = 0;
+                }
                 v.setElement([0], 1);
             } else {
                 norm = this.norm();
