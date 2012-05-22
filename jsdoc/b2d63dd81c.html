@@ -1101,7 +1101,7 @@ the generated results based on what they know about the data
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 742</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 779</li></ul></dd>
 	
     
     
@@ -1458,7 +1458,7 @@ the generated results based on what they know about the data
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 559</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 596</li></ul></dd>
 	
     
     
@@ -1724,6 +1724,83 @@ classes.
         
             
 <dt>
+    <h4 class="name" id="householderTransform"><span class="type-signature"></span>householderTransform</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Compute the Householder transformation that will zero all but the
+ first element of this vector.  A vector v, a matrix P, and a scalar
+ beta are returned, such that v[0] = 1, P = I - beta v v^t, and
+ P.dot(this) has zeros everywhere except for the first element.
+
+ Based on algorithm 5.1.1 in
+ Golub GH, Loan CF van V. Matrix Computations. 3rd ed. The Johns
+ Hopkins University Press; 1996.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 807</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    an object with the members, v (Householder vector),
+     P (Householder matrix), and beta
+</div>
+
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
     <h4 class="name" id="inverse"><span class="type-signature"></span>inverse</h4>
     
     
@@ -1762,7 +1839,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 733</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 770</li></ul></dd>
 	
     
     
@@ -1788,6 +1865,67 @@ classes.
 
 
         
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="isOrthogonal"><span class="type-signature"></span>isOrthogonal</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns true iff this is an orthogonal matrix, meaning that all of
+ the rows (and columns) are orthogonal unit vectors, and that the
+ transpose of the matrix is equal to its inverse.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 578</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
     
     
 </dd>
@@ -1901,7 +2039,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 626</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 663</li></ul></dd>
 	
     
     
@@ -2430,6 +2568,67 @@ classes.
         
             
 <dt>
+    <h4 class="name" id="norm"><span class="type-signature"></span>norm</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Calculate the square root of the sum of the squares of all of the
+ elements in this array.  For a vector, this is the Euclidean norm,
+ and for a matrix, this is the Frobenius norm.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 564</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
     <h4 class="name" id="reciprocal"><span class="type-signature"></span>reciprocal</h4>
     
     
@@ -2860,6 +3059,65 @@ classes if the array is not read only.
         
             
 <dt>
+    <h4 class="name" id="sum"><span class="type-signature"></span>sum</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Calculate the sum of all of the elements in this array.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 551</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
     <h4 class="name" id="swap"><span class="type-signature"></span>swap</h4>
     
     
@@ -3012,7 +3270,7 @@ classes if the array is not read only.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 594</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 631</li></ul></dd>
 	
     
     
@@ -3071,7 +3329,7 @@ classes if the array is not read only.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 837</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 916</li></ul></dd>
 	
     
     
@@ -3136,7 +3394,7 @@ classes if the array is not read only.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 768</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 847</li></ul></dd>
 	
     
     
@@ -3254,7 +3512,7 @@ classes if the array is not read only.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 814</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 893</li></ul></dd>
 	
     
     
@@ -3480,7 +3738,7 @@ array (i.e. a JavasScript array of non-negative integers).
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 935</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1014</li></ul></dd>
 	
     
     
@@ -3539,7 +3797,7 @@ array (i.e. a JavasScript array of non-negative integers).
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/micmath/jsdoc">JSDoc 3</a> on Sun May 20 2012 20:55:55 GMT-0000 (UTC)
+    Documentation generated by <a href="https://github.com/micmath/jsdoc">JSDoc 3</a> on Tue May 22 2012 04:01:49 GMT-0000 (UTC)
 </footer>
 
 <script> sh_highlightDocument(); </script>
