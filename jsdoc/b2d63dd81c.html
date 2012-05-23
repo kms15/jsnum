@@ -210,7 +210,7 @@ be overloaded in derived classes
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 396</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 462</li></ul></dd>
 	
     
     
@@ -318,7 +318,7 @@ be overloaded in derived classes
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 438</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 527</li></ul></dd>
 	
     
     
@@ -436,7 +436,7 @@ be overloaded in derived classes
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 417</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 506</li></ul></dd>
 	
     
     
@@ -505,7 +505,7 @@ be overloaded in derived classes
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 345</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 411</li></ul></dd>
 	
     
     
@@ -564,7 +564,7 @@ be overloaded in derived classes
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 378</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 444</li></ul></dd>
 	
     
     
@@ -595,13 +595,15 @@ be overloaded in derived classes
     
     
     <div class="description">
-        Create a new n-D array object that maps indexes to the selected
- portions of the array.  This effectively takes lower dimensional
- slices out of the array, for example supplying two of the four
- indexes for a four dimensional array (leaving the others as
- "undefined") would pick a two dimensional slice of the array
- with the elements that have matching values in the two indexes
- provided.
+        Create a new n-D array object that provides a different view of
+ the data in this array based on the indexes provided.  Specifying
+ an integer for the index for a given dimension will bind that
+ index to that dimension in the new view, for example picking out
+ a particular row or column of the matrix (thus lowering the
+ number of dimensions by 1).  Giving a string containing a number
+ will create a new "dummy" dimension of the specified size.
+ Giving an Array with two elements will select a subrange of
+ the array along that dimension.
     </div>
     
     
@@ -676,7 +678,7 @@ be overloaded in derived classes
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 250</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 297</li></ul></dd>
 	
     
     
@@ -723,7 +725,10 @@ This function throws an exception if indexes is not an array of
 integers with the same length as the shape.  If you would like
 to allow undefined values (and shorter arrays), set
 opts.allowUndefined to be true.  By default negative indexes
-are allowed; to disable this set opts.nonnegative to true.
+are allowed; to disable this set opts.nonnegative to true.  To
+allow ranges (specified as a JavaScript array with up to two
+elements giving the minimum and maximum), set opts.allowRange
+to true.
     </div>
     
     
@@ -821,7 +826,7 @@ are allowed; to disable this set opts.nonnegative to true.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 114</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 118</li></ul></dd>
 	
     
     
@@ -1101,7 +1106,7 @@ the generated results based on what they know about the data
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 786</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 875</li></ul></dd>
 	
     
     
@@ -1219,7 +1224,7 @@ the generated results based on what they know about the data
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 527</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 616</li></ul></dd>
 	
     
     
@@ -1337,7 +1342,7 @@ the generated results based on what they know about the data
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 507</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 596</li></ul></dd>
 	
     
     
@@ -1458,7 +1463,7 @@ the generated results based on what they know about the data
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 603</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 692</li></ul></dd>
 	
     
     
@@ -1691,7 +1696,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 220</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 264</li></ul></dd>
 	
     
     
@@ -1773,7 +1778,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 820</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 909</li></ul></dd>
 	
     
     
@@ -1845,7 +1850,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 777</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 866</li></ul></dd>
 	
     
     
@@ -1916,7 +1921,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 585</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 674</li></ul></dd>
 	
     
     
@@ -1977,7 +1982,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 178</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 222</li></ul></dd>
 	
     
     
@@ -2045,7 +2050,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 670</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 759</li></ul></dd>
 	
     
     
@@ -2118,7 +2123,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 329</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 395</li></ul></dd>
 	
     
     
@@ -2177,7 +2182,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 362</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 428</li></ul></dd>
 	
     
     
@@ -2285,7 +2290,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 498</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 587</li></ul></dd>
 	
     
     
@@ -2403,7 +2408,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 477</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 566</li></ul></dd>
 	
     
     
@@ -2472,7 +2477,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 544</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 633</li></ul></dd>
 	
     
     
@@ -2541,7 +2546,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 535</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 624</li></ul></dd>
 	
     
     
@@ -2612,7 +2617,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 564</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 653</li></ul></dd>
 	
     
     
@@ -2672,7 +2677,7 @@ classes.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 406</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 472</li></ul></dd>
 	
     
     
@@ -2688,6 +2693,128 @@ classes.
     
     
     
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="set"><span class="type-signature"></span>set</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Replace this the elements of this array with a new value or value).
+ If B is not an NDArray, all of the elements of this array will be
+ set to B.  If B is an NDArray, it should be the same shape as this
+ and specify the new elements of the array for every position in the
+ array.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>B</code></td>
+            
+            
+            <td class="type">
+            
+                        
+                         | 
+                    
+                        NDArray
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The new value or or NDArray of new values</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 487</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    this n-dimensional array (chainable)
+</div>
+
+
+
+        
     
     
 </dd>
@@ -2914,7 +3041,7 @@ classes if the array is not read only.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 468</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 557</li></ul></dd>
 	
     
     
@@ -3032,7 +3159,7 @@ classes if the array is not read only.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 447</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 536</li></ul></dd>
 	
     
     
@@ -3101,7 +3228,7 @@ classes if the array is not read only.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 551</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 640</li></ul></dd>
 	
     
     
@@ -3207,7 +3334,7 @@ classes if the array is not read only.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 318</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 384</li></ul></dd>
 	
     
     
@@ -3276,7 +3403,7 @@ classes if the array is not read only.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 638</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 727</li></ul></dd>
 	
     
     
@@ -3335,7 +3462,7 @@ classes if the array is not read only.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 943</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1032</li></ul></dd>
 	
     
     
@@ -3400,7 +3527,7 @@ classes if the array is not read only.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 874</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 963</li></ul></dd>
 	
     
     
@@ -3518,7 +3645,7 @@ classes if the array is not read only.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 920</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1009</li></ul></dd>
 	
     
     
@@ -3628,7 +3755,7 @@ classes if the array is not read only.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 193</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 237</li></ul></dd>
 	
     
     
@@ -3744,7 +3871,7 @@ array (i.e. a JavasScript array of non-negative integers).
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1041</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1130</li></ul></dd>
 	
     
     
@@ -3803,7 +3930,7 @@ array (i.e. a JavasScript array of non-negative integers).
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/micmath/jsdoc">JSDoc 3</a> on Wed May 23 2012 01:13:26 GMT-0000 (UTC)
+    Documentation generated by <a href="https://github.com/micmath/jsdoc">JSDoc 3</a> on Wed May 23 2012 23:17:35 GMT-0000 (UTC)
 </footer>
 
 <script> sh_highlightDocument(); </script>
