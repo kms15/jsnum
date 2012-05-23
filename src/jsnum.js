@@ -562,11 +562,18 @@ define(
          *  and for a matrix, this is the Frobenius norm.
          */
         AbstractNDArray.prototype.norm = function () {
-            var total = 0;
+            var total = 0, scale;
             this.walkIndexes(function (index) {
                 var val = this.val(index);
                 total += val * val;
             });
+
+            if (total === Infinity) {
+                // vector too large to square; scale it by absmax first
+                scale = this.abs().max();
+                return scale * this.div(scale).norm();
+            }
+
             return Math.sqrt(total);
         };
 
@@ -793,33 +800,49 @@ define(
 
 
         /** Compute the Householder transformation that will zero all but the
-         *  first element of this vector.  A vector v, a matrix P, and a scalar
-         *  beta are returned, such that v[0] = 1, P = I - beta v v^t, and
-         *  P.dot(this) has zeros everywhere except for the first element.
+         *  first element of this vector.  The transformation itself is a
+         *  reflection across a hyperplane that passes through the origin;
+         *  thus this reflection can be represented by an orthogonal
+         *  matrix P which applies the transform or by a vector v that is
+         *  normal to the hyperplane.  This function returns a vector v,
+         *  a matrix P, and a scalar beta such that v[0] = 1,
+         *  P = I - beta v v^t, and P.dot(this) has zeros everywhere except
+         *  for the first element.  This transformation is usually used as a
+         *  building block for other transforms and decompositions.
          *
          *  Based on algorithm 5.1.1 in
-         *  Golub GH, Loan CF van V. Matrix Computations. 3rd ed. The Johns
+         *  Golub GH, Van Loan CF. Matrix Computations. 3rd ed. The Johns
          *  Hopkins University Press; 1996.
          *
-         *  @returns an object with the members, v (Householder vector),
+         *  @returns an object with the members v (Householder vector),
          *      P (Householder matrix), and beta
          */
         AbstractNDArray.prototype.householderTransform = function () {
-            var v = this.copy(), x0 = this.val([0]), offNorm2, beta, norm, P;
+            var v = this.copy(), x0 = this.val([0]), norm2, offNorm2, beta, norm, P;
+
+            norm2 = v.dot(v).val();  // the square of the Euclidean norm
+
+            if (norm2 > 1e200) {
+                // For large magnitude vectors, first normalize x to avoid
+                // problems with overflows when squaring these values.
+                return this.div(this.norm()).householderTransform();
+            }
 
             // magnitude squared of components other than the first
-            offNorm2 = v.dot(v).val() - x0 * x0;
+            offNorm2 = norm2 - x0 * x0;
 
             if (offNorm2 === 0) {
                 // x is already of the form [x0 0 0 ... 0]
                 if (x0 < 0) {
+                    // note: Golub and Van Loan have zero here, but that makes
+                    // the first term of P x negative.
                     beta = 2;
                 } else {
                     beta = 0;
                 }
                 v.setElement([0], 1);
             } else {
-                norm = this.norm();
+                norm = Math.sqrt(norm2);
 
                 if (x0 <= 0) {
                     v.setElement([0], x0 - norm);

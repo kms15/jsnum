@@ -483,7 +483,8 @@ define(
                 var a = jsnum.asNDArray([3, -3, 4, 2]),
                     b = jsnum.asNDArray([-2, -3, 4, 2]),
                     c = jsnum.asNDArray([-4, 0, 0, 0]),
-                    d = jsnum.asNDArray([5, 0, 0, 0]);
+                    d = jsnum.asNDArray([5, 0, 0, 0]),
+                    e = jsnum.asNDArray([3e200, -3e200, 4e200, 2e200]);
 
                 function check(x) {
                     var house = x.householderTransform(),
@@ -505,6 +506,7 @@ define(
                 check(b);
                 check(c);
                 check(d);
+                check(e);
             }
         });
 
@@ -707,12 +709,14 @@ define(
 
             "should support norm" : function () {
                 var A = jsnum.asNDArray(7),
-                    B = jsnum.asNDArray([3, 4]),
-                    C = jsnum.asNDArray([[5, 1, 3], [1, 6, 7]]);
+                    B = jsnum.asNDArray([-3, 4]),
+                    C = jsnum.asNDArray([[5, 1, 3], [1, 6, 7]]),
+                    D = jsnum.asNDArray([3e200, -4e200]);
 
                 assert.strictEqual(A.norm(), 7);
                 assert.strictEqual(B.norm(), 5);
                 assert.strictEqual(C.norm(), 11);
+                assert.ok(jsnum.areClose(D.norm(), 5e200));
             }
         });
     }
