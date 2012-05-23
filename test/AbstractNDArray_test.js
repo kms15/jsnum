@@ -121,6 +121,28 @@ define(
                 assert.calls(A, "checkIndexes", function () {
                     A.val([1, 0]);
                 });
+            },
+
+            "should support set" : function () {
+                var A = jsnum.asNDArray([[1, 3, 5], [4, 6, 8]]),
+                    B = jsnum.asNDArray([[2, 4, 1], [7, 5, 11]]),
+                    result;
+
+                result = A.set(B);
+                assert.deepEqual(A.toArray(), B.toArray());
+                assert.strictEqual(result, A); // chainable
+
+                result = A.set(3);
+                assert.deepEqual(result.toArray(), [[3, 3, 3], [3, 3, 3]]);
+                assert.strictEqual(result, A); // chainable
+            },
+
+            "set should throw on invalid arguments" : function () {
+                var A = jsnum.asNDArray([[1, 3, 5], [4, 6, 8]]);
+
+                assert.throws(function () {
+                    A.set(jsnum.asNDArray([[1, 3, 5, 4], [4, 6, 8, 9]]));
+                }, RangeError, "wrong shape");
             }
         });
 
@@ -181,6 +203,8 @@ define(
 
                 assert.throws(function () { A.checkIndexes([1, '3', 0, 0]); },
                     TypeError, "string index");
+                assert.throws(function () { A.checkIndexes([[1, 2], 0, 0, 0]); },
+                    TypeError, "array index");
                 assert.throws(
                     function () { A.checkIndexes([1, undefined, 0, 0]); },
                     TypeError,
@@ -226,6 +250,38 @@ define(
                     RangeError,
                     "should test length of correct dimension with dummy"
                 );
+            },
+
+            "should support allowRange" : function () {
+                var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
+                    [[[7.5], [8.625]], [[9.25], [10.125]]]]);
+
+                A.checkIndexes([[1, 2], 0, 0, 0], { allowRange: true });
+                A.checkIndexes([[-2, -1], 0, 0, 0], { allowRange: true });
+                A.checkIndexes([0, [undefined, 1], 0, 0], { allowRange: true });
+                A.checkIndexes([0, [1, undefined], 0, 0], { allowRange: true });
+                A.checkIndexes([0, [undefined, undefined], 0, 0], { allowRange: true });
+                assert.throws(function () {
+                    A.checkIndexes([[1, 5], 0, 1, 0], { allowRange: true });
+                }, RangeError, "max too large");
+                assert.throws(function () {
+                    A.checkIndexes([[-3, 2], 0, 1, 0], { allowRange: true });
+                }, RangeError, "min too negative");
+                assert.throws(function () {
+                    A.checkIndexes([[1, 0], 0, 1, 0], { allowRange: true });
+                }, RangeError, "min > max");
+                assert.throws(function () {
+                    A.checkIndexes([[1, 1], 0, 1, 0], { allowRange: true });
+                }, RangeError, "min == max");
+                assert.throws(function () {
+                    A.checkIndexes([["0", 2], 0, 1, 0], { allowRange: true });
+                }, TypeError, "min not a number");
+                assert.throws(function () {
+                    A.checkIndexes([[0, "2"], 0, 1, 0], { allowRange: true });
+                }, TypeError, "max not a number");
+                assert.throws(function () {
+                    A.checkIndexes([[0, 1, 2], 0, 1, 0], { allowRange: true });
+                }, RangeError, "too many numbers in range");
             }
         });
 
@@ -354,6 +410,21 @@ define(
                     [[3.25, 3.25, 3.25], [6.125, 6.125, 6.125]]);
                 assert.deepEqual(D.shape, [3]);
                 assert.deepEqual(D.toArray(), [5.125, 5.125, 5.125]);
+            },
+
+            "at should support ranges" : function () {
+                var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13]]);
+
+                assert.deepEqual(A.at([[1, 2]]).toArray(),
+                        [[5, 11, 13]], "first index");
+                assert.deepEqual(A.at([undefined, [0, 2]]).toArray(),
+                        [[1, 3], [5, 11]], "second index");
+                assert.deepEqual(A.at([[0, 2], [0, 2]]).toArray(),
+                        [[1, 3], [5, 11]], "two indexes");
+                assert.deepEqual(A.at([[undefined, 1]]).toArray(),
+                        [[1, 3, 2]], "undefined first index");
+                assert.deepEqual(A.at([undefined, [1, undefined]]).toArray(),
+                        [[3, 2], [11, 13]], "undefined second index");
             }
         });
 

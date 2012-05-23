@@ -105,24 +105,32 @@ define(
          * integers with the same length as the shape.  If you would like
          * to allow undefined values (and shorter arrays), set
          * opts.allowUndefined to be true.  By default negative indexes
-         * are allowed; to disable this set opts.nonnegative to true.
+         * are allowed; to disable this set opts.nonnegative to true.  To
+         * allow ranges (specified as a JavaScript array with up to two
+         * elements giving the minimum and maximum), set opts.allowRange
+         * to true.
+         *
          * @param { Array<int> } indexes The indexes to check.
          * @param { object | undefined } opts A dictionary of options.
          * @throws { TypeError | RangeError }
          * @returns The n-dimensional array (chainable)
          */
         AbstractNDArray.prototype.checkIndexes = function (indexes, opts) {
-            var i, j, rePositiveInt = /^[0-9]+$/;
+            var i, j, min, max, rePositiveInt = /^[0-9]+$/;
             opts = opts || {};
 
+            // must be an array
             if (!Array.isArray(indexes)) {
                 throw new TypeError(
                     "Non-array given as an index."
                 );
             }
 
+            // Loop over the incoming indexes (i), keeping track of the index
+            // that this maps to (j)
             for (i = 0, j = 0; i < indexes.length && j < this.shape.length; i += 1) {
                 if (typeof indexes[i] === 'number') {
+                    // Standard numeric index
                     if (!(indexes[i] >=
                             ((opts && opts.nonnegative) ? 0 : -this.shape[j]) &&
                             indexes[i] < this.shape[j])) {
@@ -138,15 +146,51 @@ define(
                     }
 
                     j += 1;
-                } else {
-                    if (opts.allowUndefined && indexes[i] === undefined) {
-                        j += 1;
-                    } else if (!opts.allowDummy || !rePositiveInt.test(indexes[i])) {
-                        throw new TypeError(
-                            "Encountered non-numeric index \"" +
-                                indexes[i] + "\"."
-                        );
+                } else if (opts.allowUndefined && indexes[i] === undefined) {
+                    // undefined/blank index
+                    j += 1;
+                } else if (opts.allowRange && Array.isArray(indexes[i])) {
+                    // Range provided as [min, max]
+                    min = indexes[i][0] === undefined ? 0 : indexes[i][0];
+                    max = indexes[i][1] === undefined ? this.shape[j] : indexes[i][1];
+
+                    if (typeof min !== "number" || typeof max !== "number") {
+                        throw new TypeError("Non-numeric value encountered " +
+                            "in range [" + indexes[i] + "]");
                     }
+
+                    if (min < 0) {
+                        min += this.shape[j];
+                    }
+
+                    if (max < 0) {
+                        max += this.shape[j];
+                    }
+
+                    if (min >= max) {
+                        throw new RangeError("Upper end of range was not " +
+                            "greater than lower end of range: [" +
+                            indexes[i] + "]");
+                    }
+
+                    if (max > this.shape[j] || min < 0) {
+                        throw new RangeError("Range [" + indexes[i] +
+                            "] extends beyond actual dimension [0, " +
+                            this.shape[0] + "].");
+                    }
+
+                    if (indexes[i].length > 2) {
+                        throw new RangeError("Too many elements in range [" +
+                            indexes[i] + "]");
+                    }
+
+                    j += 1;
+                } else if (!opts.allowDummy || !rePositiveInt.test(indexes[i])) {
+                    // something else, and not a dummy index
+                    throw new TypeError(
+                        "Encountered non-numeric index \"" +
+                            indexes[i] + "\"."
+                    );
                 }
             }
             if (opts.allowDummy) {
@@ -235,50 +279,57 @@ define(
         };
 
 
-        /** Create a new n-D array object that maps indexes to the selected
-         *  portions of the array.  This effectively takes lower dimensional
-         *  slices out of the array, for example supplying two of the four
-         *  indexes for a four dimensional array (leaving the others as
-         *  "undefined") would pick a two dimensional slice of the array
-         *  with the elements that have matching values in the two indexes
-         *  provided.
+        /** Create a new n-D array object that provides a different view of
+         *  the data in this array based on the indexes provided.  Specifying
+         *  an integer for the index for a given dimension will bind that
+         *  index to that dimension in the new view, for example picking out
+         *  a particular row or column of the matrix (thus lowering the
+         *  number of dimensions by 1).  Giving a string containing a number
+         *  will create a new "dummy" dimension of the specified size.
+         *  Giving an Array with two elements will select a subrange of
+         *  the array along that dimension.
+         *
          *  @param { Array } indexes An array of integers or undefined,
          *      specifying which values to fix.
          *  @returns A (writable) lower dimensional view of the given slice
          *      of the original array.
          */
         AbstractNDArray.prototype.at = function (indexes) {
-            var o, i, mapFrom = [], mapTo = [], newShape = [], newIndexes = [], that = this;
+            var o, i, mapFrom = [], mapTo = [], newShape = [], newIndexes = [],
+                that = this, min, max;
 
-            this.checkIndexes(indexes, { allowUndefined : true, allowDummy : true });
-
-            function expandIndexes(reducedIndexes) {
-                var expandedIndexes = [], i;
-                o.checkIndexes(reducedIndexes);
-
-
-                // build a full length index
-                for (i = 0; i < newIndexes.length; i += 1) {
-                    expandedIndexes.push(newIndexes[i]);
-                }
-                for (i = 0; i < mapFrom.length; i += 1) {
-                    expandedIndexes[mapTo[i]] = reducedIndexes[mapFrom[i]];
-                }
-
-                return expandedIndexes;
-            }
+            this.checkIndexes(indexes, { allowUndefined : true,
+                allowDummy : true, allowRange : true });
 
             i = 0;
 
+            // Loop through the indexes to calculate the new array shape and
+            // transforms from new array indexes to old ones..
             while (newIndexes.length < this.shape.length) {
-                if (indexes[i] === undefined) {
+                if (indexes[i] === undefined) { // blank index
                     mapFrom.push(newShape.length);
                     mapTo.push(newIndexes.length);
                     newShape.push(this.shape[newIndexes.length]);
-                }
+                    newIndexes.push(0);
+                } else if (typeof indexes[i] === 'string') { // dummy index
+                    newShape.push(parseInt(indexes[i], 10));
+                } else if (Array.isArray(indexes[i])) { // range
+                    min = indexes[i][0] === undefined ? 0 : indexes[i][0];
+                    max = indexes[i][1] === undefined ?
+                            this.shape[newShape.length] : indexes[i][1];
 
-                if (typeof indexes[i] === 'string') { // dummy index
-                    newShape.push(indexes[i].valueOf());
+                    if (min < 0) {
+                        min += this.shape[newShape.length];
+                    }
+
+                    if (max < 0) {
+                        max += this.shape[newShape.length];
+                    }
+
+                    mapFrom.push(newShape.length);
+                    mapTo.push(newIndexes.length);
+                    newShape.push(max - min);
+                    newIndexes.push(min);
                 } else if (indexes[i] < 0) {
                     newIndexes.push(indexes[i] + this.shape[newIndexes.length]);
                 } else {
@@ -288,10 +339,25 @@ define(
             }
             // process any trailing dummy indexes
             while (i < indexes.length) {
-                newShape.push(indexes[i].valueOf());
+                newShape.push(parseInt(indexes[i], 10));
                 i += 1;
             }
 
+            // convert the list of indexes given to the new view into
+            // indexes for the original array.
+            function expandIndexes(reducedIndexes) {
+                var expandedIndexes = newIndexes.slice(0), i;
+                o.checkIndexes(reducedIndexes);
+
+                // build an index into the old array
+                for (i = 0; i < mapFrom.length; i += 1) {
+                    expandedIndexes[mapTo[i]] += reducedIndexes[mapFrom[i]];
+                }
+
+                return expandedIndexes;
+            }
+
+            // create the new view object o
             o = Object.create(AbstractNDArray.prototype);
             Object.defineProperty(o, "shape",
                 { value : newShape, writable : false });
@@ -407,6 +473,29 @@ define(
             return this.copy().walkIndexes(function (index) {
                 this.setElement(index, 1 / this.val(index));
             });
+        };
+
+
+        /** Replace this the elements of this array with a new value or value).
+         *  If B is not an NDArray, all of the elements of this array will be
+         *  set to B.  If B is an NDArray, it should be the same shape as this
+         *  and specify the new elements of the array for every position in the
+         *  array.
+         *  @param { ... | NDArray } B The new value or or NDArray of new values
+         *  @returns this n-dimensional array (chainable)
+         */
+        AbstractNDArray.prototype.set = function (B) {
+            if (B.getElement === undefined) {
+                return this.walkIndexes(function (index) {
+                    this.setElement(index, B);
+                });
+            } else if (!this.hasShape(B.shape)) {
+                throw new RangeError("B must have the same shape as this");
+            } else {
+                return this.walkIndexes(function (index) {
+                    this.setElement(index, B.val(index));
+                });
+            }
         };
 
 
