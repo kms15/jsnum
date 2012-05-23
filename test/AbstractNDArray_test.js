@@ -34,69 +34,6 @@ define(
                     undefined);
             },
 
-            "should support checkIndexes" : function () {
-                var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
-                    [[[7.5], [8.625]], [[9.25], [10.125]]]]),
-                    result;
-
-                // should not throw with valid data
-                result = A.checkIndexes([1, 0, 1, 0]);
-                result = A.checkIndexes([1, 0, -2, 0]);
-                assert.strictEqual(result, A);
-
-                assert.throws(function () { A.checkIndexes([0, 0, 0]); },
-                    RangeError, "too few indices");
-                A.checkIndexes([0, 0, 0], { allowUndefined : true });
-
-                assert.throws(
-                    function () { A.checkIndexes([1, 1, 1, 0, 0]); },
-                    RangeError,
-                    "too many indices"
-                );
-                assert.throws(function () { A.checkIndexes([1, '3', 0, 0]); },
-                    TypeError, "non-numeric index");
-                A.checkIndexes([1, '3', 0, 0],
-                    { allowDummy : true, allowUndefined : true });
-                assert.throws(
-                    function () {
-                        A.checkIndexes([1, '3a', 0, 0], { allowDommy : true });
-                    },
-                    TypeError,
-                    "non-numeric index with allowDummy = true"
-                );
-                A.checkIndexes([1, '3', 0, 0, 0], { allowDummy : true });
-                assert.throws(
-                    function () { A.checkIndexes([1, undefined, 0, 0]); },
-                    TypeError,
-                    "non-numeric index with undefined"
-                );
-                A.checkIndexes([1, 0, 0, 0, '3'], { allowDummy : true });
-                assert.throws(
-                    function () {
-                        var B = jsnum.asNDArray([[1], [3], [4]]);
-                        B.checkIndexes([0, "3", 1],
-                            { allowDummy : true });
-                    },
-                    RangeError,
-                    "should test length of correct dimension with dummy"
-                );
-                jsnum.asNDArray([[1], [3], [4]]).checkIndexes([1, "3", 0],
-                    { allowDummy : true });
-                A.checkIndexes([1, undefined, 0, 0],
-                    { allowUndefined : true });
-                assert.throws(function () { A.checkIndexes('a'); },
-                    TypeError, "non-list");
-
-                assert.throws(function () { A.checkIndexes([1, 0, 1, 1]); },
-                    RangeError, "index too large");
-                assert.throws(function () { A.checkIndexes([1, 0, -1, 0], { nonnegative: true }); },
-                    RangeError, "index too negative");
-                assert.throws(function () { A.checkIndexes([1, 0.2, 1, 0]); },
-                    TypeError, "fractional index");
-                assert.throws(function () {
-                    A.checkIndexes([1, Number.NaN, 1, 0]);
-                }, RangeError, "nan index");
-            },
 
             "should support walkIndexes" : function () {
                 var A = jsnum.asNDArray([[[1.5, 2, 4 ], [3.25, 5, 3]], [[5.125, 6, 1 ], [ 6, 23, 2 ]]]),
@@ -186,6 +123,112 @@ define(
                 });
             }
         });
+
+
+        test.createSuite("unit:AbstractNDArray:utilities:checkIndexes", {
+            "should allow valid numeric indexes" : function () {
+                var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
+                    [[[7.5], [8.625]], [[9.25], [10.125]]]]),
+                    result;
+
+                assert.strictEqual(A.checkIndexes([1, 0, 1, 0]), A); // chainable
+                A.checkIndexes([1, 0, -1, 0]); // negative indexes
+                A.checkIndexes([-1, -2, 1, -1]); // negative indexes
+                A.checkIndexes([1, 0, 1, 0], { nonnegative: true });
+            },
+
+            "should throw on value out of range" : function () {
+                var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
+                    [[[7.5], [8.625]], [[9.25], [10.125]]]]);
+
+                assert.throws(function () { A.checkIndexes([1, 0, 1, 1]); },
+                    RangeError, "index too large");
+                assert.throws(function () { A.checkIndexes([1, 0, -1, 0], { nonnegative: true }); },
+                    RangeError, "index negative");
+                assert.throws(function () { A.checkIndexes([1, 0, -3, 0]); },
+                    RangeError, "index too negative");
+                assert.throws(function () { A.checkIndexes([1, 0.2, 1, 0]); },
+                    TypeError, "fractional index");
+                assert.throws(function () {
+                    A.checkIndexes([1, Number.NaN, 1, 0]);
+                }, RangeError, "nan index");
+            },
+
+            "should support negativeIndexes" : function () {
+                var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
+                    [[[7.5], [8.625]], [[9.25], [10.125]]]]);
+
+                A.checkIndexes([1, 0, -2, 0]);
+            },
+
+            "should throw with incorrect number of indexes" : function () {
+                var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
+                    [[[7.5], [8.625]], [[9.25], [10.125]]]]);
+
+                assert.throws(function () { A.checkIndexes([0, 0, 0]); },
+                    RangeError, "too few indices");
+
+                assert.throws(
+                    function () { A.checkIndexes([1, 1, 1, 0, 0]); },
+                    RangeError,
+                    "too many indices"
+                );
+            },
+
+            "should throw with non-numeric indexes" : function () {
+                var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
+                    [[[7.5], [8.625]], [[9.25], [10.125]]]]);
+
+                assert.throws(function () { A.checkIndexes([1, '3', 0, 0]); },
+                    TypeError, "string index");
+                assert.throws(
+                    function () { A.checkIndexes([1, undefined, 0, 0]); },
+                    TypeError,
+                    "undefined index"
+                );
+                assert.throws(function () { A.checkIndexes('a'); },
+                    TypeError, "non-list");
+            },
+
+            "should support allowUndefined" : function () {
+                var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
+                    [[[7.5], [8.625]], [[9.25], [10.125]]]]);
+
+                A.checkIndexes([0, 0, 0], { allowUndefined : true });
+                A.checkIndexes([1, undefined, 0, 0],
+                    { allowUndefined : true });
+            },
+
+            "should support allowDummy" : function () {
+                var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
+                    [[[7.5], [8.625]], [[9.25], [10.125]]]]);
+
+                A.checkIndexes([1, '3', 0, 0],
+                    { allowDummy : true, allowUndefined : true });
+                A.checkIndexes([1, '3', 0, 0, 0], { allowDummy : true });
+                A.checkIndexes([1, 0, 0, 0, '3'], { allowDummy : true });
+                jsnum.asNDArray([[1], [3], [4]]).checkIndexes([1, "3", 0],
+                    { allowDummy : true });
+                jsnum.asNDArray(2).checkIndexes(["4"], { allowDummy : true });
+                assert.throws(
+                    function () {
+                        A.checkIndexes([1, '3a', 0, 0], { allowDummy : true });
+                    },
+                    TypeError,
+                    "non-numeric index with allowDummy = true"
+                );
+                assert.throws(
+                    function () {
+                        var B = jsnum.asNDArray([[1], [3], [4]]);
+                        B.checkIndexes([0, "3", 1],
+                            { allowDummy : true });
+                    },
+                    RangeError,
+                    "should test length of correct dimension with dummy"
+                );
+            }
+        });
+
 
         test.createSuite("unit:AbstractNDArray:views:at", {
             "should support at" : function () {
