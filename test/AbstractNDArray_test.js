@@ -425,8 +425,11 @@ define(
                         [[1, 3, 2]], "undefined first index");
                 assert.deepEqual(A.at([undefined, [1, undefined]]).toArray(),
                         [[3, 2], [11, 13]], "undefined second index");
+                assert.deepEqual(A.at([1, [1, undefined]]).toArray(),
+                        [11, 13], "fixed first index, undefined second index");
             }
         });
+
 
         test.createSuite("unit:AbstractNDArray:matrix_operations:dot", {
             "should support dot product between vectors" : function () {
@@ -509,6 +512,58 @@ define(
                 assert.ok(res.U.isReadOnly(), "U should be readonly");
             },
 
+
+            "should error on unsuported array shapes" : function () {
+
+                assert.throws(function () {
+                    var A = jsnum.asNDArray(3);
+                    A.LUDecomposition();
+                }, TypeError, "0D");
+
+                assert.throws(function () {
+                    var A = jsnum.asNDArray([1, 3, 2]);
+                    A.LUDecomposition();
+                }, TypeError, "vector");
+
+                // TODO: would be nice to generalize these to higher dimensions
+                assert.throws(function () {
+                    var A = jsnum.asNDArray([[[1, 3, 2], [5, 11, 13]], [[1, 3, 2], [5, 11, 13]]]);
+                    A.LUDecomposition();
+                }, TypeError, "3D NDArray");
+
+                // TODO: we can and should support rectangular matrices eventually
+                assert.throws(function () {
+                    var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13]]);
+                    A.LUDecomposition();
+                }, TypeError, "rectangular matrix");
+            }
+        });
+
+
+        test.createSuite("unit:AbstractNDArray:matrix_operations:bidiagonalization", {
+            "should support bidiagonalization" : function () {
+                var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13], [1, 3, 2], [6, 7, 2]]),
+                    B = jsnum.asNDArray([[1, 3, 2, 5], [11, 13, 1, 3], [2, 6, 7, 2]]);
+
+                function check(M) {
+                    var bidiag = M.bidiagonalization();
+                    //console.log('U:\n'+bidiag.U+'\nB:\n'+bidiag.B+'\nV:\n'+bidiag.V)
+
+                    assert.ok(bidiag.U.isOrthogonal(), "U orthogonal");
+                    assert.ok(bidiag.V.isOrthogonal(), "V orthogonal");
+                    assert.ok(jsnum.areClose(M, bidiag.U.dot(bidiag.B).dot(bidiag.V)),
+                        "is a decomposition of M");
+                    bidiag.B.walkIndexes(function (index) {
+                        if (index[0] !== index[1] && index[0] !== index[1] - 1 &&
+                                !jsnum.areClose(bidiag.B.val(index), 0)) {
+                            assert.ok(false, "B should be bidiagonal, but is: \n" + bidiag.B);
+                        }
+                    });
+                }
+
+                check(A);
+                check(B);
+            },
 
             "should error on unsuported array shapes" : function () {
 

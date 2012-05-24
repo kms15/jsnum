@@ -316,14 +316,14 @@ define(
                 } else if (Array.isArray(indexes[i])) { // range
                     min = indexes[i][0] === undefined ? 0 : indexes[i][0];
                     max = indexes[i][1] === undefined ?
-                            this.shape[newShape.length] : indexes[i][1];
+                            this.shape[newIndexes.length] : indexes[i][1];
 
                     if (min < 0) {
-                        min += this.shape[newShape.length];
+                        min += this.shape[newIndexes.length];
                     }
 
                     if (max < 0) {
-                        max += this.shape[newShape.length];
+                        max += this.shape[newIndexes.length];
                     }
 
                     mapFrom.push(newShape.length);
@@ -916,7 +916,6 @@ define(
                 // problems with overflows when squaring these values.
                 return this.div(this.norm()).householderTransform();
             }
-
             // magnitude squared of components other than the first
             offNorm2 = norm2 - x0 * x0;
 
@@ -947,6 +946,53 @@ define(
                 dot(v.at(["1", undefined])).mul(beta));
 
             return { beta : beta, v : v, P : P };
+        };
+
+
+        /** Compute a decomposition of this matrix into the form A = U B V,
+         *  where A is this matrix, U and V are orthogonal matrices, and B is
+         *  an upper bidiagonal matrix (i.e. is zero everywhere except for the
+         *  diagonal and the elements directly above it).  This is used as part
+         *  of computing the singular value decomposition but rarely used
+         *  directly.
+         *
+         *  Based on algorithm 5.4.2 (Householder bidiagonalization) in
+         *  Golub GH, Van Loan CF. Matrix Computations. 3rd ed. The Johns
+         *  Hopkins University Press; 1996.
+         *
+         *  @returns an object with the members U, B, and V
+         */
+        AbstractNDArray.prototype.bidiagonalization = function () {
+            var U, V, B, i, m = this.shape[0], n = this.shape[1], house,
+                min = Math.min(m, n);
+
+            if (this.shape.length !== 2) {
+                throw new TypeError("bidiagonalization is only supported " +
+                    "for matrices");
+            }
+
+            U = jsnum.eye(m).copy();
+            V = jsnum.eye(n).copy();
+            B = this.copy();
+
+            for (i = 0; i < min; i += 1) {
+                // cancel out a column below the diagonal
+                if (i < m - 1) {
+                    house = B.at([[i], i]).householderTransform();
+                    U.at([undefined, [i]]).set(U.
+                        at([undefined, [i]]).dot(house.P));
+                    B.at([[i], [i]]).set(house.P.dot(B.at([[i], [i]])));
+                }
+                if (i + 1 < n - 1) {
+                    // cancel out a row to the right of the diagonal
+                    house = B.at([i, [i + 1]]).householderTransform();
+                    V.at([[i + 1]]).set(house.P.dot(V.at([[i + 1]])));
+                    B.at([undefined, [i + 1]]).set(B.
+                        at([undefined, [i + 1]]).dot(house.P));
+                }
+            }
+
+            return { U : U, B : B, V : V };
         };
 
 
