@@ -592,6 +592,45 @@ define(
         });
 
 
+        test.createSuite("unit:AbstractNDArray:matrix_operations:givens_rotation", {
+            "should support givens rotation" : function () {
+                function check(M) {
+                    var G = M.givensRotation();
+                    //console.log('G:\n'+G+'\nM:\n'+M+'\nG·M:\n'+G.dot(M))
+
+                    assert.ok(jsnum.areClose(G.dot(M).val([1]), 0),
+                        "rotation zeros second element");
+                    assert.ok(G.isOrthogonal(), "G is orthogonal");
+                    assert.strictEqual(G.val([0, 0]), G.val([1, 1]), "cos match");
+                    assert.strictEqual(-G.val([0, 1]), G.val([1, 0]), "sin match");
+                }
+
+                check(jsnum.asNDArray([1, 3]));
+                check(jsnum.asNDArray([6, 2]));
+                check(jsnum.asNDArray([0, 3]));
+                check(jsnum.asNDArray([2, 0]));
+            },
+
+            "should error on unsuported array shapes" : function () {
+
+                assert.throws(function () {
+                    var A = jsnum.asNDArray(3);
+                    A.givensRotation();
+                }, TypeError, "0D");
+
+                assert.throws(function () {
+                    var A = jsnum.asNDArray([1, 3, 2]);
+                    A.givensRotation();
+                }, TypeError, "vector too long");
+
+                assert.throws(function () {
+                    var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13]]);
+                    A.givensRotation();
+                }, TypeError, "matrix");
+            }
+        });
+
+
         test.createSuite("unit:AbstractNDArray:matrix_operations:misc", {
             "should support inverse" : function () {
                 var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]);

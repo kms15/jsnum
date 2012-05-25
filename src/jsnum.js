@@ -949,6 +949,57 @@ define(
         };
 
 
+        /** Compute the Givens matrix that will zero the second element of
+         *  a vector.  The resulting transform is a rotation, represented
+         *  by a rotation matrix G.  This transformation is usually used as a
+         *  building block for other transforms and decompositions.
+         *
+         *  Based on algorithm 1 in:
+         *  Anderson, E, Discontinuous Plane Rotations and the Symmetric
+         *  Eigenvalue Problem. LAPACK Working Note 150, University of
+         *  Tennessee, UT-CS-00-454, December 4, 2000.
+         *
+         *  @returns a rotation matrix
+         */
+        AbstractNDArray.prototype.givensRotation = function () {
+            var f, g, t, u, c, s, result;
+
+            if (this.shape.length !== 1 || this.shape[0] !== 2) {
+                throw new TypeError("Only vectors of length 2 are supported");
+            }
+
+            f = this.val([0]);
+            g = this.val([1]);
+            if (g === 0) {
+                // rotate 0 or 180°
+                c = (f >= 0) ? 1 : -1;
+                s = 0;
+            } else if (f === 0) {
+                // rotate ±90°
+                c = 0;
+                s = (g >= 0) ? 1 : -1;
+            } else if (Math.abs(f) > Math.abs(g)) {
+                t = f / g;
+                u = Math.sqrt(1 + t * t) * (g >= 0 ? 1 : -1);
+                s = 1 / u;
+                c = s * t;
+            } else {
+                t = g / f;
+                u = Math.sqrt(1 + t * t) * (f >= 0 ? 1 : -1);
+                c = 1 / u;
+                s = c * t;
+            }
+
+            result = this.createResult([2, 2]);
+            result.setElement([0, 0], c);
+            result.setElement([0, 1], s);
+            result.setElement([1, 0], -s);
+            result.setElement([1, 1], c);
+
+            return result;
+        };
+
+
         /** Compute a decomposition of this matrix into the form A = U B V,
          *  where A is this matrix, U and V are orthogonal matrices, and B is
          *  an upper bidiagonal matrix (i.e. is zero everywhere except for the
