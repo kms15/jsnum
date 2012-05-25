@@ -555,7 +555,7 @@ define(
                         "is a decomposition of M");
                     bidiag.B.walkIndexes(function (index) {
                         if (index[0] !== index[1] && index[0] !== index[1] - 1 &&
-                                !jsnum.areClose(bidiag.B.val(index), 0)) {
+                                bidiag.B.val(index) !== 0) {
                             assert.ok(false, "B should be bidiagonal, but is: \n" + bidiag.B);
                         }
                     });

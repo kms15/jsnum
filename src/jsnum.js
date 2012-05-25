@@ -982,6 +982,7 @@ define(
                     U.at([undefined, [i]]).set(U.
                         at([undefined, [i]]).dot(house.P));
                     B.at([[i], [i]]).set(house.P.dot(B.at([[i], [i]])));
+                    B.at([[i + 1], i]).set(0);
                 }
                 if (i + 1 < n - 1) {
                     // cancel out a row to the right of the diagonal
@@ -989,6 +990,7 @@ define(
                     V.at([[i + 1]]).set(house.P.dot(V.at([[i + 1]])));
                     B.at([undefined, [i + 1]]).set(B.
                         at([undefined, [i + 1]]).dot(house.P));
+                    B.at([i, [i + 2]]).set(0);
                 }
             }
 
