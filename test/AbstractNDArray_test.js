@@ -569,25 +569,19 @@ define(
 
                 assert.throws(function () {
                     var A = jsnum.asNDArray(3);
-                    A.LUDecomposition();
+                    A.bidiagonalization();
                 }, TypeError, "0D");
 
                 assert.throws(function () {
                     var A = jsnum.asNDArray([1, 3, 2]);
-                    A.LUDecomposition();
+                    A.bidiagonalization();
                 }, TypeError, "vector");
 
                 // TODO: would be nice to generalize these to higher dimensions
                 assert.throws(function () {
                     var A = jsnum.asNDArray([[[1, 3, 2], [5, 11, 13]], [[1, 3, 2], [5, 11, 13]]]);
-                    A.LUDecomposition();
+                    A.bidiagonalization();
                 }, TypeError, "3D NDArray");
-
-                // TODO: we can and should support rectangular matrices eventually
-                assert.throws(function () {
-                    var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13]]);
-                    A.LUDecomposition();
-                }, TypeError, "rectangular matrix");
             }
         });
 
@@ -609,6 +603,8 @@ define(
                 check(jsnum.asNDArray([6, 2]));
                 check(jsnum.asNDArray([0, 3]));
                 check(jsnum.asNDArray([2, 0]));
+                check(jsnum.asNDArray([2, 1e-160]));
+                check(jsnum.asNDArray([1e-160, -3]));
             },
 
             "should error on unsuported array shapes" : function () {
@@ -627,6 +623,62 @@ define(
                     var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13]]);
                     A.givensRotation();
                 }, TypeError, "matrix");
+            }
+        });
+
+
+        test.createSuite("unit:AbstractNDArray:matrix_operations:singular_value_decomposition", {
+            "should support svd" : function () {
+                var A = jsnum.asNDArray([[1, 3, 2, 8], [5, 11, 13, 7],
+                        [1, 3, 2, 15], [6, 7, 2, 11], [5, 3, 12, 8]]),
+                    B = jsnum.asNDArray([[1, 3, 2, 5], [11, 13, 1, 3],
+                        [2, 6, 7, 2]]),
+                    C = jsnum.asNDArray([[1e200, 2e200], [3e200, 4e200]]);
+
+                function check(M) {
+                    var svd = M.singularValueDecomposition();
+                    //console.log('U:\n'+svd.U+'\nD:\n'+svd.D+'\nV:\n'+svd.V)
+
+                    assert.ok(svd.U.isOrthogonal(), "U orthogonal");
+                    assert.ok(svd.V.isOrthogonal(), "V orthogonal");
+                    assert.ok(jsnum.areClose(M, svd.U.dot(svd.D).dot(svd.V)),
+                        "is a decomposition of M");
+                    svd.D.walkIndexes(function (index) {
+                        if (index[0] !== index[1] && svd.D.val(index) !== 0) {
+                            assert.ok(false,
+                                "D should be diagonal, but is: \n" + svd.D);
+                        }
+                    });
+                }
+
+                check(A);
+                check(B);
+                check(C);
+            },
+
+            "should error on unsuported array shapes" : function () {
+
+                assert.throws(function () {
+                    var A = jsnum.asNDArray(3);
+                    A.svd();
+                }, TypeError, "0D");
+
+                assert.throws(function () {
+                    var A = jsnum.asNDArray([1, 3, 2]);
+                    A.svd();
+                }, TypeError, "vector");
+
+                // TODO: would be nice to generalize these to higher dimensions
+                assert.throws(function () {
+                    var A = jsnum.asNDArray([[[1, 3, 2], [5, 11, 13]], [[1, 3, 2], [5, 11, 13]]]);
+                    A.svd();
+                }, TypeError, "3D NDArray");
+
+                // TODO: we can and should support rectangular matrices eventually
+                assert.throws(function () {
+                    var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13]]);
+                    A.svd();
+                }, TypeError, "rectangular matrix");
             }
         });
 

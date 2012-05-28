@@ -1,4 +1,5 @@
 /*global define, UntypedNDArray */
+/*jslint continue: true */
 
 /** @overview This file declares the main components of the JSN module
  *  @copyright (c) 2012 Kendrick Shaw
@@ -970,24 +971,23 @@ define(
 
             f = this.val([0]);
             g = this.val([1]);
-            if (g === 0) {
+            t = f / g;
+            if (g === 0 || Math.abs(t) > 1e100) {
                 // rotate 0 or 180°
                 c = (f >= 0) ? 1 : -1;
                 s = 0;
-            } else if (f === 0) {
+            } else if (f === 0 || Math.abs(t) < 1e-100) {
                 // rotate ±90°
                 c = 0;
                 s = (g >= 0) ? 1 : -1;
             } else if (Math.abs(f) > Math.abs(g)) {
-                t = f / g;
                 u = Math.sqrt(1 + t * t) * (g >= 0 ? 1 : -1);
                 s = 1 / u;
                 c = s * t;
             } else {
-                t = g / f;
-                u = Math.sqrt(1 + t * t) * (f >= 0 ? 1 : -1);
+                u = Math.sqrt(1 + 1 / (t * t)) * (f >= 0 ? 1 : -1);
                 c = 1 / u;
-                s = c * t;
+                s = c / t;
             }
 
             result = this.createResult([2, 2]);
@@ -1046,6 +1046,144 @@ define(
             }
 
             return { U : U, B : B, V : V };
+        };
+
+
+        /** Compute a decomposition of this matrix into the form A = U D V,
+         *  where A is this matrix, U and V are orthogonal matrices, and D is
+         *  a diagonal matrix (i.e. is zero everywhere except for the
+         *  diagonal).           *
+         *
+         *  Based on algorithms 8.6.1 and 8.62 in
+         *  Golub GH, Van Loan CF. Matrix Computations. 3rd ed. The Johns
+         *  Hopkins University Press; 1996.
+         *
+         *  @returns an object with the members U, B, and V
+         */
+        AbstractNDArray.prototype.singularValueDecomposition = function () {
+            var U, V, B, i, m = this.shape[0], n = this.shape[1], bidiag, svdT,
+                tiny = 5 * jsnum.eps, p, q,
+                d0, dm, dn, f1, fm, fn, scale,
+                tmm, tmn, tnn, tdet, ttrace, mu,
+                k, j, r, G;
+
+            if (this.shape.length !== 2) {
+                throw new TypeError("singular value decomposition is only " +
+                    "supported for matrices");
+            } else if (m < n) {
+                // rather than tweak the algorithm below to handle the more
+                // columns than rows case, we can just compute the
+                // svd of the transpose and then transpose the result.
+                svdT = this.transpose().singularValueDecomposition();
+                return { U : svdT.V.transpose(), D: svdT.D.transpose(),
+                    V: svdT.U.transpose() };
+            }
+            bidiag = this.bidiagonalization();
+
+            U = bidiag.U.copy();
+            V = bidiag.V.copy();
+            B = bidiag.B;
+
+
+mainLoop:   while (true) {
+                // zero the near-zero off diagonal elements
+                for (i = 0; i < n - 1; i += 1) {
+                    if (Math.abs(B.val([i, i + 1])) <= tiny *
+                            (Math.abs(B.val([i, i])) +
+                            Math.abs(B.val([i + 1, i + 1])))) {
+                        B.at([i, i + 1]).set(0);
+                    }
+                }
+
+                // set q to the index of the upper left element of the
+                // largest diagonal matrix in the lower right part of B
+                q = n;
+                while (q > 1 && 0 === B.val([q - 2, q - 1])) {
+                    q -= 1;
+                }
+                if (q <= 1) {
+                    break mainLoop; // B is now diagonal, so we're done.
+                }
+
+                // set p to be the index of the upper left element of the
+                // lower-right most submatrix with all non-zero supradiagonal
+                // elements.
+                p = q - 1;
+                while (p > 0 && 0 !== B.val([p - 1, p])) {
+                    p -= 1;
+                }
+
+                // if a diagonal element in B[p:q, p:q] is zero, zero the
+                // corresponding supradiagonal element.
+                for (i = p; i < q - 1; i += 1) {
+                    if (B.val([i, i]) === 0) {
+                        B.at([i, i + 1]).set(0);
+                        continue mainLoop; // find the new p and q
+                    }
+                }
+
+                // find the eigenvalue of the lower right 2x2 matrix of
+                // B∙B^t that it closest to its lowest right value.
+                d0 = B.val([p, p]);
+                f1 = B.val([p, p + 1]);
+                dm = B.val([q - 2, q - 2]);
+                dn = B.val([q - 1, q - 1]);
+                fm = (q > 2 ? B.val([q - 3, q - 2]) : 0);
+                fn = B.val([q - 2, q - 1]);
+                // rescale things to avoid overflows when squaring values
+                scale = Math.max(Math.abs(d0), Math.abs(f1), Math.abs(dm),
+                        Math.abs(dn), Math.abs(fm), Math.abs(fn));
+                d0 /= scale;
+                f1 /= scale;
+                dm /= scale;
+                dn /= scale;
+                fm /= scale;
+                fn /= scale;
+                tmm = dm * dm + fm * fm;
+                tmn = dm * fn;
+                tnn = dn * dn + fn * fn;
+                tdet = tmm * tnn - tmn * tmn;
+                ttrace = tmm + tnn;
+                if (ttrace / 2 > tnn) {
+                    mu = (ttrace - Math.sqrt(ttrace * ttrace - 4 * tdet)) / 2;
+                } else {
+                    mu = (ttrace + Math.sqrt(ttrace * ttrace - 4 * tdet)) / 2;
+                }
+
+                // propagate Givens rotations down the columns
+                r = this.createResult([2]);
+                r.setElement([0], d0 * d0 - mu);
+                r.setElement([1], d0 * f1);
+                for (k = p; k < q - 1; k += 1) {
+
+                    j = Math.max(0, k - 1);
+                    G = r.givensRotation();
+                    V.at([[k, k + 2]]).set(G.dot(V.at([[k, k + 2]])));
+                    B.at([[j, k + 2], [k, k + 2]]).set(B.
+                        at([[j, k + 2], [k, k + 2]]).dot(G.transpose()));
+                    if (k > p) {
+                        B.setElement([k - 1, k + 1], 0);
+                    }
+                    r.setElement([0], B.val([k, k]));
+                    r.setElement([1], B.val([k + 1, k]));
+
+                    j = Math.min(q, k + 3);
+                    G = r.givensRotation();
+                    U.at([undefined, [k, k + 2]]).set(U.
+                            at([undefined, [k, k + 2]]).dot(G.transpose()));
+                    B.at([[k, k + 2], [k, j]]).set(G.dot(B.
+                        at([[k, k + 2], [k, j]])));
+                    B.setElement([k + 1, k], 0);
+                    if (k + 2 < q) {
+                        r.setElement([0], B.val([k, k + 1]));
+                        r.setElement([1], B.val([k, k + 2]));
+                    }
+                }
+
+                // q -= 1
+            }
+
+            return { U : U, D : B, V : V };
         };
 
 
