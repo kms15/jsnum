@@ -1065,7 +1065,8 @@ define(
                 tiny = 5 * jsnum.eps, p, q,
                 d0, dm, dn, f1, fm, fn, scale,
                 tmm, tmn, tnn, tdet, ttrace, mu,
-                k, j, r, G;
+                k, j, r, G,
+                result, sortedOrder;
 
             if (this.shape.length !== 2) {
                 throw new TypeError("singular value decomposition is only " +
@@ -1124,21 +1125,15 @@ mainLoop:   while (true) {
 
                 // find the eigenvalue of the lower right 2x2 matrix of
                 // B∙B^t that it closest to its lowest right value.
-                d0 = B.val([p, p]);
-                f1 = B.val([p, p + 1]);
-                dm = B.val([q - 2, q - 2]);
+                d0 = B.val([p, p]); dm = B.val([q - 2, q - 2]);
                 dn = B.val([q - 1, q - 1]);
-                fm = (q > 2 ? B.val([q - 3, q - 2]) : 0);
+                f1 = B.val([p, p + 1]); fm = (q > 2 ? B.val([q - 3, q - 2]) : 0);
                 fn = B.val([q - 2, q - 1]);
                 // rescale things to avoid overflows when squaring values
                 scale = Math.max(Math.abs(d0), Math.abs(f1), Math.abs(dm),
                         Math.abs(dn), Math.abs(fm), Math.abs(fn));
-                d0 /= scale;
-                f1 /= scale;
-                dm /= scale;
-                dn /= scale;
-                fm /= scale;
-                fn /= scale;
+                d0 /= scale; dm /= scale; dn /= scale;
+                f1 /= scale; fm /= scale; fn /= scale;
                 tmm = dm * dm + fm * fm;
                 tmn = dm * fn;
                 tnn = dn * dn + fn * fn;
@@ -1179,11 +1174,40 @@ mainLoop:   while (true) {
                         r.setElement([1], B.val([k, k + 2]));
                     }
                 }
-
-                // q -= 1
             }
 
-            return { U : U, D : B, V : V };
+            // sort the singular values by size
+            sortedOrder = [];
+            for (i = 0; i < n; i += 1) {
+                sortedOrder[i] = i;
+            }
+            sortedOrder.sort(function (a, b) {
+                var valA = B.val([a, a]),
+                    valB = B.val([b, b]);
+                return (valA < valB) ? 1 : ((valA > valB) ? -1 : 0);
+            });
+            result = {
+                U : this.createResult(U.shape),
+                D : this.createResult(B.shape),
+                V : this.createResult(V.shape)
+            };
+            result.D.set(0);
+            for (i = 0; i < n; i += 1) {
+                result.U.at([undefined, i]).
+                    set(U.at([undefined, sortedOrder[i]]));
+                result.D.at([i, i]).
+                    set(B.at([sortedOrder[i], sortedOrder[i]]));
+                result.V.at([i]).
+                    set(V.at([sortedOrder[i]]));
+            }
+            for (; i < m; i += 1) {
+                // copy remaining columns of U
+                // (representing space outside of the range of the matrix)
+                result.U.at([undefined, i]).set(U.at([undefined, i]));
+            }
+
+
+            return result;
         };
 
 

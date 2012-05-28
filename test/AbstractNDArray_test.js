@@ -636,7 +636,7 @@ define(
                     C = jsnum.asNDArray([[1e200, 2e200], [3e200, 4e200]]);
 
                 function check(M) {
-                    var svd = M.singularValueDecomposition();
+                    var svd = M.singularValueDecomposition(), i, prevVal;
                     //console.log('U:\n'+svd.U+'\nD:\n'+svd.D+'\nV:\n'+svd.V)
 
                     assert.ok(svd.U.isOrthogonal(), "U orthogonal");
@@ -649,6 +649,14 @@ define(
                                 "D should be diagonal, but is: \n" + svd.D);
                         }
                     });
+                    prevVal = 0;
+                    for (i = Math.min(svd.D.shape[0], svd.D.shape[1]) - 1;
+                            i >= 0; i -= 1) {
+                        assert.ok(svd.D.val([i, i]) >= prevVal,
+                            "singular values are not sorted by size:\n" +
+                            svd.D);
+                        prevVal = svd.D.val([i, i]);
+                    }
                 }
 
                 check(A);
