@@ -506,6 +506,8 @@ define(
                         rowUsed[index[0]] = colUsed[index[1]] = true;
                     }
                 });
+                assert.strictEqual(res.decompositionType, "LU",
+                    "decompositionType should be LU");
 
                 assert.ok(res.P.isReadOnly(), "P should be readonly");
                 assert.ok(res.L.isReadOnly(), "L should be readonly");
@@ -657,6 +659,8 @@ define(
                             svd.D);
                         prevVal = svd.D.val([i, i]);
                     }
+                    assert.strictEqual(svd.decompositionType, "Singular Value",
+                        "decompositionType should be Singular Value");
                 }
 
                 check(A);

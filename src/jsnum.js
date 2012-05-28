@@ -753,9 +753,9 @@ define(
          *
          *  @returns an object with the members, P (permutation),
          *      L (lower), U (upper), and the intermediate results
-         *      p (the row permutations performed by P), and
-         *      p_epsilon (-1 iff p is composed of an odd number of swaps,
-         *      otherwise 1).
+         *      p (the row permutations performed by P), p_epsilon (-1 iff p
+         *      is composed of an odd number of swaps, otherwise 1), and
+         *      decompositionType (set to "LU").
          */
         AbstractNDArray.prototype.LUDecomposition = function () {
             var P, L, U, p = [], p_epsilon = 1,
@@ -856,7 +856,7 @@ define(
             });
             U.setElement = jsnum.AbstractNDArray.prototype.setElement;
 
-            return { P: P, L: L, U: U, p: p };
+            return { P: P, L: L, U: U, p: p, decompositionType : "LU" };
         };
 
         /** Find the inverse of this matrix.  If this is an N × N square
@@ -1058,7 +1058,8 @@ define(
          *  Golub GH, Van Loan CF. Matrix Computations. 3rd ed. The Johns
          *  Hopkins University Press; 1996.
          *
-         *  @returns an object with the members U, B, and V
+         *  @returns an object with the members U, B, V, and decompositionType
+         *  (set to "Singular Value").
          */
         AbstractNDArray.prototype.singularValueDecomposition = function () {
             var U, V, B, i, m = this.shape[0], n = this.shape[1], bidiag, svdT,
@@ -1077,7 +1078,7 @@ define(
                 // svd of the transpose and then transpose the result.
                 svdT = this.transpose().singularValueDecomposition();
                 return { U : svdT.V.transpose(), D: svdT.D.transpose(),
-                    V: svdT.U.transpose() };
+                    V: svdT.U.transpose(), decompositionType: "Singular Value" };
             }
             bidiag = this.bidiagonalization();
 
@@ -1189,7 +1190,8 @@ mainLoop:   while (true) {
             result = {
                 U : this.createResult(U.shape),
                 D : this.createResult(B.shape),
-                V : this.createResult(V.shape)
+                V : this.createResult(V.shape),
+                decompositionType : "Singular Value"
             };
             result.D.set(0);
             for (i = 0; i < n; i += 1) {
@@ -1621,7 +1623,7 @@ mainLoop:   while (true) {
         function solveLinearSystem(A, b) {
             var lu, N, x, y, i, j, swap, sum, selector;
 
-            if (A.L !== undefined && A.U !== undefined) {
+            if (A.decompositionType === "LU") {
                 lu = A;
             } else {
                 lu = A.LUDecomposition();
