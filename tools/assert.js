@@ -2,10 +2,10 @@
 /*jslint eqeq: true */
 /*
  * Implements assert framework, based on the CommonJS Unit Testing proposal 1.0
- * found at wiki.commonjs.org/wiki/Unit_Testing/1.0 
+ * found at wiki.commonjs.org/wiki/Unit_Testing/1.0
  */
 
-define([], function () {
+define(["src/jsnum"], function (jsnum) {
     "use strict";
     var assert = {},
         globalObj = (function () { return this; }());
@@ -171,6 +171,28 @@ define([], function () {
                 message : message_opt,
                 actual : member + " not called",
                 expected : member + " called"
+            });
+        }
+    };
+
+    assert.close = function (actual, expected, message_opt) {
+        var areClose;
+
+        try {
+            areClose = jsnum.areClose(actual, expected);
+        } catch (e) {
+            throw new assert.AssertionError({
+                message : e.toString(),
+                actual : actual,
+                expected : expected
+            });
+        }
+
+        if (!areClose) {
+            throw new assert.AssertionError({
+                message : message_opt,
+                actual : actual,
+                expected : expected
             });
         }
     };

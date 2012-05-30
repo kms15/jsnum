@@ -545,7 +545,8 @@ define(
         test.createSuite("unit:AbstractNDArray:matrix_operations:bidiagonalization", {
             "should support bidiagonalization" : function () {
                 var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13], [1, 3, 2], [6, 7, 2]]),
-                    B = jsnum.asNDArray([[1, 3, 2, 5], [11, 13, 1, 3], [2, 6, 7, 2]]);
+                    B = jsnum.asNDArray([[1, 3, 2, 5], [11, 13, 1, 3], [2, 6, 7, 2]]),
+                    C = jsnum.asNDArray([[1, 1, 1], [0, 0, 0], [2, -2, 2]]);
 
                 function check(M) {
                     var bidiag = M.bidiagonalization();
@@ -565,6 +566,7 @@ define(
 
                 check(A);
                 check(B);
+                check(C);
             },
 
             "should error on unsuported array shapes" : function () {
@@ -635,11 +637,13 @@ define(
                         [1, 3, 2, 15], [6, 7, 2, 11], [5, 3, 12, 8]]),
                     B = jsnum.asNDArray([[1, 3, 2, 5], [11, 13, 1, 3],
                         [2, 6, 7, 2]]),
-                    C = jsnum.asNDArray([[1e200, 2e200], [3e200, 4e200]]);
+                    C = jsnum.asNDArray([[1e200, 2e200], [3e200, 4e200]]),
+                    D = jsnum.asNDArray([[0, 1, 1], [0, 0, 1], [0, 0, 0]]),
+                    E = jsnum.asNDArray([[1, 1, 1], [0, 0, 0], [2, -2, 2]]);
 
                 function check(M) {
                     var svd = M.singularValueDecomposition(), i, prevVal;
-                    //console.log('U:\n'+svd.U+'\nD:\n'+svd.D+'\nV:\n'+svd.V)
+                    //console.log('U:\n'+svd.U+'\nD:\n'+svd.D+'\nV:\n'+svd.V+'\nU D V:\n'+svd.U.dot(svd.D.dot(svd.V)))
 
                     assert.ok(svd.U.isOrthogonal(), "U orthogonal");
                     assert.ok(svd.V.isOrthogonal(), "V orthogonal");
@@ -666,6 +670,8 @@ define(
                 check(A);
                 check(B);
                 check(C);
+                check(D);
+                check(E);
             },
 
             "should error on unsuported array shapes" : function () {
@@ -779,6 +785,89 @@ define(
                 check(c);
                 check(d);
                 check(e);
+            },
+
+            "should support rank" : function () {
+                assert.strictEqual(
+                    jsnum.asNDArray([[1, 3, 5], [4, 6, 8], [2, 7, 3]]).rank(),
+                    3
+                );
+                assert.strictEqual(
+                    jsnum.asNDArray([[1, 3, 5], [4, 6, 8], [5, 9, 13]]).rank(),
+                    2
+                );
+                assert.strictEqual(
+                    jsnum.asNDArray([[1, 3, 5], [-1, -3, -5], [2, 6, 10]]).rank(),
+                    1
+                );
+                assert.strictEqual(
+                    jsnum.asNDArray([[0, 1, 1], [0, 0, 1], [0, 0, 0]]).rank(),
+                    2
+                );
+            },
+
+            "nullity should be based on rank" : function () {
+                var A = jsnum.asNDArray([[1, 3, 5], [4, 6, 8], [2, 7, 3]]);
+
+                // return a ridiculous value from rank to make sure it's used
+                A.rank = function () { return 4.125; };
+
+                assert.strictEqual(A.nullity(), -1.125);
+            },
+
+            "should support range" : function () {
+                var A = jsnum.asNDArray([[8, 0, 0], [0, 5, 5], [0, 1, -1]]),
+                    B = jsnum.asNDArray([[1, 1, 1], [0, 0, 0], [2, -2, 2]]),
+                    C = jsnum.asNDArray([[3, 6, -3], [4, 8, -4], [5, 10, -5]]),
+                    D = jsnum.asNDArray([[0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+                    rangeA = A.range(),
+                    rangeB = B.range(),
+                    rangeC = C.range(),
+                    rangeD = D.range(),
+                    vecB = jsnum.asNDArray([0, 1, 0]),
+                    r50 = 1 / Math.sqrt(50);
+
+                assert.close(rangeA,
+                        jsnum.asNDArray([[1, 0, 0], [0, -1, 0], [0, 0, -1]]));
+                assert.deepEqual(rangeB.shape, [2, 3]);
+                assert.close(rangeB.at([0]).norm(), 1, "basis vector 0 norm");
+                assert.close(rangeB.at([1]).norm(), 1, "basis vector 1 norm");
+                assert.close(rangeB.at([0]).dot(rangeB.at([1])).val(), 0,
+                        "orthogonal basis");
+                assert.close(rangeB.at([0]).dot(vecB).val(), 0,
+                        "orthogonal to outside of range 0");
+                assert.close(rangeB.at([1]).dot(vecB).val(), 0,
+                        "orthogonal to outside of range 1");
+                assert.close(rangeC,
+                        jsnum.asNDArray([[3 * r50, 4 * r50, 5 * r50]]));
+                assert.strictEqual(rangeD, null);
+            },
+
+            "should support nullspace" : function () {
+                var A = jsnum.asNDArray([[8, 0, 0], [0, 5, 5], [0, 1, -1]]),
+                    B = jsnum.asNDArray([[1, 1, 1], [0, 0, 0], [2, -2, 2]]),
+                    C = jsnum.asNDArray([[3, 6, -3], [4, 8, -4], [5, 10, -5]]),
+                    D = jsnum.asNDArray([[0, 0, 0], [0, 0, 0], [0, 0, 0]]),
+                    nullspaceA = A.nullspace(),
+                    nullspaceB = B.nullspace(),
+                    nullspaceC = C.nullspace(),
+                    nullspaceD = D.nullspace(),
+                    r2 = 1 / Math.sqrt(2),
+                    vecC = jsnum.asNDArray([1, 2, -1]);
+
+                assert.strictEqual(nullspaceA, null);
+                assert.close(nullspaceB, jsnum.asNDArray([[-r2, 0, r2]]));
+                assert.deepEqual(nullspaceC.shape, [2, 3]);
+                assert.close(nullspaceC.at([0]).norm(), 1, "basis vector 0 norm");
+                assert.close(nullspaceC.at([1]).norm(), 1, "basis vector 1 norm");
+                assert.close(nullspaceC.at([0]).dot(nullspaceC.at([1])).val(), 0,
+                        "orthogonal basis");
+                assert.close(nullspaceC.at([0]).dot(vecC).val(), 0,
+                        "orthogonal to domain 0");
+                assert.close(nullspaceC.at([1]).dot(vecC).val(), 0,
+                        "orthogonal to domain 1");
+                assert.close(nullspaceD,
+                        jsnum.asNDArray([[1, 0, 0], [0, 1, 0], [0, 0, 1]]));
             }
         });
 

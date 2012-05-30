@@ -1,5 +1,4 @@
 /*global define, UntypedNDArray */
-/*jslint continue: true */
 
 /** @overview This file declares the main components of the JSN module
  *  @copyright (c) 2012 Kendrick Shaw
@@ -796,10 +795,10 @@ define(
                 p[k] = pivotRow;
 
                 // Press et al say that this is a good idea for some
-                // singular matrices; we'll trust them.
-                if (pivotVal === 0) {
-                    scratch.setElement([k, k], 1e-40); // a very small non-zero number
-                }
+                // singular matrices; we'll trust them once we've seen this.
+                //if (pivotVal === 0) {
+                //    scratch.setElement([k, k], 1e-40); // a very small non-zero number
+                //}
 
                 // Now reduce the remaining rows
                 pivotScalingFactor = 1 / scratch.val([k, k]);
@@ -1018,8 +1017,7 @@ define(
                 min = Math.min(m, n);
 
             if (this.shape.length !== 2) {
-                throw new TypeError("bidiagonalization is only supported " +
-                    "for matrices");
+                throw new TypeError("Value is not a matrix:\n" + this);
             }
 
             U = jsnum.eye(m).copy();
@@ -1052,7 +1050,7 @@ define(
         /** Compute a decomposition of this matrix into the form A = U D V,
          *  where A is this matrix, U and V are orthogonal matrices, and D is
          *  a diagonal matrix (i.e. is zero everywhere except for the
-         *  diagonal).           *
+         *  diagonal).
          *
          *  Based on algorithms 8.6.1 and 8.62 in
          *  Golub GH, Van Loan CF. Matrix Computations. 3rd ed. The Johns
@@ -1066,12 +1064,11 @@ define(
                 tiny = 5 * jsnum.eps, p, q,
                 d0, dm, dn, f1, fm, fn, scale,
                 tmm, tmn, tnn, tdet, ttrace, mu,
-                k, j, r, G,
+                k, j, r, G, fixingDiagonal,
                 result, sortedOrder;
 
             if (this.shape.length !== 2) {
-                throw new TypeError("singular value decomposition is only " +
-                    "supported for matrices");
+                throw new TypeError("Value is not a matrix:\n" + this);
             } else if (m < n) {
                 // rather than tweak the algorithm below to handle the more
                 // columns than rows case, we can just compute the
@@ -1085,9 +1082,9 @@ define(
             U = bidiag.U.copy();
             V = bidiag.V.copy();
             B = bidiag.B;
+            r = this.createResult([2]);
 
-
-mainLoop:   while (true) {
+            while (true) {
                 // zero the near-zero off diagonal elements
                 for (i = 0; i < n - 1; i += 1) {
                     if (Math.abs(B.val([i, i + 1])) <= tiny *
@@ -1104,7 +1101,7 @@ mainLoop:   while (true) {
                     q -= 1;
                 }
                 if (q <= 1) {
-                    break mainLoop; // B is now diagonal, so we're done.
+                    break; // B is now diagonal, so we're done.
                 }
 
                 // set p to be the index of the upper left element of the
@@ -1116,50 +1113,57 @@ mainLoop:   while (true) {
                 }
 
                 // if a diagonal element in B[p:q, p:q] is zero, zero the
-                // corresponding supradiagonal element.
+                // corresponding supradiagonal element using a Givens
+                // rotation.  (Note: Golub and Van Loan simply say
+                // to zero the element but don't describe how; this seems
+                // to work in my testing.)
+                fixingDiagonal = false;
                 for (i = p; i < q - 1; i += 1) {
                     if (B.val([i, i]) === 0) {
-                        B.at([i, i + 1]).set(0);
-                        continue mainLoop; // find the new p and q
+                        fixingDiagonal = true;
+                        k = i;
+                        r.setElement([0], 0);
+                        r.setElement([1], 1);
+                        break;
                     }
                 }
 
-                // find the eigenvalue of the lower right 2x2 matrix of
-                // B∙B^t that it closest to its lowest right value.
-                d0 = B.val([p, p]); dm = B.val([q - 2, q - 2]);
-                dn = B.val([q - 1, q - 1]);
-                f1 = B.val([p, p + 1]); fm = (q > 2 ? B.val([q - 3, q - 2]) : 0);
-                fn = B.val([q - 2, q - 1]);
-                // rescale things to avoid overflows when squaring values
-                scale = Math.max(Math.abs(d0), Math.abs(f1), Math.abs(dm),
-                        Math.abs(dn), Math.abs(fm), Math.abs(fn));
-                d0 /= scale; dm /= scale; dn /= scale;
-                f1 /= scale; fm /= scale; fn /= scale;
-                tmm = dm * dm + fm * fm;
-                tmn = dm * fn;
-                tnn = dn * dn + fn * fn;
-                tdet = tmm * tnn - tmn * tmn;
-                ttrace = tmm + tnn;
-                if (ttrace / 2 > tnn) {
-                    mu = (ttrace - Math.sqrt(ttrace * ttrace - 4 * tdet)) / 2;
-                } else {
-                    mu = (ttrace + Math.sqrt(ttrace * ttrace - 4 * tdet)) / 2;
+                if (!fixingDiagonal) {
+                    // find the eigenvalue of the lower right 2x2 matrix of
+                    // B∙B^t that it closest to its lowest right value.
+                    d0 = B.val([p, p]); dm = B.val([q - 2, q - 2]);
+                    dn = B.val([q - 1, q - 1]);
+                    f1 = B.val([p, p + 1]); fm = (q > 2 ? B.val([q - 3, q - 2]) : 0);
+                    fn = B.val([q - 2, q - 1]);
+                    // rescale things to avoid overflows when squaring values
+                    scale = Math.max(Math.abs(d0), Math.abs(f1), Math.abs(dm),
+                            Math.abs(dn), Math.abs(fm), Math.abs(fn));
+                    d0 /= scale; dm /= scale; dn /= scale;
+                    f1 /= scale; fm /= scale; fn /= scale;
+                    tmm = dm * dm + fm * fm;
+                    tmn = dm * fn;
+                    tnn = dn * dn + fn * fn;
+                    tdet = tmm * tnn - tmn * tmn;
+                    ttrace = tmm + tnn;
+                    if (ttrace / 2 > tnn) {
+                        mu = (ttrace - Math.sqrt(ttrace * ttrace - 4 * tdet)) / 2;
+                    } else {
+                        mu = (ttrace + Math.sqrt(ttrace * ttrace - 4 * tdet)) / 2;
+                    }
+
+                    k = p;
+                    r.setElement([0], d0 * d0 - mu);
+                    r.setElement([1], d0 * f1);
                 }
 
-                // propagate Givens rotations down the columns
-                r = this.createResult([2]);
-                r.setElement([0], d0 * d0 - mu);
-                r.setElement([1], d0 * f1);
-                for (k = p; k < q - 1; k += 1) {
+                // propagate the Givens rotations down the columns
+                for (k; k < q - 1; k += 1) {
 
                     j = Math.max(0, k - 1);
                     G = r.givensRotation();
                     V.at([[k, k + 2]]).set(G.dot(V.at([[k, k + 2]])));
                     B.at([[j, k + 2], [k, k + 2]]).set(B.
                         at([[j, k + 2], [k, k + 2]]).dot(G.transpose()));
-                    if (k > p) {
-                        B.setElement([k - 1, k + 1], 0);
-                    }
                     r.setElement([0], B.val([k, k]));
                     r.setElement([1], B.val([k + 1, k]));
 
@@ -1169,7 +1173,6 @@ mainLoop:   while (true) {
                             at([undefined, [k, k + 2]]).dot(G.transpose()));
                     B.at([[k, k + 2], [k, j]]).set(G.dot(B.
                         at([[k, k + 2], [k, j]])));
-                    B.setElement([k + 1, k], 0);
                     if (k + 2 < q) {
                         r.setElement([0], B.val([k, k + 1]));
                         r.setElement([1], B.val([k, k + 2]));
@@ -1202,14 +1205,119 @@ mainLoop:   while (true) {
                 result.V.at([i]).
                     set(V.at([sortedOrder[i]]));
             }
-            for (; i < m; i += 1) {
+            for (i; i < m; i += 1) {
                 // copy remaining columns of U
                 // (representing space outside of the range of the matrix)
                 result.U.at([undefined, i]).set(U.at([undefined, i]));
             }
 
-
             return result;
+        };
+
+
+        /**
+         * Compute the rank of this matrix (i.e. the number of linearly
+         * independent rows, which is also the dimension of the range).
+         *
+         *  See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.
+         *  Numerical Recipes 3rd Edition: The Art of Scientific Computing.
+         *  3rd ed. Cambridge University Press; 2007.
+         *
+         * @returns the rank (a non-negative integer)
+         */
+        AbstractNDArray.prototype.rank = function () {
+            var svd, rank, threshold;
+
+            svd = this.singularValueDecomposition();
+            threshold = 0.5 * Math.sqrt(this.shape[0] + this.shape[1] + 1) *
+                svd.D.val([0, 0]) * jsnum.eps;
+            rank = 0;
+            while (rank < svd.D.shape[0] &&
+                    Math.abs(svd.D.val([rank, rank])) > threshold) {
+                rank += 1;
+            }
+
+            return rank;
+        };
+
+
+        /**
+         * Compute the nullity of this matrix (i.e. the number of dimensions of
+         * its nullspace).
+         *
+         *  See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.
+         *  Numerical Recipes 3rd Edition: The Art of Scientific Computing.
+         *  3rd ed. Cambridge University Press; 2007.
+         *
+         * @returns the rank (a non-negative integer)
+         */
+        AbstractNDArray.prototype.nullity = function () {
+
+            return this.shape[0] - this.rank();
+        };
+
+
+        /**
+         * Compute the range of this matrix.  The range is the space of
+         * possible results when multiplying this by a vector, that is
+         * all vectors b where there exists x such that b = A x.
+         *
+         *  See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.
+         *  Numerical Recipes 3rd Edition: The Art of Scientific Computing.
+         *  3rd ed. Cambridge University Press; 2007.
+         *
+         * @returns A matrix whose rows form an orthogonal basis set for the
+         * range, or null if the matrix has no range
+         */
+        AbstractNDArray.prototype.range = function () {
+            var svd, rank, threshold;
+
+            svd = this.singularValueDecomposition();
+            threshold = 0.5 * Math.sqrt(this.shape[0] + this.shape[1] + 1) *
+                svd.D.val([0, 0]) * jsnum.eps;
+            rank = 0;
+            while (rank < svd.D.shape[0] &&
+                    Math.abs(svd.D.val([rank, rank])) > threshold) {
+                rank += 1;
+            }
+
+            if (rank === 0) {
+                return null;
+            } else {
+                return svd.U.transpose().at([[0, rank]]);
+            }
+        };
+
+
+        /**
+         * Compute the nullspace of this matrix.  The nullspace is the space
+         * spanned by input vectors that this matrix will map to the null
+         * null vector, i.e. all vectors x where A x = 0.
+         *
+         *  See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.
+         *  Numerical Recipes 3rd Edition: The Art of Scientific Computing.
+         *  3rd ed. Cambridge University Press; 2007.
+         *
+         * @returns A matrix whose rows form an orthogonal basis set for the
+         * nullspace, or null if the matrix has no nullspace
+         */
+        AbstractNDArray.prototype.nullspace = function () {
+            var svd, rank, threshold;
+
+            svd = this.singularValueDecomposition();
+            threshold = 0.5 * Math.sqrt(this.shape[0] + this.shape[1] + 1) *
+                svd.D.val([0, 0]) * jsnum.eps;
+            rank = 0;
+            while (rank < svd.D.shape[0] &&
+                    Math.abs(svd.D.val([rank, rank])) > threshold) {
+                rank += 1;
+            }
+
+            if (rank === svd.D.shape[0]) {
+                return null;
+            } else {
+                return svd.V.at([[rank, svd.D.shape[0]]]);
+            }
         };
 
 
