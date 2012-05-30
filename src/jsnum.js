@@ -1216,6 +1216,29 @@ define(
 
 
         /**
+         * Compute the condition number of this matrix (i.e. the largest
+         * singular value divided by the smallest).  This is a measure of how
+         * well behaved this matrix is likely to be in numerical computations,
+         * with larger condition numbers being given to matrices that are "more
+         * singular" and likely to behave poorly.
+         *
+         *  See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.
+         *  Numerical Recipes 3rd Edition: The Art of Scientific Computing.
+         *  3rd ed. Cambridge University Press; 2007.
+         *
+         * @returns the condition number
+         */
+        AbstractNDArray.prototype.conditionNumber = function () {
+            var svd, n;
+
+            svd = this.singularValueDecomposition();
+            n = Math.min(this.shape[0], this.shape[1]);
+
+            return svd.D.val([0, 0]) / svd.D.val([n - 1, n - 1]);
+        };
+
+
+        /**
          * Compute the rank of this matrix (i.e. the number of linearly
          * independent rows, which is also the dimension of the range).
          *
@@ -1226,14 +1249,14 @@ define(
          * @returns the rank (a non-negative integer)
          */
         AbstractNDArray.prototype.rank = function () {
-            var svd, rank, threshold;
+            var svd, rank, threshold, n;
 
             svd = this.singularValueDecomposition();
+            n = Math.min(this.shape[0], this.shape[1]);
             threshold = 0.5 * Math.sqrt(this.shape[0] + this.shape[1] + 1) *
                 svd.D.val([0, 0]) * jsnum.eps;
             rank = 0;
-            while (rank < svd.D.shape[0] &&
-                    Math.abs(svd.D.val([rank, rank])) > threshold) {
+            while (rank < n && Math.abs(svd.D.val([rank, rank])) > threshold) {
                 rank += 1;
             }
 
@@ -1249,7 +1272,7 @@ define(
          *  Numerical Recipes 3rd Edition: The Art of Scientific Computing.
          *  3rd ed. Cambridge University Press; 2007.
          *
-         * @returns the rank (a non-negative integer)
+         * @returns the nullity (a non-negative integer)
          */
         AbstractNDArray.prototype.nullity = function () {
 
@@ -1270,14 +1293,14 @@ define(
          * range, or null if the matrix has no range
          */
         AbstractNDArray.prototype.range = function () {
-            var svd, rank, threshold;
+            var svd, rank, threshold, n;
 
             svd = this.singularValueDecomposition();
+            n = Math.min(this.shape[0], this.shape[1]);
             threshold = 0.5 * Math.sqrt(this.shape[0] + this.shape[1] + 1) *
                 svd.D.val([0, 0]) * jsnum.eps;
             rank = 0;
-            while (rank < svd.D.shape[0] &&
-                    Math.abs(svd.D.val([rank, rank])) > threshold) {
+            while (rank < n && Math.abs(svd.D.val([rank, rank])) > threshold) {
                 rank += 1;
             }
 
@@ -1302,21 +1325,21 @@ define(
          * nullspace, or null if the matrix has no nullspace
          */
         AbstractNDArray.prototype.nullspace = function () {
-            var svd, rank, threshold;
+            var svd, rank, threshold, n;
 
             svd = this.singularValueDecomposition();
+            n = Math.min(this.shape[0], this.shape[1]);
             threshold = 0.5 * Math.sqrt(this.shape[0] + this.shape[1] + 1) *
                 svd.D.val([0, 0]) * jsnum.eps;
             rank = 0;
-            while (rank < svd.D.shape[0] &&
-                    Math.abs(svd.D.val([rank, rank])) > threshold) {
+            while (rank < n && Math.abs(svd.D.val([rank, rank])) > threshold) {
                 rank += 1;
             }
 
-            if (rank === svd.D.shape[0]) {
+            if (rank === svd.V.shape[0]) {
                 return null;
             } else {
-                return svd.V.at([[rank, svd.D.shape[0]]]);
+                return svd.V.at([[rank]]);
             }
         };
 

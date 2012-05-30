@@ -787,6 +787,25 @@ define(
                 check(e);
             },
 
+            "should support conditionNumber" : function () {
+                assert.close(
+                    jsnum.asNDArray([[2, 0, 0], [0, 3, 0], [0, 0, 8]]).conditionNumber(),
+                    4
+                );
+                assert.strictEqual(
+                    jsnum.asNDArray([[2, 0, 0], [0, 0, 0], [0, 0, 8]]).conditionNumber(),
+                    Infinity
+                );
+                assert.close(
+                    jsnum.asNDArray([[4, 0, 0], [0, 0, 12]]).conditionNumber(),
+                    3
+                );
+                assert.close(
+                    jsnum.asNDArray([[0, 3], [0, 4], [10, 0]]).conditionNumber(),
+                    2
+                );
+            },
+
             "should support rank" : function () {
                 assert.strictEqual(
                     jsnum.asNDArray([[1, 3, 5], [4, 6, 8], [2, 7, 3]]).rank(),
@@ -804,15 +823,23 @@ define(
                     jsnum.asNDArray([[0, 1, 1], [0, 0, 1], [0, 0, 0]]).rank(),
                     2
                 );
+                assert.strictEqual(
+                    jsnum.asNDArray([[8, 1, 3], [7, 4, 2]]).rank(),
+                    2
+                );
+                assert.strictEqual(
+                    jsnum.asNDArray([[8, 1], [7, 4], [2, 6]]).rank(),
+                    2
+                );
             },
 
             "nullity should be based on rank" : function () {
-                var A = jsnum.asNDArray([[1, 3, 5], [4, 6, 8], [2, 7, 3]]);
+                var A = jsnum.asNDArray([[1, 3, 5], [4, 6, 8]]);
 
                 // return a ridiculous value from rank to make sure it's used
                 A.rank = function () { return 4.125; };
 
-                assert.strictEqual(A.nullity(), -1.125);
+                assert.strictEqual(A.nullity(), -2.125);
             },
 
             "should support range" : function () {
@@ -820,14 +847,13 @@ define(
                     B = jsnum.asNDArray([[1, 1, 1], [0, 0, 0], [2, -2, 2]]),
                     C = jsnum.asNDArray([[3, 6, -3], [4, 8, -4], [5, 10, -5]]),
                     D = jsnum.asNDArray([[0, 0, 0], [0, 0, 0], [0, 0, 0]]),
-                    rangeA = A.range(),
+                    E = jsnum.asNDArray([[1, 0, 0], [0, 0, 1]]),
+                    F = jsnum.asNDArray([[1, 0], [0, 0], [0, 1]]),
                     rangeB = B.range(),
-                    rangeC = C.range(),
-                    rangeD = D.range(),
                     vecB = jsnum.asNDArray([0, 1, 0]),
                     r50 = 1 / Math.sqrt(50);
 
-                assert.close(rangeA,
+                assert.close(A.range(),
                         jsnum.asNDArray([[1, 0, 0], [0, -1, 0], [0, 0, -1]]));
                 assert.deepEqual(rangeB.shape, [2, 3]);
                 assert.close(rangeB.at([0]).norm(), 1, "basis vector 0 norm");
@@ -838,9 +864,11 @@ define(
                         "orthogonal to outside of range 0");
                 assert.close(rangeB.at([1]).dot(vecB).val(), 0,
                         "orthogonal to outside of range 1");
-                assert.close(rangeC,
+                assert.close(C.range(),
                         jsnum.asNDArray([[3 * r50, 4 * r50, 5 * r50]]));
-                assert.strictEqual(rangeD, null);
+                assert.strictEqual(D.range(), null);
+                assert.close(E.range(), jsnum.asNDArray([[1, 0], [0, 1]]));
+                assert.close(F.range(), jsnum.asNDArray([[1, 0, 0], [0, 0, 1]]));
             },
 
             "should support nullspace" : function () {
@@ -848,15 +876,14 @@ define(
                     B = jsnum.asNDArray([[1, 1, 1], [0, 0, 0], [2, -2, 2]]),
                     C = jsnum.asNDArray([[3, 6, -3], [4, 8, -4], [5, 10, -5]]),
                     D = jsnum.asNDArray([[0, 0, 0], [0, 0, 0], [0, 0, 0]]),
-                    nullspaceA = A.nullspace(),
-                    nullspaceB = B.nullspace(),
+                    E = jsnum.asNDArray([[1, 0, 0], [0, 0, 1]]),
+                    F = jsnum.asNDArray([[1, 0], [0, 0], [0, 1]]),
                     nullspaceC = C.nullspace(),
-                    nullspaceD = D.nullspace(),
                     r2 = 1 / Math.sqrt(2),
                     vecC = jsnum.asNDArray([1, 2, -1]);
 
-                assert.strictEqual(nullspaceA, null);
-                assert.close(nullspaceB, jsnum.asNDArray([[-r2, 0, r2]]));
+                assert.strictEqual(A.nullspace(), null);
+                assert.close(B.nullspace(), jsnum.asNDArray([[-r2, 0, r2]]));
                 assert.deepEqual(nullspaceC.shape, [2, 3]);
                 assert.close(nullspaceC.at([0]).norm(), 1, "basis vector 0 norm");
                 assert.close(nullspaceC.at([1]).norm(), 1, "basis vector 1 norm");
@@ -866,8 +893,10 @@ define(
                         "orthogonal to domain 0");
                 assert.close(nullspaceC.at([1]).dot(vecC).val(), 0,
                         "orthogonal to domain 1");
-                assert.close(nullspaceD,
+                assert.close(D.nullspace(),
                         jsnum.asNDArray([[1, 0, 0], [0, 1, 0], [0, 0, 1]]));
+                assert.close(E.nullspace(), jsnum.asNDArray([[0, 1, 0]]));
+                assert.strictEqual(F.nullspace(), null);
             }
         });
 
