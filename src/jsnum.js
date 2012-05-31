@@ -1757,6 +1757,11 @@ define(
             if (A.decompositionType === "LU") {
                 lu = A;
             } else {
+                if (A.shape === undefined) {
+                    throw new
+                        TypeError("A must be an NDArray or LU Decomposition");
+                }
+
                 lu = A.LUDecomposition();
             }
 

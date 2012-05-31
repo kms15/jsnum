@@ -57,7 +57,8 @@ define(
             "shape should not be writable" : function () {
                 var A = new jsnum.UntypedNDArray([2, 3]);
 
-                assert.throws(function () { A.shape = [1, 1]; });
+                assert.strictEqual(Object.getOwnPropertyDescriptor(A, "shape").
+                        writable, false);
             },
 
             "should call checkShape" : function () {

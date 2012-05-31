@@ -391,7 +391,8 @@ define(
                     [[[7.5], [8.625]], [[9.25], [10.125]]]]),
                     B = A.at([1, undefined, 1]);
 
-                assert.throws(function () { B.shape = [1, 1]; });
+                assert.strictEqual(Object.getOwnPropertyDescriptor(B, "shape").
+                        writable, false);
             },
 
             "at should support dummy indexes" : function () {
@@ -678,25 +679,19 @@ define(
 
                 assert.throws(function () {
                     var A = jsnum.asNDArray(3);
-                    A.svd();
+                    A.singularValueDecomposition();
                 }, TypeError, "0D");
 
                 assert.throws(function () {
                     var A = jsnum.asNDArray([1, 3, 2]);
-                    A.svd();
+                    A.singularValueDecomposition();
                 }, TypeError, "vector");
 
                 // TODO: would be nice to generalize these to higher dimensions
                 assert.throws(function () {
                     var A = jsnum.asNDArray([[[1, 3, 2], [5, 11, 13]], [[1, 3, 2], [5, 11, 13]]]);
-                    A.svd();
+                    A.singularValueDecomposition();
                 }, TypeError, "3D NDArray");
-
-                // TODO: we can and should support rectangular matrices eventually
-                assert.throws(function () {
-                    var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13]]);
-                    A.svd();
-                }, TypeError, "rectangular matrix");
             }
         });
 
