@@ -101,7 +101,7 @@ define(['tools/assert'], function (assert) {
 
             case 'failTest':
                 outputLine('######### ' + e.test + ' FAILED ##########');
-                outputLine(d);
+                outputLine(e.error.toString());
                 break;
 
             case 'endSuite':

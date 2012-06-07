@@ -295,84 +295,113 @@ define(
          *      of the original array.
          */
         AbstractNDArray.prototype.at = function (indexes) {
-            var o, i, mapFrom = [], mapTo = [], newShape = [], newIndexes = [],
-                that = this, min, max;
+            var that = this, mapTo = [], stride = [], offsets = [];
 
-            this.checkIndexes(indexes, { allowUndefined : true,
+            that.checkIndexes(indexes, { allowUndefined : true,
                 allowDummy : true, allowRange : true });
 
-            i = 0;
+            function updatedView(indexes, oldMapTo, oldStride, oldOffsets, oldShape) {
+                var o, i, j, min, max,
+                    stride = [], mapTo = [], newShape = [],
+                    newOffsets = oldOffsets.slice(0);
 
-            // Loop through the indexes to calculate the new array shape and
-            // transforms from new array indexes to old ones..
-            while (newIndexes.length < this.shape.length) {
-                if (indexes[i] === undefined) { // blank index
-                    mapFrom.push(newShape.length);
-                    mapTo.push(newIndexes.length);
-                    newShape.push(this.shape[newIndexes.length]);
-                    newIndexes.push(0);
-                } else if (typeof indexes[i] === 'string') { // dummy index
+                i = 0;
+                j = 0;
+
+                // Loop through the indexes to calculate the new array shape and
+                // transforms from new array indexes to old ones..
+                while (j < oldShape.length) {
+                    if (indexes[i] === undefined) { // blank index
+                        stride.push(1);
+                        mapTo.push(oldMapTo[j]);
+                        newShape.push(oldShape[j]);
+                        j += 1;
+                    } else if (typeof indexes[i] === 'string') { // dummy index
+                        stride.push(0);
+                        mapTo.push(-1);
+                        newShape.push(parseInt(indexes[i], 10));
+                    } else if (Array.isArray(indexes[i])) { // range
+                        min = indexes[i][0] === undefined ? 0 : indexes[i][0];
+                        max = indexes[i][1] === undefined ?
+                                oldShape[j] : indexes[i][1];
+
+                        if (min < 0) {
+                            min += oldShape[j];
+                        }
+
+                        if (max < 0) {
+                            max += oldShape[j];
+                        }
+
+                        stride.push(1);
+                        mapTo.push(j);
+                        newShape.push(max - min);
+                        newOffsets[oldMapTo[j]] += min;
+                        j += 1
+                    } else if (indexes[i] < 0) {
+                        newOffsets[oldMapTo[j]] += indexes[i] + oldShape[j];
+                        j += 1
+                    } else {
+                        newOffsets[oldMapTo[j]] += indexes[i];
+                        j += 1
+                    }
+                    i += 1;
+                }
+                // process any trailing dummy indexes
+                while (i < indexes.length) {
+                    stride.push(0);
+                    mapTo.push(-1);
                     newShape.push(parseInt(indexes[i], 10));
-                } else if (Array.isArray(indexes[i])) { // range
-                    min = indexes[i][0] === undefined ? 0 : indexes[i][0];
-                    max = indexes[i][1] === undefined ?
-                            this.shape[newIndexes.length] : indexes[i][1];
-
-                    if (min < 0) {
-                        min += this.shape[newIndexes.length];
-                    }
-
-                    if (max < 0) {
-                        max += this.shape[newIndexes.length];
-                    }
-
-                    mapFrom.push(newShape.length);
-                    mapTo.push(newIndexes.length);
-                    newShape.push(max - min);
-                    newIndexes.push(min);
-                } else if (indexes[i] < 0) {
-                    newIndexes.push(indexes[i] + this.shape[newIndexes.length]);
-                } else {
-                    newIndexes.push(indexes[i]);
-                }
-                i += 1;
-            }
-            // process any trailing dummy indexes
-            while (i < indexes.length) {
-                newShape.push(parseInt(indexes[i], 10));
-                i += 1;
-            }
-
-            // convert the list of indexes given to the new view into
-            // indexes for the original array.
-            function expandIndexes(reducedIndexes) {
-                var expandedIndexes = newIndexes.slice(0), i;
-                o.checkIndexes(reducedIndexes);
-
-                // build an index into the old array
-                for (i = 0; i < mapFrom.length; i += 1) {
-                    expandedIndexes[mapTo[i]] += reducedIndexes[mapFrom[i]];
+                    i += 1;
                 }
 
-                return expandedIndexes;
-            }
+                // convert the list of indexes given to the new view into
+                // indexes for the original array.
+                function expandIndexes(reducedIndexes) {
+                    var expandedIndexes = newOffsets.slice(0), i;
+                    o.checkIndexes(reducedIndexes);
 
-            // create the new view object o
-            o = Object.create(AbstractNDArray.prototype);
-            Object.defineProperty(o, "shape",
-                { value : newShape, writable : false });
-            o.getElement = function (reducedIndexes) {
-                return that.getElement(expandIndexes(reducedIndexes));
-            };
+                    // build an index into the old array
+                    for (i = 0; i < mapTo.length; i += 1) {
+                        if (stride[i]) {
+                            expandedIndexes[mapTo[i]] += reducedIndexes[i];
+                        }
+                    }
 
-            if (!this.isReadOnly()) {
-                o.setElement = function (reducedIndexes, value) {
-                    that.setElement(expandIndexes(reducedIndexes), value);
-                    return this;
+                    return expandedIndexes;
+                }
+
+                // create the new view object o
+                o = Object.create(AbstractNDArray.prototype);
+                Object.defineProperty(o, "shape",
+                    { value : newShape, writable : false });
+                o.getElement = function (reducedIndexes) {
+                    return that.getElement(expandIndexes(reducedIndexes));
                 };
+                o.at = function (indexes) {
+                    o.checkIndexes(indexes, { allowUndefined : true,
+                        allowDummy : true, allowRange : true });
+                    return updatedView(indexes, mapTo, stride, newOffsets, newShape);
+                };
+
+                if (!that.isReadOnly()) {
+                    o.setElement = function (reducedIndexes, value) {
+                        that.setElement(expandIndexes(reducedIndexes), value);
+                        return this;
+                    };
+                }
+
+                return o;
             }
 
-            return o;
+            // build an identity map from the incoming indexes
+            while (mapTo.length < this.shape.length) {
+                mapTo.push(mapTo.length);
+                stride.push(1);
+                offsets.push(0);
+            }
+
+            return updatedView(indexes, mapTo, stride, offsets, this.shape);
         };
 
 
