@@ -63,7 +63,7 @@ define(
 
             "should call checkShape" : function () {
                 assert.calls(jsnum.AbstractNDArray, "checkShape", function () {
-                    var A = new jsnum.UntypedNDArray([3]);
+                    return new jsnum.UntypedNDArray([3]);
                 });
             },
 
@@ -73,7 +73,7 @@ define(
 
                 myShape[1] = 8;
                 assert.deepEqual(A.shape, [2, 4]);
-            },
+            }
         });
     }
 );

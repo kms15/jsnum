@@ -98,7 +98,7 @@ define(
                 assert.throws(function () {
                     jsnum.asNDArray([[1, 2], [[3, 4], 5]]);
                 }, TypeError, "later element deeper");
-            },
+            }
         });
 
 
@@ -118,7 +118,7 @@ define(
                 assert.throws(function () { jsnum.AbstractNDArray.checkShape([-2, 3, 3]); },
                     RangeError, "negative length");
                 assert.throws(function () {
-                    jsnum.AbstractNDArray.checkShape([2, Number.NaN, 3]);
+                    jsnum.AbstractNDArray.checkShape([2, NaN, 3]);
                 }, RangeError, "nan length");
                 assert.throws(function () { jsnum.AbstractNDArray.checkShape([2.5, 3, 3]); },
                     TypeError, "fractional length");

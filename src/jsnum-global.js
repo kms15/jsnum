@@ -1,5 +1,5 @@
 /*jslint browser: true */
-/*global define, self */
+/*global require, self, exports */
 
 // This file allows the library to be used by code that doesn't use the
 // Asynchronous Module Definition (AMD) part of Common.js (and supported by

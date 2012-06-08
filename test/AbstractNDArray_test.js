@@ -8,7 +8,7 @@ define(
             "should have virtual methods" : function () {
                 assert.throws(
                     function () {
-                        var A = new jsnum.AbstractNDArray();
+                        return new jsnum.AbstractNDArray();
                     },
                     TypeError,
                     "can't instantiate"
@@ -150,8 +150,7 @@ define(
         test.createSuite("unit:AbstractNDArray:utilities:checkIndexes", {
             "should allow valid numeric indexes" : function () {
                 var A = jsnum.asNDArray([[[[1.5], [3.25]], [[5.125], [6]]],
-                    [[[7.5], [8.625]], [[9.25], [10.125]]]]),
-                    result;
+                    [[[7.5], [8.625]], [[9.25], [10.125]]]]);
 
                 assert.strictEqual(A.checkIndexes([1, 0, 1, 0]), A); // chainable
                 A.checkIndexes([1, 0, -1, 0]); // negative indexes
@@ -172,7 +171,7 @@ define(
                 assert.throws(function () { A.checkIndexes([1, 0.2, 1, 0]); },
                     TypeError, "fractional index");
                 assert.throws(function () {
-                    A.checkIndexes([1, Number.NaN, 1, 0]);
+                    A.checkIndexes([1, NaN, 1, 0]);
                 }, RangeError, "nan index");
             },
 

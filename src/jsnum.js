@@ -13,10 +13,6 @@ define(
         "use strict";
         var jsnum = {};
 
-        function abstractMethod() {
-            throw new TypeError("call to an abstract method");
-        }
-
 
         /** A base class for n-dimensional arrays that provides a rich set of
          * functionality building on a small set of functions required in
@@ -42,7 +38,7 @@ define(
          * @returns The value of the array element at index
          * @abstract
          */
-        AbstractNDArray.prototype.getElement = function (index) {
+        AbstractNDArray.prototype.getElement = function () { // function (index) {
             throw new TypeError("abstract array class (getElement has not been defined)");
         };
 
@@ -54,7 +50,7 @@ define(
          * @returns The array (chainable)
          * @abstract
          */
-        AbstractNDArray.prototype.setElement = function (index, newValue) {
+        AbstractNDArray.prototype.setElement = function () { // function (index, newValue) {
             throw new TypeError("Attempt to set an element of a read-only array (try using copy() first)");
         };
 
@@ -267,15 +263,15 @@ define(
             if (shape === undefined || shape.length === undefined ||
                     shape.length !== this.shape.length) {
                 return false;
-            } else {
-                for (i = shape.length - 1; i >= 0; i -= 1) {
-                    if (shape[i] !== this.shape[i]) {
-                        return false;
-                    }
-                }
-
-                return true;
             }
+
+            for (i = shape.length - 1; i >= 0; i -= 1) {
+                if (shape[i] !== this.shape[i]) {
+                    return false;
+                }
+            }
+
+            return true;
         };
 
 
@@ -523,13 +519,15 @@ define(
                 return this.walkIndexes(function (index) {
                     this.setElement(index, B);
                 });
-            } else if (!this.hasShape(B.shape)) {
-                throw new RangeError("B must have the same shape as this");
-            } else {
-                return this.walkIndexes(function (index) {
-                    this.setElement(index, B.val(index));
-                });
             }
+
+            if (!this.hasShape(B.shape)) {
+                throw new RangeError("B must have the same shape as this");
+            }
+
+            return this.walkIndexes(function (index) {
+                this.setElement(index, B.val(index));
+            });
         };
 
 
@@ -542,15 +540,19 @@ define(
                 return this.walkIndexes(function (index) {
                     this.setElement(index, this.val(index) + B);
                 });
-            } else if (B.getElement === undefined) {
-                throw new TypeError("B must be an NDArray or number");
-            } else if (!this.hasShape(B.shape)) {
-                throw new RangeError("B must have the same shape as this");
-            } else {
-                return this.walkIndexes(function (index) {
-                    this.setElement(index, this.val(index) + B.val(index));
-                });
             }
+
+            if (B.getElement === undefined) {
+                throw new TypeError("B must be an NDArray or number");
+            }
+
+            if (!this.hasShape(B.shape)) {
+                throw new RangeError("B must have the same shape as this");
+            }
+
+            return this.walkIndexes(function (index) {
+                this.setElement(index, this.val(index) + B.val(index));
+            });
         };
 
 
@@ -572,15 +574,19 @@ define(
                 return this.walkIndexes(function (index) {
                     this.setElement(index, this.val(index) - B);
                 });
-            } else if (B.getElement === undefined) {
-                throw new TypeError("B must be an NDArray or number");
-            } else if (!this.hasShape(B.shape)) {
-                throw new RangeError("B must have the same shape as this");
-            } else {
-                return this.walkIndexes(function (index) {
-                    this.setElement(index, this.val(index) - B.val(index));
-                });
             }
+
+            if (B.getElement === undefined) {
+                throw new TypeError("B must be an NDArray or number");
+            }
+
+            if (!this.hasShape(B.shape)) {
+                throw new RangeError("B must have the same shape as this");
+            }
+
+            return this.walkIndexes(function (index) {
+                this.setElement(index, this.val(index) - B.val(index));
+            });
         };
 
 
@@ -602,15 +608,19 @@ define(
                 return this.walkIndexes(function (index) {
                     this.setElement(index, this.val(index) * B);
                 });
-            } else if (B.getElement === undefined) {
-                throw new TypeError("B must be an NDArray or number");
-            } else if (!this.hasShape(B.shape)) {
-                throw new RangeError("B must have the same shape as this");
-            } else {
-                return this.walkIndexes(function (index) {
-                    this.setElement(index, this.val(index) * B.val(index));
-                });
             }
+
+            if (B.getElement === undefined) {
+                throw new TypeError("B must be an NDArray or number");
+            }
+
+            if (!this.hasShape(B.shape)) {
+                throw new RangeError("B must have the same shape as this");
+            }
+
+            return this.walkIndexes(function (index) {
+                this.setElement(index, this.val(index) * B.val(index));
+            });
         };
 
 
@@ -632,15 +642,19 @@ define(
                 return this.walkIndexes(function (index) {
                     this.setElement(index, this.val(index) / B);
                 });
-            } else if (B.getElement === undefined) {
-                throw new TypeError("B must be an NDArray or number");
-            } else if (!this.hasShape(B.shape)) {
-                throw new RangeError("B must have the same shape as this");
-            } else {
-                return this.walkIndexes(function (index) {
-                    this.setElement(index, this.val(index) / B.val(index));
-                });
             }
+
+            if (B.getElement === undefined) {
+                throw new TypeError("B must be an NDArray or number");
+            }
+
+            if (!this.hasShape(B.shape)) {
+                throw new RangeError("B must have the same shape as this");
+            }
+
+            return this.walkIndexes(function (index) {
+                this.setElement(index, this.val(index) / B.val(index));
+            });
         };
 
         /** Perform an element-wise division by another array.
@@ -763,13 +777,13 @@ define(
 
             if (this.shape.length === 0) {
                 return this.val();
-            } else {
-                for (i = 0; i < this.shape[0]; i += 1) {
-                    result[i] = this.at([i]).toArray();
-                }
-
-                return result;
             }
+
+            for (i = 0; i < this.shape[0]; i += 1) {
+                result[i] = this.at([i]).toArray();
+            }
+
+            return result;
         };
 
 
@@ -1165,15 +1179,21 @@ define(
                 if (!fixingDiagonal) {
                     // find the eigenvalue of the lower right 2x2 matrix of
                     // B∙B^t that it closest to its lowest right value.
-                    d0 = B.val([p, p]); dm = B.val([q - 2, q - 2]);
+                    d0 = B.val([p, p]);
+                    dm = B.val([q - 2, q - 2]);
                     dn = B.val([q - 1, q - 1]);
-                    f1 = B.val([p, p + 1]); fm = (q > 2 ? B.val([q - 3, q - 2]) : 0);
+                    f1 = B.val([p, p + 1]);
+                    fm = (q > 2 ? B.val([q - 3, q - 2]) : 0);
                     fn = B.val([q - 2, q - 1]);
                     // rescale things to avoid overflows when squaring values
                     scale = Math.max(Math.abs(d0), Math.abs(f1), Math.abs(dm),
                             Math.abs(dn), Math.abs(fm), Math.abs(fn));
-                    d0 /= scale; dm /= scale; dn /= scale;
-                    f1 /= scale; fm /= scale; fn /= scale;
+                    d0 /= scale;
+                    dm /= scale;
+                    dn /= scale;
+                    f1 /= scale;
+                    fm /= scale;
+                    fn /= scale;
                     tmm = dm * dm + fm * fm;
                     tmn = dm * fn;
                     tnn = dn * dn + fn * fn;
@@ -1340,9 +1360,9 @@ define(
 
             if (rank === 0) {
                 return null;
-            } else {
-                return svd.U.transpose().at([[0, rank]]);
             }
+
+            return svd.U.transpose().at([[0, rank]]);
         };
 
 
@@ -1372,9 +1392,9 @@ define(
 
             if (rank === svd.V.shape[0]) {
                 return null;
-            } else {
-                return svd.V.at([[rank]]);
             }
+
+            return svd.V.at([[rank]]);
         };
 
 
@@ -1477,15 +1497,15 @@ define(
                 if (array.shape.length === 0) {
                     return Math.max(minFieldWidth,
                             String(array.val()).length);
-                } else {
-                    result = minFieldWidth;
-
-                    for (i = 0; i < array.shape[0]; i += 1) {
-                        result = getMaxFieldWidth(array.at([i]), result);
-                    }
-
-                    return result;
                 }
+
+                result = minFieldWidth;
+
+                for (i = 0; i < array.shape[0]; i += 1) {
+                    result = getMaxFieldWidth(array.at([i]), result);
+                }
+
+                return result;
             }
             fieldWidth = getMaxFieldWidth(this, 0);
 
@@ -1619,15 +1639,15 @@ define(
                 that.checkIndexes(indexes);
                 if (myShape.length === 0) {
                     return 0;
-                } else {
-                    index1D = indexes[0];
-
-                    for (i = 1; i < myShape.length; i += 1) {
-                        index1D = index1D * myShape[i] + indexes[i];
-                    }
-
-                    return index1D;
                 }
+
+                index1D = indexes[0];
+
+                for (i = 1; i < myShape.length; i += 1) {
+                    index1D = index1D * myShape[i] + indexes[i];
+                }
+
+                return index1D;
             }
 
             this.getElement = function (indexes) {
@@ -1745,12 +1765,14 @@ define(
                 });
 
                 return close;
-            } else if (typeof val1 === "number" && typeof val2 === "number") {
+            }
+
+            if (typeof val1 === "number" && typeof val2 === "number") {
                 return (Math.abs(val1 - val2) <= abstol) ||
                     (Math.abs(val1 - val2) / Math.max(Math.abs(val1), Math.abs(val2)) <= reltol);
-            } else {
-                throw new TypeError("arguments must both be numbers or both be NDArrays");
             }
+
+            throw new TypeError("arguments must both be numbers or both be NDArrays");
         }
 
 
@@ -1786,7 +1808,7 @@ define(
          *  @result a vector (or matrix) x such that A x = b
          */
         function solveLinearSystem(A, b) {
-            var lu, N, x, y, i, j, swap, sum, selector;
+            var lu, N, x, y, i, j, swap, sum;
 
             if (A.decompositionType === "LU") {
                 lu = A;
