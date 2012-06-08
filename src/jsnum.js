@@ -206,7 +206,7 @@ define(
                         j >= this.shape.length) {
                     throw new RangeError("Expected " +
                         this.shape.length + " indexes but given " +
-                        j + " indexes.");
+                        (j + 1) + " indexes.");
                 }
             }
 
@@ -312,13 +312,13 @@ define(
                 // transforms from new array indexes to old ones..
                 while (j < oldShape.length) {
                     if (indexes[i] === undefined) { // blank index
-                        stride.push(1);
+                        stride.push(oldStride[j]);
                         mapTo.push(oldMapTo[j]);
                         newShape.push(oldShape[j]);
                         j += 1;
                     } else if (typeof indexes[i] === 'string') { // dummy index
                         stride.push(0);
-                        mapTo.push(-1);
+                        mapTo.push(0);
                         newShape.push(parseInt(indexes[i], 10));
                     } else if (Array.isArray(indexes[i])) { // range
                         min = indexes[i][0] === undefined ? 0 : indexes[i][0];
@@ -333,28 +333,33 @@ define(
                             max += oldShape[j];
                         }
 
-                        stride.push(1);
-                        mapTo.push(j);
+                        stride.push(oldStride[j]);
+                        mapTo.push(oldMapTo[j]);
                         newShape.push(max - min);
-                        newOffsets[oldMapTo[j]] += min;
-                        j += 1
+                        if (oldStride[j] !== 0) {
+                            newOffsets[oldMapTo[j]] += min;
+                        }
+                        j += 1;
                     } else if (indexes[i] < 0) {
-                        newOffsets[oldMapTo[j]] += indexes[i] + oldShape[j];
-                        j += 1
+                        if (oldStride[j] !== 0) {
+                            newOffsets[oldMapTo[j]] += indexes[i] + oldShape[j];
+                        }
+                        j += 1;
                     } else {
-                        newOffsets[oldMapTo[j]] += indexes[i];
-                        j += 1
+                        if (oldStride[j] !== 0) {
+                            newOffsets[oldMapTo[j]] += indexes[i];
+                        }
+                        j += 1;
                     }
                     i += 1;
                 }
                 // process any trailing dummy indexes
                 while (i < indexes.length) {
                     stride.push(0);
-                    mapTo.push(-1);
+                    mapTo.push(0);
                     newShape.push(parseInt(indexes[i], 10));
                     i += 1;
                 }
-
                 // convert the list of indexes given to the new view into
                 // indexes for the original array.
                 function expandIndexes(reducedIndexes) {

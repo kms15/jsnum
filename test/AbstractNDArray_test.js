@@ -411,6 +411,8 @@ define(
                     [[3.25, 3.25, 3.25], [6.125, 6.125, 6.125]]);
                 assert.deepEqual(D.shape, [3]);
                 assert.deepEqual(D.toArray(), [5.125, 5.125, 5.125]);
+                assert.deepEqual(D.at([[1, 3]]).toArray(), [5.125, 5.125]);
+                assert.deepEqual(D.at([-2]).toArray(), 5.125);
             },
 
             "at should support ranges" : function () {
