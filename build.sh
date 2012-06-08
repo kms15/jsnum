@@ -3,7 +3,7 @@
     jslint *.js *.html src/*.js test/*.js && \
     jsdoc src/jsnum.js -d ../jsnum-doc/jsdoc && \
 	./node_modules/requirejs/bin/r.js -o tools/require.js.build.config && \
-    echo // http://kms15.github.com/jsnum/ built `date +%Y-%M-%dT%H:%mZ` > ../jsnum-doc/jsnum-0.0.js && \
+    echo // http://kms15.github.com/jsnum/ built `date +%Y-%m-%dT%H:%MZ` > ../jsnum-doc/jsnum-0.0.js && \
     cat body.js >> ../jsnum-doc/jsnum-0.0.js && \
     rm body.js && \
     echo "####  Build Succeded! ####"
