@@ -20,7 +20,7 @@ define(['tools/assert'], function (assert) {
         assert.strictEqual(typeof callback, "function");
         prefix = prefix || '';
 
-        callback("startTestRun");
+        callback({ type: "startTestRun" });
 
         goodSuites = [];
         for (suite in suites) {
@@ -31,7 +31,7 @@ define(['tools/assert'], function (assert) {
 
         goodSuites.sort();
         for (i = 0; i < goodSuites.length; i += 1) {
-            callback("startSuite", goodSuites[i]);
+            callback({ type: "startSuite", suite: goodSuites[i] });
             suite = suites[goodSuites[i]];
             goodTests = [];
 
@@ -42,23 +42,26 @@ define(['tools/assert'], function (assert) {
             }
 
             for (j = 0; j < goodTests.length; j += 1) {
-                callback("startTest", goodSuites[i], goodTests[j]);
+                callback({ type: "startTest", suite: goodSuites[i],
+                    test: goodTests[j] });
                 try {
                     numTests += 1;
                     suite[goodTests[j]]();
 
-                    callback("passTest", goodSuites[i], goodTests[j]);
+                    callback({ type: "passTest", suite: goodSuites[i],
+                        test: goodTests[j] });
                 } catch (e) {
                     numFailures += 1;
-                    callback("failTest", goodSuites[i], goodTests[j],
-                        e.toString());
+                    callback({ type: "failTest", suite: goodSuites[i],
+                        test: goodTests[j], error: e });
                 }
             }
 
-            callback("endSuite", goodSuites[i]);
+            callback({ type: "endSuite", suite: goodSuites[i] });
         }
 
-        callback("endTestRun", numTests, numFailures);
+        callback({ type: "endTestRun", numTests: numTests,
+            numFailures: numFailures });
     };
 
 
@@ -68,21 +71,27 @@ define(['tools/assert'], function (assert) {
 
 
     test.textReporter = function (outputLine) {
-        return function (a, b, c, d) {
-            switch (a) {
+        var startTime;
+
+        return function (e) {
+            switch (e.type) {
             case 'startTestRun':
                 outputLine('======================================');
                 outputLine(' Starting test run');
                 outputLine('======================================');
+                startTime = new Date();
                 break;
 
             case 'startSuite':
                 //outputLine('--------------------------------------');
-                outputLine('Running suite ' + b);
+                outputLine(((new Date() - startTime)/1000).toFixed(3) +
+                        ' Running suite ' + e.suite);
                 //outputLine('--------------------------------------');
                 break;
 
             case 'startTest':
+                //outputLine(((new Date() - startTime)/1000).toFixed(3) +
+                //        '    Running test ' + e.test);
                 //outputLine(c  + ':');
                 break;
 
@@ -91,7 +100,7 @@ define(['tools/assert'], function (assert) {
                 break;
 
             case 'failTest':
-                outputLine('######### ' + c + ' FAILED ##########');
+                outputLine('######### ' + e.test + ' FAILED ##########');
                 outputLine(d);
                 break;
 
@@ -102,9 +111,11 @@ define(['tools/assert'], function (assert) {
             case 'endTestRun':
                 outputLine('======================================');
                 outputLine(' Tests completed:');
-                outputLine(' ' + b + ' tests, ' + c + ' failures.');
+                outputLine(' ' + e.numTests + ' tests, ' +
+                    e.numFailures + ' failures, ' +
+                    ((new Date() - startTime)/1000).toFixed(3) + ' seconds');
                 outputLine('======================================');
-                if (c === 0) {
+                if (e.numFailures === 0) {
                     outputLine('');
                     outputLine('All tests passed!');
                     outputLine('');
