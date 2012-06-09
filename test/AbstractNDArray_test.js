@@ -540,6 +540,14 @@ define(
                     var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13]]);
                     A.LUDecomposition();
                 }, TypeError, "rectangular matrix");
+            },
+
+            "should error on singular matrix" : function () {
+                var A = jsnum.asNDArray([[1, 3, 2], [2, 6, 4], [6, 14, 15]]);
+
+                assert.throws(function () {
+                    A.LUDecomposition();
+                }, jsnum.NumericalError);
             }
         });
 
@@ -702,6 +710,23 @@ define(
                 var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]);
 
                 assert.ok(jsnum.areClose(A.dot(A.inverse()), jsnum.eye(3)));
+            },
+
+            "inverse should throw with singular matrix" : function () {
+                assert.throws(function () {
+                    jsnum.asNDArray([[10, 22, 26], [5, 11, 13], [8, 2, 7]]).inverse();
+                }, jsnum.NumericalError);
+            },
+
+            "should support pseudoinverse" : function () {
+                assert.close(jsnum.asNDArray([[0, 0, -2], [0, 8, 0], [0, 0, 0]]).
+                    pseudoinverse(),
+                    jsnum.asNDArray([[0, 0, 0], [0, 0.125, 0], [-0.5, 0, 0]]),
+                    "square and singular");
+                assert.close(jsnum.asNDArray([[0, 0, -2], [0, 8, 0]]).
+                    pseudoinverse(),
+                    jsnum.asNDArray([[0, 0], [0, 0.125], [-0.5, 0]]),
+                    "rectangular");
             },
 
             "should support det" : function () {

@@ -14,6 +14,17 @@ define(
         var jsnum = {};
 
 
+        /** An exception for numerical errors.
+         *  This exception is thrown when a numerical problem occurs, such as a
+         *  singular matrix or an algorithm that fails to converge.
+         */
+        function NumericalError(message) {
+            this.name = "NumericalError";
+            this.message = message || "A numerical error occured";
+        }
+        NumericalError.prototype = new Error();
+
+
         /** A base class for n-dimensional arrays that provides a rich set of
          * functionality building on a small set of functions required in
          * derived classes.  To create a new n-D array class, you can simply
@@ -842,11 +853,14 @@ define(
                 }
                 p[k] = pivotRow;
 
-                // Press et al say that this is a good idea for some
-                // singular matrices; we'll trust them once we've seen this.
-                //if (pivotVal === 0) {
-                //    scratch.setElement([k, k], 1e-40); // a very small non-zero number
-                //}
+                if (pivotVal === 0) {
+                    // Press et al say that this is a good idea for some
+                    // singular matrices; we'll trust them once we've seen this.
+                    // scratch.setElement([k, k], 1e-40); // a very small non-zero number
+                    throw new NumericalError("Singular or near-singular " +
+                            "matrix encountered; consider using singular " +
+                            "value decomposition");
+                }
 
                 // Now reduce the remaining rows
                 pivotScalingFactor = 1 / scratch.val([k, k]);
@@ -906,14 +920,61 @@ define(
             return { P: P, L: L, U: U, p: p, decompositionType : "LU" };
         };
 
+
         /** Find the inverse of this matrix.  If this is an N × N square
          *  non-singular matrix this function finds the inverse of the
          *  matrix, using jsnum.linSolve (which uses LU Decomposition).
+         *  For non-square or singular matrices, see pseudoinverse.
          *  @returns The inverse of this matrix.
          */
         AbstractNDArray.prototype.inverse = function () {
-            return jsnum.solveLinearSystem(this, jsnum.eye(this.shape[0]));
+            try {
+                return jsnum.solveLinearSystem(this, jsnum.eye(this.shape[0]));
+            } catch (e) {
+                if (e instanceof NumericalError) {
+                    throw new NumericalError("Singular matrix encountered; "
+                        + "consider using pseudoinverse");
+                } else {
+                    throw e;
+                }
+            }
         };
+
+
+        /** Find the pseudoinverse of this matrix using singular value
+         *  decomposition.  This is identical to the inverse if it exists
+         *  (in which case the inverse function is likely to be faster).
+         *  It can be also used in cases where the inverse does not exist,
+         *  however, such as singular matrices and rectangular matrices.
+         *  In these cases this will be a matrix that is in some sense as
+         *  "close" as possible to being an inverse (e.g. minimizing the
+         *  error when solving a linear system).
+         *  @returns The pseudoinverse of this matrix.
+         */
+        AbstractNDArray.prototype.pseudoinverse = function (options) {
+            var svd, small, Dinv, val, i;
+
+            svd = this.singularValueDecomposition();
+
+            // estimate of threshold for small singular values from Press et al.
+            small = 0.5 * Math.sqrt(this.shape[0] + this.shape[1] + 1) *
+                svd.D.val([0, 0]) * jsnum.eps;
+
+            Dinv = svd.D.transpose().copy();
+
+            for (i = Math.min(this.shape[0], this.shape[1]) - 1; i >= 0;
+                    i -= 1) {
+                val = svd.D.val([i, i]);
+                if (val < small) {
+                    Dinv.at([i, i]).set(0); // part of the nullspace
+                } else {
+                    Dinv.at([i, i]).set(1 / val);
+                }
+            }
+
+            return svd.V.transpose().dot(Dinv.dot(svd.U.transpose()));
+        };
+
 
         /** Find the determinant of this matrix.  If this is an N × N
          *  square matrix this function finds the determinant of the
@@ -1885,6 +1946,7 @@ define(
             return x;
         }
 
+
         /*jslint vars: true */
 
         /** Machine epsilon.
@@ -1899,6 +1961,7 @@ define(
 
         jsnum.eps = eps;
         jsnum.eye = eye;
+        jsnum.NumericalError = NumericalError;
         jsnum.solveLinearSystem = solveLinearSystem;
         jsnum.asNDArray = asNDArray;
         jsnum.areClose = areClose;
