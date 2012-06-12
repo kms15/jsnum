@@ -17,6 +17,8 @@ define(
         /** An exception for numerical errors.
          *  This exception is thrown when a numerical problem occurs, such as a
          *  singular matrix or an algorithm that fails to converge.
+         *  @constructor
+         *  @param message information about the cause of the error
          */
         function NumericalError(message) {
             this.name = "NumericalError";
@@ -928,12 +930,21 @@ define(
          *  @returns The inverse of this matrix.
          */
         AbstractNDArray.prototype.inverse = function () {
+            if (this.shape.length !== 2) {
+                throw new TypeError("Only matrices support inverse");
+            }
+
+            if (this.shape[0] !== this.shape[1]) {
+                throw new TypeError("Only square matricies have an inverse; " +
+                    "consider using pseudoinverse instead.");
+            }
+
             try {
                 return jsnum.solveLinearSystem(this, jsnum.eye(this.shape[0]));
             } catch (e) {
                 if (e instanceof NumericalError) {
                     throw new NumericalError("Singular matrix encountered; "
-                        + "consider using pseudoinverse");
+                        + "consider using pseudoinverse function");
                 } else {
                     throw e;
                 }
@@ -1854,96 +1865,130 @@ define(
         }
 
 
-        /** Solve a linear system of the form A x = b.  Most of the work is
-         *  goes into doing the LU decomposition of A, so if you are solving
-         *  the same equation with different right hand sides you may want to
-         *  compute the LU decomposition once and pass it in directly.
+        /** Solve a linear system of the form A x = b.  By default this tries
+         *  to find the exact solution for x using LU decomposition and will
+         *  throw an error if an exact solution can not be found (for example
+         *  if A is singular or non-square).  If the "returnClosest" option is
+         *  set to true, this routine instead finds the solution x which
+         *  minimizes the error ||A x - b|| by using singular value
+         *  decomposition (which works for singular or non-square matrices).
          *
-         *  See pp 48-54 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.
-         *  Numerical Recipes 3rd Edition: The Art of Scientific Computing.
-         *  3rd ed. Cambridge University Press; 2007.
+         *  See pp 48-54, 69-73 in Press WH, Teukolsky SA, Vetterling WT,
+         *  Flannery BP.  Numerical Recipes 3rd Edition: The Art of Scientific
+         *  Computing.  3rd ed. Cambridge University Press; 2007.
          *
-         *  @param {NDArray | LU decomposition} A the matrix on the left or
-         *      its LU Decomposition.
+         *  @param {NDArray} A the matrix that is multiplied by the
+         *      unknown vector or matrix.
          *  @param {NDArray} b the result vector (or matrix)
+         *  @param {Object} options additional options, such as returnClosest
          *  @result a vector (or matrix) x such that A x = b
          */
-        function solveLinearSystem(A, b) {
-            var lu, N, x, y, i, j, swap, sum;
+        function solveLinearSystem(A, b, options) {
+            var lu;
 
-            if (A.decompositionType === "LU") {
-                lu = A;
-            } else {
-                if (A.shape === undefined) {
-                    throw new TypeError(
-                        "A must be an NDArray or LU Decomposition"
-                    );
-                }
-
-                lu = A.LUDecomposition();
+            // argument checking
+            if (A.shape === undefined || A.shape.length !== 2) {
+                console.log(A.toString());
+                throw new TypeError(
+                    "A must be a matrix (i.e. a 2D NDArray)"
+                );
             }
 
             if (b.shape === undefined) {
                 throw new TypeError("b must be an NDArray");
             }
 
-            N = b.shape[0];
-            x = b.createResult(b.shape);
-
-            if (lu.L.shape[0] !== N) {
-                throw new RangeError("The length of the first dimension of A (" +
-                    lu.L.shape[0] + ") does not match that of b (" + N + ")");
+            if (A.shape[0] !== b.shape[0]) {
+                throw new RangeError("The number of rows of A (" +
+                    A.shape[0] + ") does not match the number of rows of b (" +
+                    b.shape[0] + ")");
             }
 
-            if (b.shape.length > 1) {
-                // b is a matrix, so solve for each of the columns individually
-                b.at([0]).walkIndexes(function (index) {
-                    var i, colX, fullIndex = index.slice(0);
-                    fullIndex.unshift(undefined);
+            if (options && options.returnClosest) {
+                return A.pseudoinverse().dot(b);
+            }
 
-                    // solve the system and copy the result into the column
-                    colX = solveLinearSystem(lu, b.at(fullIndex));
+            if (A.shape[0] > A.shape[1]) {
+                throw new TypeError("The system is overdetermined " +
+                    "(the matrix has more rows than columns); consider " +
+                    "adding the option \"returnClosest : true\".");
+            }
+
+            if (A.shape[0] < A.shape[1]) {
+                throw new TypeError("The system is underdetermined " +
+                    "(the matrix has fewer rows than columns); consider " +
+                    "adding the option \"returnClosest : true\".");
+            }
+
+            try {
+                lu = A.LUDecomposition();
+            } catch (e) {
+                if (e instanceof NumericalError) {
+                    throw new NumericalError("Singular matrix " +
+                        "encountered; consider adding the option " +
+                        "\"returnClosest : true\".");
+                } else {
+                    throw e;
+                }
+            }
+
+            function luSolve(lu, b) {
+                var N, x, y, i, j, swap, sum;
+                N = b.shape[0];
+                x = b.createResult(b.shape);
+
+                if (b.shape.length > 1) {
+                    // b is a matrix, so solve for each of the columns individually
+                    b.at([0]).walkIndexes(function (index) {
+                        var i, colX, fullIndex = index.slice(0);
+                        fullIndex.unshift(undefined);
+
+                        // solve the system and copy the result into the column
+                        colX = luSolve(lu, b.at(fullIndex));
+                        for (i = 0; i < N; i += 1) {
+                            fullIndex[0] = i;
+                            x.setElement(fullIndex, colX.val([i]));
+                        }
+                    });
+
+                } else { // b is a vector
+
+                    // swap the rows in the answer to match L and U
+                    b = b.copy();
                     for (i = 0; i < N; i += 1) {
-                        fullIndex[0] = i;
-                        x.setElement(fullIndex, colX.val([i]));
+                        if (lu.p[i] !== i) {
+                            swap = b.val([i]);
+                            b.setElement([i], b.val([lu.p[i]]));
+                            b.setElement([lu.p[i]], swap);
+                        }
                     }
-                });
 
-            } else { // b is a vector
+                    // use forward substitution to find y such that L y
+                    y = b.createResult(b.shape);
+                    for (i = 0; i < N; i += 1) {
+                        sum = 0;
+                        for (j = 0; j < i; j += 1) {
+                            sum += lu.L.val([i, j]) * y.val([j]);
+                        }
 
-                // swap the rows in the answer to match L and U
-                b = b.copy();
-                for (i = 0; i < N; i += 1) {
-                    if (lu.p[i] !== i) {
-                        swap = b.val([i]);
-                        b.setElement([i], b.val([lu.p[i]]));
-                        b.setElement([lu.p[i]], swap);
+                        y.setElement([i], (b.val([i]) - sum) / lu.L.val([i, i]));
+                    }
+
+                    // use backward substitution to find x such that U x = y
+                    for (i = N - 1; i >= 0; i -= 1) {
+                        sum = 0;
+                        for (j = i + 1; j < N; j += 1) {
+                            sum += lu.U.val([i, j]) * x.val([j]);
+                        }
+
+                        x.setElement([i], (y.val([i]) - sum) / lu.U.val([i, i]));
                     }
                 }
 
-                // use forward substitution to find y such that L y
-                y = b.createResult(b.shape);
-                for (i = 0; i < N; i += 1) {
-                    sum = 0;
-                    for (j = 0; j < i; j += 1) {
-                        sum += lu.L.val([i, j]) * y.val([j]);
-                    }
-
-                    y.setElement([i], (b.val([i]) - sum) / lu.L.val([i, i]));
-                }
-
-                // use backward substitution to find x such that U x = y
-                for (i = N - 1; i >= 0; i -= 1) {
-                    sum = 0;
-                    for (j = i + 1; j < N; j += 1) {
-                        sum += lu.U.val([i, j]) * x.val([j]);
-                    }
-
-                    x.setElement([i], (y.val([i]) - sum) / lu.U.val([i, i]));
-                }
+                return x;
             }
 
-            return x;
+            return luSolve(lu, b);
         }
 
 

@@ -718,6 +718,25 @@ define(
                 }, jsnum.NumericalError);
             },
 
+            "inverse should throw with non-square matrices" : function () {
+                assert.throws(function () {
+                    jsnum.asNDArray([[10, 22, 26, 34], [5, 12, 13, 14], [8, 2, 7, 12]]).inverse();
+                }, TypeError, "Rectangular matrix");
+
+                assert.throws(function () {
+                    jsnum.asNDArray(3).inverse();
+                }, TypeError, "0D");
+
+                assert.throws(function () {
+                    jsnum.asNDArray([1, 3, 2]).inverse();
+                }, TypeError, "vector");
+
+                // TODO: would be nice to generalize these to higher dimensions
+                assert.throws(function () {
+                    jsnum.asNDArray([[[1, 3, 2], [5, 11, 13]], [[1, 3, 2], [5, 11, 13]]]).inverse();
+                }, TypeError, "3D NDArray");
+            },
+
             "should support pseudoinverse" : function () {
                 assert.close(jsnum.asNDArray([[0, 0, -2], [0, 8, 0], [0, 0, 0]]).
                     pseudoinverse(),

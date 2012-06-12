@@ -156,20 +156,6 @@ define(
                 assert.ok(jsnum.areClose(X, XNew));
             },
 
-            "should use previous LU decomposition" : function () {
-                var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
-                    X = jsnum.asNDArray([[4, 5], [2, 3], [5, 8]]),
-                    B = A.dot(X),
-                    x = jsnum.asNDArray([4, 5, 2]),
-                    b = A.dot(x),
-                    lu = A.LUDecomposition(),
-                    xNew = jsnum.solveLinearSystem(lu, b),
-                    XNew = jsnum.solveLinearSystem(lu, B);
-
-                assert.ok(jsnum.areClose(x, xNew));
-                assert.ok(jsnum.areClose(X, XNew));
-            },
-
             "should check for incompatible shapes" : function () {
                 var A = jsnum.asNDArray([[1, 3, 2], [5, 11, 13], [8, 2, 7]]),
                     B = jsnum.asNDArray([[4, 5, 2], [3, 5, 8]]),
@@ -196,6 +182,45 @@ define(
                 assert.throws(function () {
                     jsnum.solveLinearSystem(A, "");
                 }, TypeError, "B string");
+            },
+
+            "should throw for a singluar matrix" : function () {
+                var A = jsnum.asNDArray([[1, 3, 2], [8, 2, 7], [2, 6, 4]]),
+                    b = jsnum.asNDArray([4, 5, 2]);
+
+                assert.throws(function () {
+                    jsnum.solveLinearSystem(A, b);
+                }, jsnum.NumericalError);
+            },
+
+            "should support a singluar matrix with returnClosest" : function () {
+                var A = jsnum.asNDArray([[1, 0, 0], [0, 3, 0], [0, 0, 0]]),
+                    b = jsnum.asNDArray([4, 6, 2]);
+
+                assert.close(
+                    jsnum.solveLinearSystem(A, b, { returnClosest: true }),
+                    jsnum.asNDArray([4, 2, 0])
+                );
+            },
+
+            "should support underdetermined system with returnClosest" : function () {
+                var A = jsnum.asNDArray([[1, 0, 0], [0, 0, 3]]),
+                    b = jsnum.asNDArray([4, 6]);
+
+                assert.close(
+                    jsnum.solveLinearSystem(A, b, { returnClosest: true }),
+                    jsnum.asNDArray([4, 0, 2])
+                );
+            },
+
+            "should support overdetermined system with returnClosest" : function () {
+                var A = jsnum.asNDArray([[0], [1], [1]]),
+                    b = jsnum.asNDArray([0, 1, 2]);
+
+                assert.close(
+                    jsnum.solveLinearSystem(A, b, { returnClosest: true }),
+                    jsnum.asNDArray([1.5])
+                );
             }
         });
 
