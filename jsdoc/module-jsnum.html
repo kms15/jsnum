@@ -87,6 +87,9 @@
             <dt><a href="b2d63dd81c.html">AbstractNDArray</a></dt>
             <dd></dd>
         
+            <dt><a href="47822c9439.html">NumericalError</a></dt>
+            <dd></dd>
+        
             <dt><a href="1e10049b07.html">UntypedNDArray</a></dt>
             <dd></dd>
         </dl>
@@ -135,7 +138,7 @@
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1958</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 2003</li></ul></dd>
 	
     
     
@@ -312,7 +315,7 @@
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1793</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1804</li></ul></dd>
 	
     
     
@@ -418,7 +421,7 @@ elements that are themselves arrays (the syntax would be ambiguous).
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1739</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1750</li></ul></dd>
 	
     
     
@@ -534,68 +537,7 @@ elements that are themselves arrays (the syntax would be ambiguous).
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1845</li></ul></dd>
-	
-    
-    
-	
-	
-	
-	
-</dl>
-
-    
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="NumericalError"><span class="type-signature">&lt;inner> </span>NumericalError</h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        An exception for numerical errors.
- This exception is thrown when a numerical problem occurs, such as a
- singular matrix or an algorithm that fails to converge.
-    </div>
-    
-    
-    
-    
-    
-    
-    
-<dl class="details">
-    
-        
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 21</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1856</li></ul></dd>
 	
     
     
@@ -626,14 +568,17 @@ elements that are themselves arrays (the syntax would be ambiguous).
     
     
     <div class="description">
-        Solve a linear system of the form A x = b.  Most of the work is
- goes into doing the LU decomposition of A, so if you are solving
- the same equation with different right hand sides you may want to
- compute the LU decomposition once and pass it in directly.
+        Solve a linear system of the form A x = b.  By default this tries
+ to find the exact solution for x using LU decomposition and will
+ throw an error if an exact solution can not be found (for example
+ if A is singular or non-square).  If the "returnClosest" option is
+ set to true, this routine instead finds the solution x which
+ minimizes the error ||A x - b|| by using singular value
+ decomposition (which works for singular or non-square matrices).
 
- See pp 48-54 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.
- Numerical Recipes 3rd Edition: The Art of Scientific Computing.
- 3rd ed. Cambridge University Press; 2007.
+ See pp 48-54, 69-73 in Press WH, Teukolsky SA, Vetterling WT,
+ Flannery BP.  Numerical Recipes 3rd Edition: The Art of Scientific
+ Computing.  3rd ed. Cambridge University Press; 2007.
     </div>
     
     
@@ -671,9 +616,6 @@ elements that are themselves arrays (the syntax would be ambiguous).
             <td class="type">
             
                         NDArray
-                         | 
-                    
-                        LU decomposition
                         
                     
             </td>
@@ -682,8 +624,8 @@ elements that are themselves arrays (the syntax would be ambiguous).
             
             
             
-            <td class="description last">the matrix on the left or
-     its LU Decomposition.</td>
+            <td class="description last">the matrix that is multiplied by the
+     unknown vector or matrix.</td>
         </tr>
 	
 	
@@ -705,6 +647,27 @@ elements that are themselves arrays (the syntax would be ambiguous).
             
             
             <td class="description last">the result vector (or matrix)</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+            
+            <td class="type">
+            
+                        Object
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">additional options, such as returnClosest</td>
         </tr>
 	
 	
@@ -732,7 +695,7 @@ elements that are themselves arrays (the syntax would be ambiguous).
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1871</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>jsnum.js, line 1886</li></ul></dd>
 	
     
     
@@ -766,13 +729,13 @@ elements that are themselves arrays (the syntax would be ambiguous).
 </div>
 
 <nav>
-    <h3>Modules</h3><ul><li><a href="module-jsnum.html">jsnum</a></li></ul><h3>Classes</h3><ul><li><a href="b2d63dd81c.html">AbstractNDArray</a></li><li><a href="1e10049b07.html">UntypedNDArray</a></li></ul>
+    <h3>Modules</h3><ul><li><a href="module-jsnum.html">jsnum</a></li></ul><h3>Classes</h3><ul><li><a href="b2d63dd81c.html">AbstractNDArray</a></li><li><a href="47822c9439.html">NumericalError</a></li><li><a href="1e10049b07.html">UntypedNDArray</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/micmath/jsdoc">JSDoc 3</a> on Sat Jun 09 2012 23:29:13 GMT-0000 (UTC)
+    Documentation generated by <a href="https://github.com/micmath/jsdoc">JSDoc 3</a> on Tue Jun 12 2012 02:30:45 GMT-0000 (UTC)
 </footer>
 
 <script> sh_highlightDocument(); </script>
