@@ -9,13 +9,13 @@ requirejs.config({
 requirejs(['tools/test.js', 'test/allTests.js'], function (test, allTests) {
     "use strict";
 
-    function reporter(a, b, c, d) {
+    function reporter(e) {
         // do the default processing
-        test.consoleReporter(a, b, c, d);
+        test.consoleReporter(e);
 
-        if (a === "endTestRun") {
+        if (e.type === "endTestRun") {
             // return the number of failures as the exit code
-            process.exit(c);
+            process.exit(e.numFailures);
         }
     }
 
