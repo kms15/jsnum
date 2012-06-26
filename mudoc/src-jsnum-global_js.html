@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>src/jsnum-global.js</title>
+<link rel="stylesheet" type="text/css" href="mudoc.css"/>
+</head>
+<body class="sourceCodeListingPage"><div class="mainColumn">
+<h1>src/jsnum-global.js</h1><code>
+<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp1</span>&nbsp&nbsp&nbsp&nbsp/*jslint browser: true */<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp2</span>&nbsp&nbsp&nbsp&nbsp/*global require, self, exports */<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp3</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp4</span>&nbsp&nbsp&nbsp&nbsp// This file allows the library to be used by code that doesn't use the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp5</span>&nbsp&nbsp&nbsp&nbsp// Asynchronous Module Definition (AMD) part of Common.js (and supported by<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp6</span>&nbsp&nbsp&nbsp&nbsp// the require library for this project).&nbsp; We do this by just loading the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp7</span>&nbsp&nbsp&nbsp&nbsp// jsnum module and making it a global variable.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp8</span>&nbsp&nbsp&nbsp&nbsprequire(["src/jsnum.js"], function (jsnum) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp9</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; "use strict";<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp10</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; if (window !== undefined) { // browser<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp11</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window.jsnum = jsnum;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp12</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; } else if (self !== undefined) { // web worker<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp13</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.jsnum = jsnum;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp14</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; } else if (exports !== undefined) { // common.js<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp15</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exports.jsnum = jsnum;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp16</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp17</span>&nbsp&nbsp&nbsp&nbsp}, undefined, true);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp18</span>&nbsp&nbsp&nbsp&nbsp
+</code></div></body>
+</html>

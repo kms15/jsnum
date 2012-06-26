@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>src/jsnum.js</title>
+<link rel="stylesheet" type="text/css" href="mudoc.css"/>
+</head>
+<body class="sourceCodeListingPage"><div class="mainColumn">
+<h1>src/jsnum.js</h1><code>
+<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp1</span>&nbsp&nbsp&nbsp&nbsp/*global define */<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp2</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp3</span>&nbsp&nbsp&nbsp&nbsp/* @overview This file declares the main components of the JSN module<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp4</span>&nbsp&nbsp&nbsp&nbsp *&nbsp; @copyright (c) 2012 Kendrick Shaw<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp5</span>&nbsp&nbsp&nbsp&nbsp */<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp6</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp7</span>&nbsp&nbsp&nbsp&nbspdefine(<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp8</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; ["src/jsnum-base", "src/AbstractNDArray", "src/linalg"],<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp9</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; /* central module for the JSN library<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp10</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @exports jsnum<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp11</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp; */<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp12</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; function (jsnum) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp13</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "use strict";<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp14</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp15</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp16</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-NumericalError" class="docTag" href="index.html#jsnum-NumericalError">/** jsnum.NumericalError(message)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp17</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * An exception for numerical errors.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp18</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This exception is thrown when a numerical problem occurs, such as a<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp19</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; singular matrix or an algorithm that fails to converge.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp20</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @constructor<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp21</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param message information about the cause of the error<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp22</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp23</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jsnum.NumericalError = function (message) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp24</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.name = "NumericalError";<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp25</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.message = message || "A numerical error occured";<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp26</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp27</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jsnum.NumericalError.prototype = new Error();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp28</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp29</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp30</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-UntypedNDArray" class="docTag" href="index.html#jsnum-UntypedNDArray">/** jsnum.UntypedNDArray(shape)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp31</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * An implementation of an NDArray that stores data with any type.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp32</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * This is likely to work for most uses, but more specialized types of<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp33</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * NDArray are likely to have better performance and memory usage.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp34</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * @param { Array&lt;int&gt; } shape The length of each of the dimensions of<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp35</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the new array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp36</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * @constructor<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp37</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp38</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jsnum.UntypedNDArray = function (shape) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp39</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var i,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp40</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; size = 1,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp41</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; data = [],<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp42</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; that = this,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp43</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; myShape = shape.slice(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp44</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp45</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jsnum.AbstractNDArray.checkShape(shape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp46</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp47</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // if called without new, create a new object<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp48</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!(this instanceof jsnum.UntypedNDArray)) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp49</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new jsnum.UntypedNDArray(myShape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp50</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp51</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp52</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; myShape.length; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp53</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; size = size * myShape[i];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp54</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp55</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; data.length = size;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp56</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp57</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function calc1DIndex(indexes) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp58</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var index1D;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp59</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp60</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; that.checkIndexes(indexes);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp61</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (myShape.length === 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp62</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp63</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp64</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp65</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; index1D = indexes[0];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp66</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp67</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 1; i &lt; myShape.length; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp68</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; index1D = index1D * myShape[i] + indexes[i];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp69</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp70</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp71</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return index1D;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp72</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp73</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp74</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.getElement = function (indexes) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp75</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return data[calc1DIndex(indexes)];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp76</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp77</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp78</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement = function (indexes, value) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp79</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; data[calc1DIndex(indexes)] = value;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp80</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp81</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp82</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp83</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Object.defineProperty(this, "shape",<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp84</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { value : myShape, writable : false });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp85</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp86</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jsnum.UntypedNDArray.prototype = Object.create(jsnum.AbstractNDArray.prototype);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp87</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp88</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp89</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-asNDArray" class="docTag" href="index.html#jsnum-asNDArray">/** jsnum.asNDArray(vals)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp90</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * Create an ND array from the given nested Array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp91</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * This allows easy conversion from JavaScript arrays to n-dimensional<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp92</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * arrays.&nbsp; Note that this function can not create an array containing<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp93</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * elements that are themselves arrays (the syntax would be ambiguous).<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp94</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * @param vals A single (non-array) value or nested arrays describing<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp95</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp; an n-dimensional array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp96</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * @returns An writable n-dimensional array containing a copy of the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp97</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp; data in vals.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp98</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp99</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jsnum.asNDArray = function (vals) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp100</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var o = Object.create(jsnum.AbstractNDArray.prototype), val, shape;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp101</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp102</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // if it's already an array, we're done<br/><span class="lineNum">
+&nbsp&nbsp&nbsp103</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (vals.val !== undefined) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp104</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return vals;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp105</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp106</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp107</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val = vals;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp108</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; shape = [];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp109</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (val.length !== undefined) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp110</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; shape.push(val.length);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp111</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val = val[0];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp112</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp113</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp114</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function copyVals(o, vals) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp115</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp116</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp117</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (o.shape.length === 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp118</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 0D array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp119</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (Array.isArray(vals)) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp120</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("These lists do not appear to form" +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp121</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; " and n-dimensional array!");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp122</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp123</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.setElement([], vals);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp124</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp125</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (vals.length !== o.shape[0]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp126</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("These lists do not appear to form" +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp127</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; " and n-dimensional array!");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp128</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp129</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp130</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; o.shape[0]; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp131</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; copyVals(o.at([i]), vals[i]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp132</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp133</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp134</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp135</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp136</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o = new jsnum.UntypedNDArray(shape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp137</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; copyVals(o, vals);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp138</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp139</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return o;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp140</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp141</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp142</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp143</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-areClose" class="docTag" href="index.html#jsnum-areClose">/** jsnum.areClose(val1, val2, abstol, reltol)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp144</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Checks if two numbers or NDArrays are sufficiently "close".<br/><span class="lineNum">
+&nbsp&nbsp&nbsp145</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This is true iff the numbers (or corresponding array elements)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp146</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; are within abstol of each other or if the ratio of the numbers is<br/><span class="lineNum">
+&nbsp&nbsp&nbsp147</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; within reltol of 1.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp148</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param {Number | NDArray} val1 the first number to compare<br/><span class="lineNum">
+&nbsp&nbsp&nbsp149</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param {Number | NDArray} val2 the second number to compare<br/><span class="lineNum">
+&nbsp&nbsp&nbsp150</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param {Number} abstol the absolute tolerance<br/><span class="lineNum">
+&nbsp&nbsp&nbsp151</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param {Number} reltol the relative tolerance<br/><span class="lineNum">
+&nbsp&nbsp&nbsp152</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @result true iff the numbers are close, otherwise false<br/><span class="lineNum">
+&nbsp&nbsp&nbsp153</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp154</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jsnum.areClose = function (val1, val2, abstol, reltol) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp155</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var close = true, i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp156</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp157</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (abstol &lt; 0 || reltol &lt; 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp158</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("Tolerances must be non-negative");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp159</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp160</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp161</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // defaults (note that we can't just use reltol || ... because 0<br/><span class="lineNum">
+&nbsp&nbsp&nbsp162</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // is a valid tolerance and not equal to the default)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp163</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (reltol === undefined) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp164</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; reltol = 1e-9;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp165</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp166</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (abstol === undefined) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp167</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; abstol = 1e-9;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp168</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp169</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp170</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // if these are NDArrays, do an element-wise compare<br/><span class="lineNum">
+&nbsp&nbsp&nbsp171</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (val1.walkIndexes && val2.walkIndexes) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp172</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp173</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (val1.shape.length !== val2.shape.length) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp174</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("Array shapes must match");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp175</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp176</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = val1.shape.length - 1; i &gt;= 0; i -= 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp177</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (val1.shape[i] !== val2.shape[i]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp178</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("Array shapes must match");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp179</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp180</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp181</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp182</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val1.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp183</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!jsnum.areClose(val1.val(index),<br/><span class="lineNum">
+&nbsp&nbsp&nbsp184</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val2.val(index), abstol, reltol)) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp185</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; close = false;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp186</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp187</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp188</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp189</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return close;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp190</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp191</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp192</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (typeof val1 === "number" && typeof val2 === "number") {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp193</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (Math.abs(val1 - val2) &lt;= abstol) ||<br/><span class="lineNum">
+&nbsp&nbsp&nbsp194</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Math.abs(val1 - val2) / Math.max(Math.abs(val1), Math.abs(val2)) &lt;= reltol);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp195</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp196</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp197</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("arguments must both be numbers or both be NDArrays");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp198</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp199</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp200</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp201</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-eye" class="docTag" href="index.html#jsnum-eye">/** jsnum.eye(N)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp202</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Create an `N xx N` identity matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp203</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp204</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param {Number} N the rank (size) of the identity matrix to create<br/><span class="lineNum">
+&nbsp&nbsp&nbsp205</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @result an `N xx N` identity matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp206</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp207</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jsnum.eye = function (N) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp208</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var I = Object.create(jsnum.AbstractNDArray.prototype);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp209</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Object.defineProperty(I, "shape",<br/><span class="lineNum">
+&nbsp&nbsp&nbsp210</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { value : [N, N], writable : false });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp211</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I.getElement = function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp212</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return index[0] === index[1] ? 1 : 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp213</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp214</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp215</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return I;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp216</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp217</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp218</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp219</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-solveLinearSystem" class="docTag" href="index.html#jsnum-solveLinearSystem">/** jsnum.solveLinearSystem(A, b, options)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp220</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Solve a linear system of the form `A x = b`.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp221</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; By default this tries to find the exact solution for x using<br/><span class="lineNum">
+&nbsp&nbsp&nbsp222</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; `LU`-decomposition and will throw an error if an exact solution can not<br/><span class="lineNum">
+&nbsp&nbsp&nbsp223</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; be found (for example if A is singular or non-square).&nbsp; If the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp224</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; "returnClosest" option is set to true, this routine instead finds<br/><span class="lineNum">
+&nbsp&nbsp&nbsp225</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; the solution x which minimizes the error `||A x - b||_2` by using<br/><span class="lineNum">
+&nbsp&nbsp&nbsp226</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; singular value decomposition (which works for singular or<br/><span class="lineNum">
+&nbsp&nbsp&nbsp227</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; non-square matrices).<br/><span class="lineNum">
+&nbsp&nbsp&nbsp228</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp229</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; See pp 48-54, 69-73 in Press WH, Teukolsky SA, Vetterling WT,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp230</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Flannery BP.&nbsp; Numerical Recipes 3rd Edition: The Art of Scientific<br/><span class="lineNum">
+&nbsp&nbsp&nbsp231</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Computing.&nbsp; 3rd ed. Cambridge University Press; 2007.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp232</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp233</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param {NDArray} A the matrix that is multiplied by the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp234</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unknown vector or matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp235</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param {NDArray} b the result vector (or matrix)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp236</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param {Object} options additional options, such as returnClosest<br/><span class="lineNum">
+&nbsp&nbsp&nbsp237</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @result a vector (or matrix) x such that `A x = b`<br/><span class="lineNum">
+&nbsp&nbsp&nbsp238</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp239</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jsnum.solveLinearSystem = function (A, b, options) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp240</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var lu;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp241</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp242</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // argument checking<br/><span class="lineNum">
+&nbsp&nbsp&nbsp243</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (A.shape === undefined || A.shape.length !== 2) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp244</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; console.log(A.toString());<br/><span class="lineNum">
+&nbsp&nbsp&nbsp245</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError(<br/><span class="lineNum">
+&nbsp&nbsp&nbsp246</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "A must be a matrix (i.e. a 2D NDArray)"<br/><span class="lineNum">
+&nbsp&nbsp&nbsp247</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; );<br/><span class="lineNum">
+&nbsp&nbsp&nbsp248</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp249</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp250</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (b.shape === undefined) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp251</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("b must be an NDArray");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp252</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp253</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp254</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (A.shape[0] !== b.shape[0]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp255</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("The number of rows of A (" +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp256</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A.shape[0] + ") does not match the number of rows of b (" +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp257</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b.shape[0] + ")");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp258</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp259</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp260</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (options && options.returnClosest) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp261</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return A.pseudoinverse().dot(b);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp262</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp263</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp264</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (A.shape[0] &gt; A.shape[1]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp265</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("The system is overdetermined " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp266</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "(the matrix has more rows than columns); consider " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp267</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "adding the option \"returnClosest : true\".");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp268</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp269</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp270</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (A.shape[0] &lt; A.shape[1]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp271</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("The system is underdetermined " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp272</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "(the matrix has fewer rows than columns); consider " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp273</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "adding the option \"returnClosest : true\".");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp274</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp275</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp276</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp277</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lu = A.LUDecomposition();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp278</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } catch (e) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp279</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (e instanceof jsnum.NumericalError) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp280</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new jsnum.NumericalError("Singular matrix " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp281</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "encountered; consider adding the option " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp282</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "\"returnClosest : true\".");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp283</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp284</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw e;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp285</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp286</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp287</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp288</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function luSolve(lu, b) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp289</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var N, x, y, i, j, swap, sum;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp290</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; N = b.shape[0];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp291</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x = b.createResult(b.shape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp292</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp293</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (b.shape.length &gt; 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp294</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // b is a matrix, so solve for each of the columns individually<br/><span class="lineNum">
+&nbsp&nbsp&nbsp295</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b.at([0]).walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp296</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var i, colX, fullIndex = index.slice(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp297</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fullIndex.unshift(undefined);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp298</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp299</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // solve the system and copy the result into the column<br/><span class="lineNum">
+&nbsp&nbsp&nbsp300</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colX = luSolve(lu, b.at(fullIndex));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp301</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; N; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp302</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fullIndex[0] = i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp303</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x.setElement(fullIndex, colX.val([i]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp304</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp305</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp306</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp307</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else { // b is a vector<br/><span class="lineNum">
+&nbsp&nbsp&nbsp308</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp309</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // swap the rows in the answer to match L and U<br/><span class="lineNum">
+&nbsp&nbsp&nbsp310</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b = b.copy();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp311</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; N; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp312</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (lu.p[i] !== i) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp313</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; swap = b.val([i]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp314</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b.setElement([i], b.val([lu.p[i]]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp315</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b.setElement([lu.p[i]], swap);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp316</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp317</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp318</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp319</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // use forward substitution to find y such that L y<br/><span class="lineNum">
+&nbsp&nbsp&nbsp320</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; y = b.createResult(b.shape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp321</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; N; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp322</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sum = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp323</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (j = 0; j &lt; i; j += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp324</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sum += lu.L.val([i, j]) * y.val([j]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp325</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp326</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp327</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; y.setElement([i], (b.val([i]) - sum) / lu.L.val([i, i]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp328</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp329</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp330</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // use backward substitution to find x such that U x = y<br/><span class="lineNum">
+&nbsp&nbsp&nbsp331</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = N - 1; i &gt;= 0; i -= 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp332</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sum = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp333</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (j = i + 1; j &lt; N; j += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp334</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sum += lu.U.val([i, j]) * x.val([j]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp335</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp336</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp337</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x.setElement([i], (y.val([i]) - sum) / lu.U.val([i, i]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp338</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp339</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp340</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp341</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return x;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp342</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp343</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp344</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return luSolve(lu, b);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp345</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp346</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp347</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp348</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /*jslint vars: true */<br/><span class="lineNum">
+&nbsp&nbsp&nbsp349</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp350</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-eps" class="docTag" href="index.html#jsnum-eps">/** jsnum.eps<br/><span class="lineNum">
+&nbsp&nbsp&nbsp351</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Machine epsilon.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp352</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; The value 1 + eps is the smallest number greater than one that can<br/><span class="lineNum">
+&nbsp&nbsp&nbsp353</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; be represented with JavaScript's floating point arithmetic.&nbsp; This<br/><span class="lineNum">
+&nbsp&nbsp&nbsp354</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; gives the limit of roundoff error for computations; for example<br/><span class="lineNum">
+&nbsp&nbsp&nbsp355</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; 1 + eps/2 will be rounded down to 1.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp356</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp357</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jsnum.eps = Math.pow(2, -52);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp358</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp359</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /*jslint vars: false */<br/><span class="lineNum">
+&nbsp&nbsp&nbsp360</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp361</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return jsnum;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp362</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp363</span>&nbsp&nbsp&nbsp&nbsp);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp364</span>&nbsp&nbsp&nbsp&nbsp
+</code></div></body>
+</html>

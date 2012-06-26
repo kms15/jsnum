@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>src/AbstractNDArray.js</title>
+<link rel="stylesheet" type="text/css" href="mudoc.css"/>
+</head>
+<body class="sourceCodeListingPage"><div class="mainColumn">
+<h1>src/AbstractNDArray.js</h1><code>
+<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp1</span>&nbsp&nbsp&nbsp&nbsp/*global define */<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp2</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp3</span>&nbsp&nbsp&nbsp&nbsp/*&nbsp; This file declares the main components of the AbstractNDArray<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp4</span>&nbsp&nbsp&nbsp&nbsp *&nbsp; class<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp5</span>&nbsp&nbsp&nbsp&nbsp *&nbsp; @copyright (c) 2012 Kendrick Shaw<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp6</span>&nbsp&nbsp&nbsp&nbsp */<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp7</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp8</span>&nbsp&nbsp&nbsp&nbspdefine(<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp9</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; ["src/jsnum-base"],<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp10</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; function (jsnum) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp11</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "use strict";<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp12</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp13</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray" class="docTag" href="index.html#jsnum-AbstractNDArray">/** jsnum.AbstractNDArray<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp14</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; A base class for n-dimensional arrays.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp15</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This class provides a rich set of functionality building on a small<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp16</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; set of functions required in derived classes.&nbsp; To create a new n-D<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp17</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; array class, you can simply create a new class inheriting from this<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp18</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; one that implements getElement, shape, and (for writable arrays)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp19</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; setElement.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp20</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp21</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function AbstractNDArray() {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp22</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("AbstractNDArray is an abstract class and " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp23</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "should not be directly instantiated - please use a child " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp24</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "class.");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp25</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp26</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp27</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp28</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp29</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Abstract methods<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp30</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp31</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp32</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp33</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-getElement" class="docTag" href="index.html#jsnum-AbstractNDArray-getElement">/** jsnum.AbstractNDArray.getElement(index)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp34</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Reads one element of the array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp35</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This must be overloaded in derived classes.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp36</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp37</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Array&lt;int&gt; } index A list of indexes for the desired<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp38</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp; element.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp39</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp40</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns The value of the array element at index<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp41</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp42</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.getElement = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp43</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError(<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp44</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "abstract array class (getElement has not been defined)"<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp45</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; );<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp46</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp47</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp48</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp49</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-setElement" class="docTag" href="index.html#jsnum-AbstractNDArray-setElement">/** jsnum.AbstractNDArray.setElement(index, newValue)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp50</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Sets the value of one element of the array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp51</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This must be overloaded in derived classes if the array is not<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp52</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; read only.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp53</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp54</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Array&lt;int&gt; } index A list of indexes for the desired<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp55</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp; element.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp56</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param newValue The new value to assign to the array element at<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp57</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp; index.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp58</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns The array (chainable)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp59</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @abstract<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp60</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp61</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.setElement = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp62</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("Attempt to set an element of a read-only " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp63</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "array (try using copy() first)");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp64</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp65</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp66</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp67</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-shape" class="docTag" href="index.html#jsnum-AbstractNDArray-shape">/** jsnum.AbstractNDArray.shape<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp68</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; The lengths of each dimension of the n-dimensional array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp69</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This must be overloaded in derived classe<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp70</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @type Array&lt;int&gt;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp71</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @readonly<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp72</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp73</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.shape = undefined;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp74</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp75</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp76</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp77</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Built-in methods<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp78</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp79</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp80</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-createResult" class="docTag" href="index.html#jsnum-AbstractNDArray-createResult">/** jsnum.AbstractNDArray.createResult(shape)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp81</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Create an array for storing a mathematical result.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp82</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; By default this is just an jsnum.UntypedNDArray, but<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp83</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; derived classes can overload this to specialize<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp84</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; the generated results based on what they know about the data<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp85</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; (for example it may be all 32 bit IEEE floating point).<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp86</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp87</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Array&lt;int&gt; } shape The length of each of the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp88</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dimensions of the new array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp89</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns A new writable n-Dimensional array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp90</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp91</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.createResult = function (shape) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp92</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new jsnum.UntypedNDArray(shape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp93</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp94</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp95</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp96</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-copy" class="docTag" href="index.html#jsnum-AbstractNDArray-copy">/** jsnum.AbstractNDArray.copy()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp97</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Create a copy of this array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp98</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp99</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns A new n-dimensional array containing a shallow copy<br/><span class="lineNum">
+&nbsp&nbsp&nbsp100</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp; of the contents of this array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp101</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp102</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.copy = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp103</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var result = this.createResult(this.shape),<br/><span class="lineNum">
+&nbsp&nbsp&nbsp104</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; that = this;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp105</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp106</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return result.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp107</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result.setElement(index, that.val(index));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp108</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp109</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp110</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp111</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp112</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-checkIndexes" class="docTag" href="index.html#jsnum-AbstractNDArray-checkIndexes">/** jsnum.AbstractNDArray.checkIndexes(indexes, opts)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp113</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Checks a given list of indexes to make sure they are valid.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp114</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This function throws an exception if indexes is not an array of<br/><span class="lineNum">
+&nbsp&nbsp&nbsp115</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; integers with the same length as the shape.&nbsp; If you would like<br/><span class="lineNum">
+&nbsp&nbsp&nbsp116</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; to allow undefined values (and shorter arrays), set<br/><span class="lineNum">
+&nbsp&nbsp&nbsp117</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; opts.allowUndefined to be true.&nbsp; By default negative indexes<br/><span class="lineNum">
+&nbsp&nbsp&nbsp118</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; are allowed; to disable this set opts.nonnegative to true.&nbsp; To<br/><span class="lineNum">
+&nbsp&nbsp&nbsp119</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; allow ranges (specified as a JavaScript array with up to two<br/><span class="lineNum">
+&nbsp&nbsp&nbsp120</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; elements giving the minimum and maximum), set opts.allowRange<br/><span class="lineNum">
+&nbsp&nbsp&nbsp121</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; to true.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp122</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp123</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Array&lt;int&gt; } indexes The indexes to check.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp124</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { object | undefined } opts A dictionary of options.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp125</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @throws { TypeError | RangeError }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp126</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns The n-dimensional array (chainable)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp127</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp128</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.checkIndexes = function (indexes, opts) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp129</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var i, j, min, max, rePositiveInt = /^[0-9]+$/;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp130</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; opts = opts || {};<br/><span class="lineNum">
+&nbsp&nbsp&nbsp131</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp132</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // must be an array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp133</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!Array.isArray(indexes)) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp134</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError(<br/><span class="lineNum">
+&nbsp&nbsp&nbsp135</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Non-array given as an index."<br/><span class="lineNum">
+&nbsp&nbsp&nbsp136</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; );<br/><span class="lineNum">
+&nbsp&nbsp&nbsp137</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp138</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp139</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Loop over the incoming indexes (i), keeping track of the index<br/><span class="lineNum">
+&nbsp&nbsp&nbsp140</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // that this maps to (j)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp141</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0, j = 0; i &lt; indexes.length && j &lt; this.shape.length;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp142</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp143</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (typeof indexes[i] === 'number') {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp144</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Standard numeric index<br/><span class="lineNum">
+&nbsp&nbsp&nbsp145</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!(indexes[i] &gt;=<br/><span class="lineNum">
+&nbsp&nbsp&nbsp146</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ((opts && opts.nonnegative) ? 0 : -this.shape[j]) &&<br/><span class="lineNum">
+&nbsp&nbsp&nbsp147</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; indexes[i] &lt; this.shape[j])) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp148</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError(<br/><span class="lineNum">
+&nbsp&nbsp&nbsp149</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Index out of range, " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp150</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; indexes[i] + " is not within (0, " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp151</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.shape[j] + ")."<br/><span class="lineNum">
+&nbsp&nbsp&nbsp152</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; );<br/><span class="lineNum">
+&nbsp&nbsp&nbsp153</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp154</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp155</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (indexes[i] && indexes[i] !== Math.floor(indexes[i])) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp156</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("Non-integer index " + indexes[i]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp157</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp158</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp159</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j += 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp160</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (opts.allowUndefined && indexes[i] === undefined) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp161</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // undefined/blank index<br/><span class="lineNum">
+&nbsp&nbsp&nbsp162</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j += 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp163</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (opts.allowRange && Array.isArray(indexes[i])) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp164</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Range provided as [min, max]<br/><span class="lineNum">
+&nbsp&nbsp&nbsp165</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; min = indexes[i][0] === undefined ? 0 : indexes[i][0];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp166</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; max = indexes[i][1] === undefined ? this.shape[j] : indexes[i][1];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp167</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp168</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (typeof min !== "number" || typeof max !== "number") {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp169</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("Non-numeric value encountered " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp170</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "in range [" + indexes[i] + "]");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp171</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp172</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp173</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (min &lt; 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp174</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; min += this.shape[j];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp175</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp176</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp177</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (max &lt; 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp178</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; max += this.shape[j];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp179</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp180</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp181</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (min &gt;= max) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp182</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("Upper end of range was not " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp183</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "greater than lower end of range: [" +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp184</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; indexes[i] + "]");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp185</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp186</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp187</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (max &gt; this.shape[j] || min &lt; 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp188</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("Range [" + indexes[i] +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp189</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "] extends beyond actual dimension [0, " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp190</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.shape[0] + "].");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp191</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp192</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp193</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (indexes[i].length &gt; 2) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp194</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("Too many elements in range [" +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp195</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; indexes[i] + "]");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp196</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp197</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp198</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j += 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp199</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (!opts.allowDummy || !rePositiveInt.test(indexes[i])) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp200</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // something else, and not a dummy index<br/><span class="lineNum">
+&nbsp&nbsp&nbsp201</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError(<br/><span class="lineNum">
+&nbsp&nbsp&nbsp202</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Encountered non-numeric index \"" +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp203</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; indexes[i] + "\"."<br/><span class="lineNum">
+&nbsp&nbsp&nbsp204</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; );<br/><span class="lineNum">
+&nbsp&nbsp&nbsp205</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp206</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp207</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (opts.allowDummy) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp208</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // trailing dummy indexes are OK<br/><span class="lineNum">
+&nbsp&nbsp&nbsp209</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (i &lt; indexes.length && typeof indexes[i] === 'string' &&<br/><span class="lineNum">
+&nbsp&nbsp&nbsp210</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rePositiveInt.test(indexes[i])) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp211</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i += 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp212</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp213</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp214</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp215</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (j !== this.shape.length || i !== indexes.length) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp216</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!opts || !opts.allowUndefined ||<br/><span class="lineNum">
+&nbsp&nbsp&nbsp217</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j &gt;= this.shape.length) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp218</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("Expected " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp219</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.shape.length + " indexes but given " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp220</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (j + 1) + " indexes.");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp221</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp222</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp223</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp224</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp225</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp226</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp227</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp228</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp229</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-isReadOnly" class="docTag" href="index.html#jsnum-AbstractNDArray-isReadOnly">/** jsnum.AbstractNDArray.isReadOnly()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp230</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Returns true if this is a read-only array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp231</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; An array is read-only if the contents can not be modified. This is<br/><span class="lineNum">
+&nbsp&nbsp&nbsp232</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; the case if the setElement function of AbstractNDArray has not<br/><span class="lineNum">
+&nbsp&nbsp&nbsp233</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; been overridden.&nbsp; If you need a non-read-only version of the array,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp234</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; you can use jsnum.AbstractNDArray.copy() to create it.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp235</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp236</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.isReadOnly = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp237</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (this.setElement ===<br/><span class="lineNum">
+&nbsp&nbsp&nbsp238</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jsnum.AbstractNDArray.prototype.setElement);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp239</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp240</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp241</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp242</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-walkIndexes" class="docTag" href="index.html#jsnum-AbstractNDArray-walkIndexes">/** jsnum.AbstractNDArray.walkIndexes(callback)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp243</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Calls a callback with every valid index for this array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp244</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This is useful when you want to perform an operation on every<br/><span class="lineNum">
+&nbsp&nbsp&nbsp245</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; element element of the array.&nbsp; The callback passed a single<br/><span class="lineNum">
+&nbsp&nbsp&nbsp246</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; parameter which is the index to process.&nbsp; The this<br/><span class="lineNum">
+&nbsp&nbsp&nbsp247</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; variable for the callback is set to the original array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp248</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { function } callback A function to be called with each<br/><span class="lineNum">
+&nbsp&nbsp&nbsp249</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; index<br/><span class="lineNum">
+&nbsp&nbsp&nbsp250</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns The n-dimensional array (chainable)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp251</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp252</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.walkIndexes = function (callback) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp253</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var shape = this.shape, that = this;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp254</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp255</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function walk(index, pos) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp256</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp257</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp258</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (pos &gt;= shape.length) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp259</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; callback.call(that, index);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp260</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp261</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = shape[pos] - 1; i &gt;= 0; i -= 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp262</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; index[pos] = i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp263</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; walk(index, pos + 1);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp264</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp265</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp266</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp267</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp268</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; walk([], 0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp269</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp270</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp271</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp272</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp273</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-hasShape" class="docTag" href="index.html#jsnum-AbstractNDArray-hasShape">/** jsnum.AbstractNDArray.hasShape(shape)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp274</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Convenience function for checking if this.shape equals shape.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp275</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; (since JavaScript doesn't do deep comparison of Arrays by<br/><span class="lineNum">
+&nbsp&nbsp&nbsp276</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; default)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp277</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Array } The shape to compare with this.shape<br/><span class="lineNum">
+&nbsp&nbsp&nbsp278</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns True iff this.shape matches shape<br/><span class="lineNum">
+&nbsp&nbsp&nbsp279</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp280</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.hasShape = function (shape) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp281</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp282</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp283</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (shape === undefined || shape.length === undefined ||<br/><span class="lineNum">
+&nbsp&nbsp&nbsp284</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; shape.length !== this.shape.length) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp285</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return false;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp286</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp287</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp288</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = shape.length - 1; i &gt;= 0; i -= 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp289</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (shape[i] !== this.shape[i]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp290</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return false;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp291</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp292</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp293</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp294</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return true;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp295</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp296</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp297</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp298</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-at" class="docTag" href="index.html#jsnum-AbstractNDArray-at">/** jsnum.AbstractNDArray.at(indexes)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp299</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Create a different view of elements in the array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp300</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Create a new n-D array object that provides a different view of<br/><span class="lineNum">
+&nbsp&nbsp&nbsp301</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; the data in this array based on the indexes provided.&nbsp; Specifying<br/><span class="lineNum">
+&nbsp&nbsp&nbsp302</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; an integer for the index for a given dimension will bind that<br/><span class="lineNum">
+&nbsp&nbsp&nbsp303</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; index to that dimension in the new view, for example picking out<br/><span class="lineNum">
+&nbsp&nbsp&nbsp304</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; a particular row or column of the matrix (thus lowering the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp305</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; number of dimensions by 1).&nbsp; Giving a string containing a number<br/><span class="lineNum">
+&nbsp&nbsp&nbsp306</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; will create a new "dummy" dimension of the specified size.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp307</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Giving an Array with two elements will select a subrange of<br/><span class="lineNum">
+&nbsp&nbsp&nbsp308</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; the array along that dimension.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp309</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp310</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Array } indexes An array of integers or undefined,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp311</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; specifying which values to fix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp312</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns A (writable) lower dimensional view of the given slice<br/><span class="lineNum">
+&nbsp&nbsp&nbsp313</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; of the original array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp314</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp315</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.at = function (indexes) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp316</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var that = this, mapTo = [], stride = [], offsets = [];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp317</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp318</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; that.checkIndexes(indexes, { allowUndefined : true,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp319</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; allowDummy : true, allowRange : true });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp320</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp321</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function updatedView(indexes, oldMapTo, oldStride, oldOffsets, oldShape) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp322</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var o, i, j, min, max,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp323</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stride = [], mapTo = [], newShape = [],<br/><span class="lineNum">
+&nbsp&nbsp&nbsp324</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; newOffsets = oldOffsets.slice(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp325</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp326</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp327</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp328</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp329</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Loop through the indexes to calculate the new array shape and<br/><span class="lineNum">
+&nbsp&nbsp&nbsp330</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // transforms from new array indexes to old ones..<br/><span class="lineNum">
+&nbsp&nbsp&nbsp331</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (j &lt; oldShape.length) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp332</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (indexes[i] === undefined) { // blank index<br/><span class="lineNum">
+&nbsp&nbsp&nbsp333</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stride.push(oldStride[j]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp334</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mapTo.push(oldMapTo[j]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp335</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; newShape.push(oldShape[j]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp336</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j += 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp337</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (typeof indexes[i] === 'string') { // dummy index<br/><span class="lineNum">
+&nbsp&nbsp&nbsp338</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stride.push(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp339</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mapTo.push(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp340</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; newShape.push(parseInt(indexes[i], 10));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp341</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (Array.isArray(indexes[i])) { // range<br/><span class="lineNum">
+&nbsp&nbsp&nbsp342</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; min = indexes[i][0] === undefined ? 0 : indexes[i][0];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp343</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; max = indexes[i][1] === undefined ?<br/><span class="lineNum">
+&nbsp&nbsp&nbsp344</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; oldShape[j] : indexes[i][1];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp345</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp346</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (min &lt; 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp347</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; min += oldShape[j];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp348</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp349</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp350</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (max &lt; 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp351</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; max += oldShape[j];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp352</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp353</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp354</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stride.push(oldStride[j]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp355</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mapTo.push(oldMapTo[j]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp356</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; newShape.push(max - min);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp357</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (oldStride[j] !== 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp358</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; newOffsets[oldMapTo[j]] += min;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp359</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp360</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j += 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp361</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (indexes[i] &lt; 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp362</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (oldStride[j] !== 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp363</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; newOffsets[oldMapTo[j]] += indexes[i] + oldShape[j];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp364</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp365</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j += 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp366</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp367</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (oldStride[j] !== 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp368</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; newOffsets[oldMapTo[j]] += indexes[i];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp369</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp370</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j += 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp371</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp372</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i += 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp373</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp374</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // process any trailing dummy indexes<br/><span class="lineNum">
+&nbsp&nbsp&nbsp375</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (i &lt; indexes.length) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp376</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stride.push(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp377</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mapTo.push(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp378</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; newShape.push(parseInt(indexes[i], 10));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp379</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i += 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp380</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp381</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // convert the list of indexes given to the new view into<br/><span class="lineNum">
+&nbsp&nbsp&nbsp382</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // indexes for the original array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp383</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function expandIndexes(reducedIndexes) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp384</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var expandedIndexes = newOffsets.slice(0), i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp385</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.checkIndexes(reducedIndexes);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp386</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp387</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // build an index into the old array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp388</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; mapTo.length; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp389</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (stride[i]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp390</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; expandedIndexes[mapTo[i]] += reducedIndexes[i];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp391</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp392</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp393</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp394</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return expandedIndexes;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp395</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp396</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp397</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // create the new view object o<br/><span class="lineNum">
+&nbsp&nbsp&nbsp398</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o = Object.create(AbstractNDArray.prototype);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp399</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Object.defineProperty(o, "shape",<br/><span class="lineNum">
+&nbsp&nbsp&nbsp400</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { value : newShape, writable : false });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp401</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.getElement = function (reducedIndexes) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp402</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return that.getElement(expandIndexes(reducedIndexes));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp403</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp404</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.at = function (indexes) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp405</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.checkIndexes(indexes, { allowUndefined : true,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp406</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; allowDummy : true, allowRange : true });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp407</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return updatedView(indexes, mapTo, stride, newOffsets, newShape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp408</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp409</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp410</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!that.isReadOnly()) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp411</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.setElement = function (reducedIndexes, value) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp412</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; that.setElement(expandIndexes(reducedIndexes), value);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp413</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp414</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp415</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp416</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp417</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return o;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp418</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp419</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp420</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // build an identity map from the incoming indexes<br/><span class="lineNum">
+&nbsp&nbsp&nbsp421</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (mapTo.length &lt; this.shape.length) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp422</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mapTo.push(mapTo.length);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp423</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stride.push(1);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp424</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; offsets.push(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp425</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp426</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp427</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return updatedView(indexes, mapTo, stride, offsets, this.shape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp428</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp429</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp430</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp431</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-set" class="docTag" href="index.html#jsnum-AbstractNDArray-set">/** jsnum.AbstractNDArray.set(B)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp432</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Replace this the elements of this array with a new value or values.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp433</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; If B is not an NDArray, all of the elements of this array will be<br/><span class="lineNum">
+&nbsp&nbsp&nbsp434</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; set to B.&nbsp; If B is an NDArray, it should be the same shape as this<br/><span class="lineNum">
+&nbsp&nbsp&nbsp435</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; and specify the new elements of the array for every position in the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp436</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp437</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { ... | NDArray } B The new value or or NDArray of new values<br/><span class="lineNum">
+&nbsp&nbsp&nbsp438</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns this n-dimensional array (chainable)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp439</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp440</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.set = function (B) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp441</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (B.getElement === undefined) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp442</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp443</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, B);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp444</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp445</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp446</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp447</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!this.hasShape(B.shape)) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp448</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("B must have the same shape as this");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp449</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp450</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp451</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp452</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, B.val(index));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp453</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp454</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp455</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp456</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp457</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-swap" class="docTag" href="index.html#jsnum-AbstractNDArray-swap">/** jsnum.AbstractNDArray.swap(B)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp458</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Swap the contents of this array with those in B.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp459</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Combined with<br/><span class="lineNum">
+&nbsp&nbsp&nbsp460</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; at, this allows you to do things like swap rows or columns.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp461</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { NDArray } B the array with which to swap elements<br/><span class="lineNum">
+&nbsp&nbsp&nbsp462</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns this n-dimensional array (chainable)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp463</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp464</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.swap = function (B) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp465</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp466</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var temp = this.val(index);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp467</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, B.val(index));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp468</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; B.setElement(index, temp);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp469</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp470</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp471</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp472</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp473</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-max" class="docTag" href="index.html#jsnum-AbstractNDArray-max">/** jsnum.AbstractNDArray.max()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp474</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Returns the largest number in the array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp475</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp476</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.max = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp477</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var max = -Infinity;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp478</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp479</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.copy().walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp480</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var e = this.val(index);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp481</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (e &gt; max) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp482</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; max = e;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp483</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp484</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp485</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp486</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return max;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp487</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp488</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp489</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp490</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-argMax" class="docTag" href="index.html#jsnum-AbstractNDArray-argMax">/** jsnum.AbstractNDArray.argMax()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp491</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Returns the index of the largest number in the array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp492</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp493</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.argMax = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp494</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var max = -Infinity, maxIndex;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp495</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp496</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.copy().walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp497</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var e = this.val(index);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp498</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (e &gt; max) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp499</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; max = e;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp500</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxIndex = index.slice(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp501</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp502</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp503</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp504</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return maxIndex;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp505</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp506</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp507</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp508</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-min" class="docTag" href="index.html#jsnum-AbstractNDArray-min">/** jsnum.AbstractNDArray.min()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp509</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Returns the smallest number in the array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp510</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp511</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.min = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp512</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var min = Infinity;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp513</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp514</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.copy().walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp515</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var e = this.val(index);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp516</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (e &lt; min) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp517</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; min = e;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp518</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp519</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp520</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp521</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return min;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp522</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp523</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp524</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp525</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-argMin" class="docTag" href="index.html#jsnum-AbstractNDArray-argMin">/** jsnum.AbstractNDArray.argMin()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp526</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Returns the index of the smallest number in the array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp527</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp528</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.argMin = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp529</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var min = Infinity, minIndex;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp530</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp531</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.copy().walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp532</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var e = this.val(index);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp533</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (e &lt; min) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp534</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; min = e;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp535</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minIndex = index.slice(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp536</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp537</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp538</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp539</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return minIndex;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp540</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp541</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp542</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp543</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-abs" class="docTag" href="index.html#jsnum-AbstractNDArray-abs">/** jsnum.AbstractNDArray.abs()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp544</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Take the absolute value of each element in the array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp545</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Returns a new array containing the result.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp546</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp547</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.abs = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp548</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.copy().walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp549</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, Math.abs(this.val(index)));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp550</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp551</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp552</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp553</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp554</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-reciprocal" class="docTag" href="index.html#jsnum-AbstractNDArray-reciprocal">/** jsnum.AbstractNDArray.reciprocal()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp555</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Take the reciprocal of each element in the array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp556</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Returns a new array containing the result.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp557</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp558</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.reciprocal = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp559</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.copy().walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp560</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, 1 / this.val(index));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp561</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp562</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp563</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp564</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp565</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-addHere" class="docTag" href="index.html#jsnum-AbstractNDArray-addHere">/** jsnum.AbstractNDArray.addHere(B)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp566</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Replace this array with an element-wise sum of this array and B.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp567</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Number | NDArray } B the number or elements to add to<br/><span class="lineNum">
+&nbsp&nbsp&nbsp568</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp569</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns this n-dimensional array (chainable)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp570</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp571</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.addHere = function (B) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp572</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (typeof B === 'number') {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp573</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp574</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, this.val(index) + B);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp575</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp576</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp577</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp578</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (B.getElement === undefined) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp579</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("B must be an NDArray or number");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp580</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp581</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp582</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!this.hasShape(B.shape)) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp583</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("B must have the same shape as this");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp584</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp585</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp586</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp587</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, this.val(index) + B.val(index));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp588</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp589</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp590</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp591</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp592</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-add" class="docTag" href="index.html#jsnum-AbstractNDArray-add">/** jsnum.AbstractNDArray.add(B)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp593</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Perform an element-wise addition with another array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp594</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Number | NDArray } B the number or elements to add to<br/><span class="lineNum">
+&nbsp&nbsp&nbsp595</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp596</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns a new array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp597</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp598</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.add = function (B) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp599</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.copy().addHere(B);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp600</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp601</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp602</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp603</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-subHere" class="docTag" href="index.html#jsnum-AbstractNDArray-subHere">/** jsnum.AbstractNDArray.subHere(B)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp604</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Replace this array with an element-wise subtraction with B.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp605</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Number | NDArray } B the number or elements to subtract<br/><span class="lineNum">
+&nbsp&nbsp&nbsp606</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from this array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp607</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns this n-dimensional array (chainable)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp608</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp609</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.subHere = function (B) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp610</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (typeof B === 'number') {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp611</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp612</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, this.val(index) - B);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp613</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp614</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp615</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp616</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (B.getElement === undefined) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp617</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("B must be an NDArray or number");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp618</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp619</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp620</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!this.hasShape(B.shape)) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp621</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("B must have the same shape as this");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp622</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp623</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp624</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp625</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, this.val(index) - B.val(index));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp626</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp627</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp628</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp629</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp630</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-sub" class="docTag" href="index.html#jsnum-AbstractNDArray-sub">/** jsnum.AbstractNDArray.sub(B)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp631</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Perform an element-wise subtraction with B.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp632</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Number | NDArray } B the number or elements to subtract<br/><span class="lineNum">
+&nbsp&nbsp&nbsp633</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from this array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp634</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns a new array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp635</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp636</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.sub = function (B) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp637</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.copy().subHere(B);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp638</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp639</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp640</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp641</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-mulHere" class="docTag" href="index.html#jsnum-AbstractNDArray-mulHere">/** jsnum.AbstractNDArray.mulHere(B)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp642</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Replace this array with an element-wise product with B.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp643</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Number | NDArray } B the number or elements to multiply<br/><span class="lineNum">
+&nbsp&nbsp&nbsp644</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; by this array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp645</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns this n-dimensional array (chainable)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp646</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp647</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.mulHere = function (B) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp648</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (typeof B === 'number') {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp649</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp650</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, this.val(index) * B);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp651</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp652</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp653</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp654</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (B.getElement === undefined) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp655</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("B must be an NDArray or number");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp656</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp657</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp658</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!this.hasShape(B.shape)) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp659</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("B must have the same shape as this");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp660</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp661</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp662</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp663</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, this.val(index) * B.val(index));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp664</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp665</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp666</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp667</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp668</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-mul" class="docTag" href="index.html#jsnum-AbstractNDArray-mul">/** jsnum.AbstractNDArray.mul(B)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp669</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Perform an element-wise multiplication with another array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp670</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Number | NDArray } B the number or elements to multiply<br/><span class="lineNum">
+&nbsp&nbsp&nbsp671</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; by this array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp672</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns a new array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp673</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp674</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.mul = function (B) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp675</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.copy().mulHere(B);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp676</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp677</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp678</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp679</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-divHere" class="docTag" href="index.html#jsnum-AbstractNDArray-divHere">/** jsnum.AbstractNDArray.divHere(B)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp680</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Replace this array with an element-wise division by B.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp681</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Number | NDArray } B the number or elements by which to<br/><span class="lineNum">
+&nbsp&nbsp&nbsp682</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; divide this array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp683</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns this n-dimensional array (chainable)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp684</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp685</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.divHere = function (B) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp686</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (typeof B === 'number') {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp687</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp688</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, this.val(index) / B);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp689</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp690</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp691</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp692</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (B.getElement === undefined) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp693</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("B must be an NDArray or number");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp694</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp695</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp696</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!this.hasShape(B.shape)) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp697</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("B must have the same shape as this");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp698</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp699</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp700</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp701</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, this.val(index) / B.val(index));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp702</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp703</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp704</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp705</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-div" class="docTag" href="index.html#jsnum-AbstractNDArray-div">/** jsnum.AbstractNDArray.div(B)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp706</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Perform an element-wise division by another array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp707</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Number | NDArray } B the number or elements by which to<br/><span class="lineNum">
+&nbsp&nbsp&nbsp708</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; divide this array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp709</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns a new array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp710</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp711</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.div = function (B) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp712</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.copy().divHere(B);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp713</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp714</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp715</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp716</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-negHere" class="docTag" href="index.html#jsnum-AbstractNDArray-negHere">/** jsnum.AbstractNDArray.negHere()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp717</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Replace this array with its element-wise negation.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp718</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns this n-dimensional array (chainable)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp719</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp720</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.negHere = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp721</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp722</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, -this.val(index));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp723</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp724</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp725</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp726</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-neg" class="docTag" href="index.html#jsnum-AbstractNDArray-neg">/** jsnum.AbstractNDArray.neg()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp727</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Perform an element-wise negation.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp728</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns a new array<br/><span class="lineNum">
+&nbsp&nbsp&nbsp729</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp730</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.neg = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp731</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.copy().negHere();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp732</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp733</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp734</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp735</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-sum" class="docTag" href="index.html#jsnum-AbstractNDArray-sum">/** jsnum.AbstractNDArray.sum()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp736</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Calculate the sum of all of the elements in this array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp737</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp738</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.sum = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp739</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var total = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp740</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp741</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; total += this.val(index);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp742</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp743</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return total;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp744</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp745</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp746</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp747</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-toArray" class="docTag" href="index.html#jsnum-AbstractNDArray-toArray">/** jsnum.AbstractNDArray.toArray()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp748</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Convert this NDArray to a nested Array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp749</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp750</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.toArray = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp751</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var i, result = [];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp752</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp753</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (this.shape.length === 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp754</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.val();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp755</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp756</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp757</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; this.shape[0]; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp758</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result[i] = this.at([i]).toArray();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp759</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp760</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp761</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp762</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp763</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp764</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp765</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-transpose" class="docTag" href="index.html#jsnum-AbstractNDArray-transpose">/** jsnum.AbstractNDArray.transpose()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp766</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Get the transpose of this array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp767</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; For a 0 or 1 dimensional array, this is just the array itself.&nbsp; For<br/><span class="lineNum">
+&nbsp&nbsp&nbsp768</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; a 2 dimensional array or higher, the order of the indexing of the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp769</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; dimensions is reversed.&nbsp; Note that for a matrix, this is the same<br/><span class="lineNum">
+&nbsp&nbsp&nbsp770</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; as the matrix transpose.&nbsp; The transpose is a new view of the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp771</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; original array, i.e. calling setElement will change the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp772</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; corresponding element in the original array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp773</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp774</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns The transpose of this array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp775</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp776</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.transpose = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp777</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var that = this, newShape, i, permutation = [], result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp778</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp779</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = this.shape.length - 1; i &gt;= 0; i -= 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp780</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; permutation[i] = this.shape.length - 1 - i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp781</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp782</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp783</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function permute(index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp784</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var newIndex = [];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp785</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp786</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = that.shape.length - 1; i &gt;= 0; i -= 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp787</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; newIndex[i] = index[permutation[i]];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp788</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp789</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp790</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return newIndex;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp791</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp792</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp793</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; newShape = permute(this.shape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp794</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp795</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = Object.create(AbstractNDArray.prototype);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp796</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp797</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Object.defineProperty(result, "shape",<br/><span class="lineNum">
+&nbsp&nbsp&nbsp798</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { value : newShape, writable : false });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp799</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp800</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result.getElement = function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp801</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return that.val(permute(index));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp802</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp803</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp804</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!this.isReadOnly()) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp805</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result.setElement = function (index, value) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp806</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; that.setElement(permute(index), value);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp807</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp808</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp809</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp810</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp811</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp812</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp813</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp814</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp815</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-val" class="docTag" href="index.html#jsnum-AbstractNDArray-val">/** jsnum.AbstractNDArray.val(index)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp816</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Gets a particular element from the array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp817</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This is similar to&nbsp; getElement, but provides better error checking<br/><span class="lineNum">
+&nbsp&nbsp&nbsp818</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; and support for negative indexes.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp819</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp820</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param {Array&lt;int&gt;} index The index of the element to retrieve<br/><span class="lineNum">
+&nbsp&nbsp&nbsp821</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (optional for a 0-D array).<br/><span class="lineNum">
+&nbsp&nbsp&nbsp822</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp823</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.val = function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp824</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp825</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp826</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (index === undefined) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp827</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; index = [];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp828</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp829</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.checkIndexes(index);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp830</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; index = index.slice(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp831</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp832</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp833</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // handle negative indexes<br/><span class="lineNum">
+&nbsp&nbsp&nbsp834</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = index.length - 1; i &gt;= 0; i -= 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp835</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (index[i] &lt; 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp836</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; index[i] += this.shape[i];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp837</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp838</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp839</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp840</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.getElement(index);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp841</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp842</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp843</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp844</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-toString" class="docTag" href="index.html#jsnum-AbstractNDArray-toString">/** jsnum.AbstractNDArray.toString()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp845</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * Create a human-readable text version of the array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp846</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp847</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.toString = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp848</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var fieldWidth;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp849</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp850</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function padLeft(value, width) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp851</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var result = String(value);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp852</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp853</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (result.length &lt; width) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp854</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = ' ' + result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp855</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp856</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp857</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp858</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp859</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp860</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp861</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function getMaxFieldWidth(array, minFieldWidth) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp862</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var result, i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp863</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp864</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (array.shape.length === 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp865</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return Math.max(minFieldWidth,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp866</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; String(array.val()).length);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp867</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp868</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp869</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = minFieldWidth;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp870</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp871</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; array.shape[0]; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp872</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = getMaxFieldWidth(array.at([i]), result);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp873</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp874</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp875</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp876</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp877</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fieldWidth = getMaxFieldWidth(this, 0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp878</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp879</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function format1D(array, fieldWidth) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp880</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var result, i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp881</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp882</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = '[ ';<br/><span class="lineNum">
+&nbsp&nbsp&nbsp883</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; array.shape[0]; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp884</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result += padLeft(array.val([i]), fieldWidth);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp885</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (i &lt; array.shape[0] - 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp886</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result += ', ';<br/><span class="lineNum">
+&nbsp&nbsp&nbsp887</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp888</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result += ' ]';<br/><span class="lineNum">
+&nbsp&nbsp&nbsp889</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp890</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp891</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp892</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp893</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp894</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp895</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function format2D(array, fieldWidth, indent) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp896</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var result, i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp897</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp898</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = padLeft('', indent) + '[';<br/><span class="lineNum">
+&nbsp&nbsp&nbsp899</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; array.shape[0]; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp900</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result += format1D(array.at([i]), fieldWidth);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp901</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (i &lt; array.shape[0] - 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp902</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result += ',\n' + padLeft('', indent + 1);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp903</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp904</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result += ']';<br/><span class="lineNum">
+&nbsp&nbsp&nbsp905</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp906</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp907</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp908</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp909</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp910</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp911</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function formatND(array, fieldWidth, indent) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp912</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var result, i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp913</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp914</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (array.shape.length === 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp915</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = '( ' + array.val() + ' )';<br/><span class="lineNum">
+&nbsp&nbsp&nbsp916</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (array.shape.length === 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp917</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = format1D(array, fieldWidth);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp918</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (array.shape.length === 2) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp919</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = format2D(array, fieldWidth, indent);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp920</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp921</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = padLeft('', indent) + '[\n';<br/><span class="lineNum">
+&nbsp&nbsp&nbsp922</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; array.shape[0]; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp923</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result += formatND(array.at([i]), fieldWidth,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp924</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; indent + 1);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp925</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (i &lt; array.shape[0] - 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp926</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result += ',\n\n';<br/><span class="lineNum">
+&nbsp&nbsp&nbsp927</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp928</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result += '\n' + padLeft('', indent) + ']';<br/><span class="lineNum">
+&nbsp&nbsp&nbsp929</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp930</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp931</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp932</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp933</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp934</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp935</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp936</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return formatND(this, fieldWidth, 0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp937</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp938</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp939</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp940</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-checkShape" class="docTag" href="index.html#jsnum-AbstractNDArray-checkShape">/** jsnum.AbstractNDArray.checkShape(shape)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp941</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Verify that the argument is a valid shape for an n-D array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp942</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; A valid shape must be a JavasScript array of non-negative integers.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp943</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { Array&lt;int&gt; } shape The shape array to check.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp944</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @throws { TypeError | RangeError }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp945</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp946</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.checkShape = function (shape) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp947</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp948</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp949</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!Array.isArray(shape)) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp950</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError(<br/><span class="lineNum">
+&nbsp&nbsp&nbsp951</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Non-array given as a shape."<br/><span class="lineNum">
+&nbsp&nbsp&nbsp952</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; );<br/><span class="lineNum">
+&nbsp&nbsp&nbsp953</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp954</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp955</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; shape.length; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp956</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (typeof shape[i] !== 'number') {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp957</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError(<br/><span class="lineNum">
+&nbsp&nbsp&nbsp958</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Encountered non-numeric length \"" +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp959</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; shape[i] + "\"."<br/><span class="lineNum">
+&nbsp&nbsp&nbsp960</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; );<br/><span class="lineNum">
+&nbsp&nbsp&nbsp961</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp962</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp963</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (shape[i] &lt;= 0 || isNaN(shape[i])) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp964</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError(<br/><span class="lineNum">
+&nbsp&nbsp&nbsp965</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Encountered non-positive length " + shape[i]<br/><span class="lineNum">
+&nbsp&nbsp&nbsp966</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; );<br/><span class="lineNum">
+&nbsp&nbsp&nbsp967</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp968</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp969</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (shape[i] !== Math.floor(shape[i])) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp970</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("Non-integer length " + shape[i]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp971</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp972</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp973</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp974</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp975</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp976</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jsnum.AbstractNDArray = AbstractNDArray;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp977</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp978</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return AbstractNDArray;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp979</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp980</span>&nbsp&nbsp&nbsp&nbsp);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp981</span>&nbsp&nbsp&nbsp&nbsp
+</code></div></body>
+</html>

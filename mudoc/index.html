@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Documentation for the jsnum library</title>
+<link rel="stylesheet" type="text/css" href="mudoc.css"/>
+</head>
+<body class="documentationIndexPage">
+<div class="mainColumn">
+<h1>Documentation for the jsnum library</h1>
+<div class="namespaceIndex">
+<h2>Contents</h2>
+<ul>
+<li class="indexNode"><a href="#jsnum">jsnum</a><ul>
+<li class="indexLeaf"><a href="#jsnum-areClose">areClose</a></li>
+<li class="indexLeaf"><a href="#jsnum-asNDArray">asNDArray</a></li>
+<li class="indexLeaf"><a href="#jsnum-eps">eps</a></li>
+<li class="indexLeaf"><a href="#jsnum-eye">eye</a></li>
+<li class="indexLeaf"><a href="#jsnum-NumericalError">NumericalError</a></li>
+<li class="indexLeaf"><a href="#jsnum-solveLinearSystem">solveLinearSystem</a></li>
+<li class="indexLeaf"><a href="#jsnum-UntypedNDArray">UntypedNDArray</a></li>
+<li class="indexNode"><a href="#jsnum-AbstractNDArray">AbstractNDArray</a><ul>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-abs">abs</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-add">add</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-addHere">addHere</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-argMax">argMax</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-argMin">argMin</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-at">at</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-bidiagonalization">bidiagonalization</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-checkIndexes">checkIndexes</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-checkShape">checkShape</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-conditionNumber">conditionNumber</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-copy">copy</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-createResult">createResult</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-det">det</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-div">div</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-divHere">divHere</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-dot">dot</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-getElement">getElement</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-givensRotation">givensRotation</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-hasShape">hasShape</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-householderTransform">householderTransform</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-inverse">inverse</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-isOrthogonal">isOrthogonal</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-isReadOnly">isReadOnly</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-LUDecomposition">LUDecomposition</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-max">max</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-min">min</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-mul">mul</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-mulHere">mulHere</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-neg">neg</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-negHere">negHere</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-norm">norm</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-nullity">nullity</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-nullspace">nullspace</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-pseudoinverse">pseudoinverse</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-range">range</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-rank">rank</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-reciprocal">reciprocal</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-set">set</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-setElement">setElement</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-shape">shape</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-singularValueDecomposition">singularValueDecomposition</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-sub">sub</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-subHere">subHere</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-sum">sum</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-swap">swap</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-toArray">toArray</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-transpose">transpose</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-val">val</a></li>
+<li class="indexLeaf"><a href="#jsnum-AbstractNDArray-walkIndexes">walkIndexes</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="jsnum" class="namespaceNode">
+<a class="sourceLink" href="src-jsnum-base_js.html#jsnum">src/jsnum-base.js:10</a>
+<h2 class="functionTitle"><span class="namespacePrefix"></span>jsnum</h2>
+<p>The central module for the JSNum library.</p>
+<div classname="memberList"><h3>Members</h3><dl>
+<dt><a href="#jsnum-AbstractNDArray">AbstractNDArray</a></dt><dd>A base class for n-dimensional arrays.</dd>
+<dt><a href="#jsnum-areClose">areClose</a></dt><dd>Checks if two numbers or NDArrays are sufficiently "close".</dd>
+<dt><a href="#jsnum-asNDArray">asNDArray</a></dt><dd>Create an ND array from the given nested Array.</dd>
+<dt><a href="#jsnum-eps">eps</a></dt><dd>Machine epsilon.</dd>
+<dt><a href="#jsnum-eye">eye</a></dt><dd>Create an `N xx N` identity matrix.</dd>
+<dt><a href="#jsnum-NumericalError">NumericalError</a></dt><dd>An exception for numerical errors.</dd>
+<dt><a href="#jsnum-solveLinearSystem">solveLinearSystem</a></dt><dd>Solve a linear system of the form `A x = b`.</dd>
+<dt><a href="#jsnum-UntypedNDArray">UntypedNDArray</a></dt><dd>An implementation of an NDArray that stores data with any type.</dd>
+</dl></div>
+<h3>Description</h3>
+<p>The central module for the JSNum library.     </p>
+<div id="jsnum-areClose" class="namespaceLeaf">
+<a class="sourceLink" href="src-jsnum_js.html#jsnum-areClose">src/jsnum.js:143</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.</span>areClose(val1, val2, abstol, reltol)</h3>
+<p>Checks if two numbers or NDArrays are sufficiently "close".  This is true iff the numbers (or corresponding array elements)  are within abstol of each other or if the ratio of the numbers is  within reltol of 1.  @param {Number | NDArray} val1 the first number to compare  @param {Number | NDArray} val2 the second number to compare  @param {Number} abstol the absolute tolerance  @param {Number} reltol the relative tolerance  @result true iff the numbers are close, otherwise false         </p>
+</div>
+<div id="jsnum-asNDArray" class="namespaceLeaf">
+<a class="sourceLink" href="src-jsnum_js.html#jsnum-asNDArray">src/jsnum.js:89</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.</span>asNDArray(vals)</h3>
+<p>Create an ND array from the given nested Array. This allows easy conversion from JavaScript arrays to n-dimensional arrays.  Note that this function can not create an array containing elements that are themselves arrays (the syntax would be ambiguous). @param vals A single (non-array) value or nested arrays describing     an n-dimensional array. @returns An writable n-dimensional array containing a copy of the     data in vals.         </p>
+</div>
+<div id="jsnum-eps" class="namespaceLeaf">
+<a class="sourceLink" href="src-jsnum_js.html#jsnum-eps">src/jsnum.js:350</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.</span>eps</h3>
+<p>Machine epsilon.  The value 1 + eps is the smallest number greater than one that can  be represented with JavaScript's floating point arithmetic.  This  gives the limit of roundoff error for computations; for example  1 + eps/2 will be rounded down to 1.         </p>
+</div>
+<div id="jsnum-eye" class="namespaceLeaf">
+<a class="sourceLink" href="src-jsnum_js.html#jsnum-eye">src/jsnum.js:201</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.</span>eye(N)</h3>
+<p>Create an `N xx N` identity matrix.</p>
+<p>  @param {Number} N the rank (size) of the identity matrix to create  @result an `N xx N` identity matrix.         </p>
+</div>
+<div id="jsnum-NumericalError" class="namespaceLeaf">
+<a class="sourceLink" href="src-jsnum_js.html#jsnum-NumericalError">src/jsnum.js:16</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.</span>NumericalError(message)</h3>
+<p>An exception for numerical errors.  This exception is thrown when a numerical problem occurs, such as a  singular matrix or an algorithm that fails to converge.  @constructor  @param message information about the cause of the error         </p>
+</div>
+<div id="jsnum-solveLinearSystem" class="namespaceLeaf">
+<a class="sourceLink" href="src-jsnum_js.html#jsnum-solveLinearSystem">src/jsnum.js:219</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.</span>solveLinearSystem(A, b, options)</h3>
+<p>Solve a linear system of the form `A x = b`.  By default this tries to find the exact solution for x using  `LU`-decomposition and will throw an error if an exact solution can not  be found (for example if A is singular or non-square).  If the  "returnClosest" option is set to true, this routine instead finds  the solution x which minimizes the error `||A x - b||_2` by using  singular value decomposition (which works for singular or  non-square matrices).</p>
+<p>  See pp 48-54, 69-73 in Press WH, Teukolsky SA, Vetterling WT,  Flannery BP.  Numerical Recipes 3rd Edition: The Art of Scientific  Computing.  3rd ed. Cambridge University Press; 2007.</p>
+<p>  @param {NDArray} A the matrix that is multiplied by the      unknown vector or matrix.  @param {NDArray} b the result vector (or matrix)  @param {Object} options additional options, such as returnClosest  @result a vector (or matrix) x such that `A x = b`         </p>
+</div>
+<div id="jsnum-UntypedNDArray" class="namespaceLeaf">
+<a class="sourceLink" href="src-jsnum_js.html#jsnum-UntypedNDArray">src/jsnum.js:30</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.</span>UntypedNDArray(shape)</h3>
+<p>An implementation of an NDArray that stores data with any type. This is likely to work for most uses, but more specialized types of NDArray are likely to have better performance and memory usage. @param { Array<int> } shape The length of each of the dimensions of      the new array. @constructor         </p>
+</div>
+<div id="jsnum-AbstractNDArray" class="namespaceNode">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray">src/AbstractNDArray.js:13</a>
+<h2 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.</span>AbstractNDArray</h2>
+<p>A base class for n-dimensional arrays.</p>
+<div classname="memberList"><h3>Members</h3><dl>
+<dt><a href="#jsnum-AbstractNDArray-abs">abs</a></dt><dd>Take the absolute value of each element in the array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-add">add</a></dt><dd>Perform an element-wise addition with another array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-addHere">addHere</a></dt><dd>Replace this array with an element-wise sum of this array and B.</dd>
+<dt><a href="#jsnum-AbstractNDArray-argMax">argMax</a></dt><dd>Returns the index of the largest number in the array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-argMin">argMin</a></dt><dd>Returns the index of the smallest number in the array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-at">at</a></dt><dd>Create a different view of elements in the array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-bidiagonalization">bidiagonalization</a></dt><dd>Compute a decomposition of this matrix into the form `A = U B V`.</dd>
+<dt><a href="#jsnum-AbstractNDArray-checkIndexes">checkIndexes</a></dt><dd>Checks a given list of indexes to make sure they are valid.</dd>
+<dt><a href="#jsnum-AbstractNDArray-checkShape">checkShape</a></dt><dd>Verify that the argument is a valid shape for an n-D array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-conditionNumber">conditionNumber</a></dt><dd>Compute the condition number of this matrix.</dd>
+<dt><a href="#jsnum-AbstractNDArray-copy">copy</a></dt><dd>Create a copy of this array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-createResult">createResult</a></dt><dd>Create an array for storing a mathematical result.</dd>
+<dt><a href="#jsnum-AbstractNDArray-det">det</a></dt><dd>Find the determinant of this matrix.</dd>
+<dt><a href="#jsnum-AbstractNDArray-div">div</a></dt><dd>Perform an element-wise division by another array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-divHere">divHere</a></dt><dd>Replace this array with an element-wise division by B.</dd>
+<dt><a href="#jsnum-AbstractNDArray-dot">dot</a></dt><dd>Perform a matrix product with another array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-getElement">getElement</a></dt><dd>Reads one element of the array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-givensRotation">givensRotation</a></dt><dd>Compute the Givens matrix of this vector.</dd>
+<dt><a href="#jsnum-AbstractNDArray-hasShape">hasShape</a></dt><dd>Convenience function for checking if this.shape equals shape.</dd>
+<dt><a href="#jsnum-AbstractNDArray-householderTransform">householderTransform</a></dt><dd>Compute the Householder transformation of this vector.</dd>
+<dt><a href="#jsnum-AbstractNDArray-inverse">inverse</a></dt><dd>Find the inverse of this matrix.</dd>
+<dt><a href="#jsnum-AbstractNDArray-isOrthogonal">isOrthogonal</a></dt><dd>Returns true iff this is an orthogonal matrix.</dd>
+<dt><a href="#jsnum-AbstractNDArray-isReadOnly">isReadOnly</a></dt><dd>Returns true if this is a read-only array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-LUDecomposition">LUDecomposition</a></dt><dd>Decomposes this matrix into three matrices, `P`, `L` and `U`.</dd>
+<dt><a href="#jsnum-AbstractNDArray-max">max</a></dt><dd>Returns the largest number in the array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-min">min</a></dt><dd>Returns the smallest number in the array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-mul">mul</a></dt><dd>Perform an element-wise multiplication with another array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-mulHere">mulHere</a></dt><dd>Replace this array with an element-wise product with B.</dd>
+<dt><a href="#jsnum-AbstractNDArray-neg">neg</a></dt><dd>Perform an element-wise negation.</dd>
+<dt><a href="#jsnum-AbstractNDArray-negHere">negHere</a></dt><dd>Replace this array with its element-wise negation.</dd>
+<dt><a href="#jsnum-AbstractNDArray-norm">norm</a></dt><dd>Calculate the `L_2` norm of the array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-nullity">nullity</a></dt><dd>Compute the nullity of this matrix.</dd>
+<dt><a href="#jsnum-AbstractNDArray-nullspace">nullspace</a></dt><dd>Compute the nullspace of this matrix.</dd>
+<dt><a href="#jsnum-AbstractNDArray-pseudoinverse">pseudoinverse</a></dt><dd>Find the pseudoinverse of this matrix.</dd>
+<dt><a href="#jsnum-AbstractNDArray-range">range</a></dt><dd>Compute the range of this matrix.</dd>
+<dt><a href="#jsnum-AbstractNDArray-rank">rank</a></dt><dd>Compute the rank of this matrix.</dd>
+<dt><a href="#jsnum-AbstractNDArray-reciprocal">reciprocal</a></dt><dd>Take the reciprocal of each element in the array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-set">set</a></dt><dd>Replace this the elements of this array with a new value or values.</dd>
+<dt><a href="#jsnum-AbstractNDArray-setElement">setElement</a></dt><dd>Sets the value of one element of the array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-shape">shape</a></dt><dd>The lengths of each dimension of the n-dimensional array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-singularValueDecomposition">singularValueDecomposition</a></dt><dd>Compute a decomposition of this matrix into the form `A = U D V`.</dd>
+<dt><a href="#jsnum-AbstractNDArray-sub">sub</a></dt><dd>Perform an element-wise subtraction with B.</dd>
+<dt><a href="#jsnum-AbstractNDArray-subHere">subHere</a></dt><dd>Replace this array with an element-wise subtraction with B.</dd>
+<dt><a href="#jsnum-AbstractNDArray-sum">sum</a></dt><dd>Calculate the sum of all of the elements in this array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-swap">swap</a></dt><dd>Swap the contents of this array with those in B.</dd>
+<dt><a href="#jsnum-AbstractNDArray-toArray">toArray</a></dt><dd>Convert this NDArray to a nested Array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-transpose">transpose</a></dt><dd>Get the transpose of this array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-val">val</a></dt><dd>Gets a particular element from the array.</dd>
+<dt><a href="#jsnum-AbstractNDArray-walkIndexes">walkIndexes</a></dt><dd>Calls a callback with every valid index for this array.</dd>
+</dl></div>
+<h3>Description</h3>
+<p>A base class for n-dimensional arrays.  This class provides a rich set of functionality building on a small  set of functions required in derived classes.  To create a new n-D  array class, you can simply create a new class inheriting from this  one that implements getElement, shape, and (for writable arrays)  setElement.         </p>
+<div id="jsnum-AbstractNDArray-abs" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-abs">src/AbstractNDArray.js:543</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>abs()</h3>
+<p>Take the absolute value of each element in the array.  Returns a new array containing the result.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-add" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-add">src/AbstractNDArray.js:592</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>add(B)</h3>
+<p>Perform an element-wise addition with another array.  @param { Number | NDArray } B the number or elements to add to      this array  @returns a new array         </p>
+</div>
+<div id="jsnum-AbstractNDArray-addHere" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-addHere">src/AbstractNDArray.js:565</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>addHere(B)</h3>
+<p>Replace this array with an element-wise sum of this array and B.  @param { Number | NDArray } B the number or elements to add to      this array  @returns this n-dimensional array (chainable)         </p>
+</div>
+<div id="jsnum-AbstractNDArray-argMax" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-argMax">src/AbstractNDArray.js:490</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>argMax()</h3>
+<p>Returns the index of the largest number in the array.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-argMin" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-argMin">src/AbstractNDArray.js:525</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>argMin()</h3>
+<p>Returns the index of the smallest number in the array.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-at" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-at">src/AbstractNDArray.js:298</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>at(indexes)</h3>
+<p>Create a different view of elements in the array.  Create a new n-D array object that provides a different view of  the data in this array based on the indexes provided.  Specifying  an integer for the index for a given dimension will bind that  index to that dimension in the new view, for example picking out  a particular row or column of the matrix (thus lowering the  number of dimensions by 1).  Giving a string containing a number  will create a new "dummy" dimension of the specified size.  Giving an Array with two elements will select a subrange of  the array along that dimension.</p>
+<p>  @param { Array } indexes An array of integers or undefined,      specifying which values to fix.  @returns A (writable) lower dimensional view of the given slice      of the original array.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-bidiagonalization" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-bidiagonalization">src/linalg.js:423</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>bidiagonalization()</h3>
+<p>Compute a decomposition of this matrix into the form `A = U B V`.  Here `A` is this matrix, `U` and `V` are orthogonal matrices, and `B` is  an upper bidiagonal matrix (i.e. is zero everywhere except for the  diagonal and the elements directly above it).  This is used as part  of computing the singular value decomposition but rarely used  directly.</p>
+<p>  Based on algorithm 5.4.2 (Householder bidiagonalization) in  Golub GH, Van Loan CF. Matrix Computations. 3rd ed. The Johns  Hopkins University Press; 1996.</p>
+<p>  @returns an object with the members U, B, and V         </p>
+</div>
+<div id="jsnum-AbstractNDArray-checkIndexes" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-checkIndexes">src/AbstractNDArray.js:112</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>checkIndexes(indexes, opts)</h3>
+<p>Checks a given list of indexes to make sure they are valid.  This function throws an exception if indexes is not an array of  integers with the same length as the shape.  If you would like  to allow undefined values (and shorter arrays), set  opts.allowUndefined to be true.  By default negative indexes  are allowed; to disable this set opts.nonnegative to true.  To  allow ranges (specified as a JavaScript array with up to two  elements giving the minimum and maximum), set opts.allowRange  to true.</p>
+<p>  @param { Array<int> } indexes The indexes to check.  @param { object | undefined } opts A dictionary of options.  @throws { TypeError | RangeError }  @returns The n-dimensional array (chainable)         </p>
+</div>
+<div id="jsnum-AbstractNDArray-checkShape" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-checkShape">src/AbstractNDArray.js:940</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>checkShape(shape)</h3>
+<p>Verify that the argument is a valid shape for an n-D array.  A valid shape must be a JavasScript array of non-negative integers.  @param { Array<int> } shape The shape array to check.  @throws { TypeError | RangeError }         </p>
+</div>
+<div id="jsnum-AbstractNDArray-conditionNumber" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-conditionNumber">src/linalg.js:647</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>conditionNumber()</h3>
+<p>Compute the condition number of this matrix. The condition number is equal to the largest singular value divided by the smallest.  This is a measure of how well behaved this matrix is likely to be in numerical computations, with larger condition numbers being given to matrices that are "more singular" and likely to behave poorly.</p>
+<p>  See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.  Numerical Recipes 3rd Edition: The Art of Scientific Computing.  3rd ed. Cambridge University Press; 2007.</p>
+<p> @returns the condition number         </p>
+</div>
+<div id="jsnum-AbstractNDArray-copy" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-copy">src/AbstractNDArray.js:96</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>copy()</h3>
+<p>Create a copy of this array.</p>
+<p>  @returns A new n-dimensional array containing a shallow copy     of the contents of this array.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-createResult" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-createResult">src/AbstractNDArray.js:80</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>createResult(shape)</h3>
+<p>Create an array for storing a mathematical result.  By default this is just an jsnum.UntypedNDArray, but  derived classes can overload this to specialize  the generated results based on what they know about the data  (for example it may be all 32 bit IEEE floating point).</p>
+<p>  @param { Array<int> } shape The length of each of the      dimensions of the new array.  @returns A new writable n-Dimensional array         </p>
+</div>
+<div id="jsnum-AbstractNDArray-det" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-det">src/linalg.js:287</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>det()</h3>
+<p>Find the determinant of this matrix.  If this is an `N xx N` square matrix this function finds the  determinant of the matrix, using jsnum.linSolve (which uses  `LU`-decomposition).  @returns The determinant of this matrix.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-div" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-div">src/AbstractNDArray.js:705</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>div(B)</h3>
+<p>Perform an element-wise division by another array.  @param { Number | NDArray } B the number or elements by which to      divide this array  @returns a new array         </p>
+</div>
+<div id="jsnum-AbstractNDArray-divHere" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-divHere">src/AbstractNDArray.js:679</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>divHere(B)</h3>
+<p>Replace this array with an element-wise division by B.  @param { Number | NDArray } B the number or elements by which to      divide this array  @returns this n-dimensional array (chainable)         </p>
+</div>
+<div id="jsnum-AbstractNDArray-dot" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-dot">src/linalg.js:50</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>dot(B)</h3>
+<p>Perform a matrix product with another array.  In particular, this function takes the dot product of the last  dimension of the first array (this) and the first dimension  of the second array (B).  This is equivalent to the dot product  for vectors and the matrix product for matrices, with vectors  being treated as rows when on the left and columns when on the  right.  @param { NDArray } B the other NDArray in the multiplication (on the right)  @returns A new NDArray         </p>
+</div>
+<div id="jsnum-AbstractNDArray-getElement" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-getElement">src/AbstractNDArray.js:33</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>getElement(index)</h3>
+<p>Reads one element of the array.  This must be overloaded in derived classes.</p>
+<p>  @param { Array<int> } index A list of indexes for the desired     element.</p>
+<p>  @returns The value of the array element at index         </p>
+</div>
+<div id="jsnum-AbstractNDArray-givensRotation" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-givensRotation">src/linalg.js:372</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>givensRotation()</h3>
+<p>Compute the Givens matrix of this vector.  This is a rotation matrix `G` that will zero the second element of  a vector.  This transformation is usually used as a  building block for other transforms and decompositions.</p>
+<p>  Based on algorithm 1 in:  Anderson, E, Discontinuous Plane Rotations and the Symmetric  Eigenvalue Problem. LAPACK Working Note 150, University of  Tennessee, UT-CS-00-454, December 4, 2000.</p>
+<p>  @returns a rotation matrix         </p>
+</div>
+<div id="jsnum-AbstractNDArray-hasShape" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-hasShape">src/AbstractNDArray.js:273</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>hasShape(shape)</h3>
+<p>Convenience function for checking if this.shape equals shape.  (since JavaScript doesn't do deep comparison of Arrays by  default)  @param { Array } The shape to compare with this.shape  @returns True iff this.shape matches shape         </p>
+</div>
+<div id="jsnum-AbstractNDArray-householderTransform" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-householderTransform">src/linalg.js:309</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>householderTransform()</h3>
+<p>Compute the Householder transformation of this vector.  This is a reflection across a hyperplane that will zero all but the  first element of this vector.  The transformation itself is a  reflection across a hyperplane that passes through the origin; thus  this reflection can be represented by an orthogonal matrix `P` which  applies the transform or by a vector `v` that is normal to the  hyperplane.  This function returns a vector v, a matrix P, and a  scalar beta such that `v_0 = 1`, `P = I - beta v v^t`, and `P * this`  has zeros everywhere except for the first element.  This  transformation is usually used as a building block for other  transforms and decompositions.</p>
+<p>  Based on algorithm 5.1.1 in  Golub GH, Van Loan CF. Matrix Computations. 3rd ed. The Johns  Hopkins University Press; 1996.</p>
+<p>  @returns an object with the members v (Householder vector),      P (Householder matrix), and beta         </p>
+</div>
+<div id="jsnum-AbstractNDArray-inverse" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-inverse">src/linalg.js:219</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>inverse()</h3>
+<p>Find the inverse of this matrix.  If this is an `N xx N` square non-singular matrix this function finds  the inverse of the matrix, using jsnum.linSolve (which uses  `LU`-decomposition).  For non-square or singular matrices, see  pseudoinverse.  @returns The inverse of this matrix.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-isOrthogonal" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-isOrthogonal">src/linalg.js:36</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>isOrthogonal()</h3>
+<p>Returns true iff this is an orthogonal matrix.  This is true iff the rows (and columns) are orthogonal unit  vectors, and implies that the transpose of the matrix is equal to  its inverse.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-isReadOnly" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-isReadOnly">src/AbstractNDArray.js:229</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>isReadOnly()</h3>
+<p>Returns true if this is a read-only array.  An array is read-only if the contents can not be modified. This is  the case if the setElement function of AbstractNDArray has not  been overridden.  If you need a non-read-only version of the array,  you can use jsnum.AbstractNDArray.copy() to create it.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-LUDecomposition" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-LUDecomposition">src/linalg.js:95</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>LUDecomposition()</h3>
+<p>Decomposes this matrix into three matrices, `P`, `L` and `U`.  Here is a row permutation matrix, `L` (lower) has no elements  above the diagonal, `U` (upper) has no elements below the  diagonal, and `P` `L` `U` = `A` where `A` is this matrix.</p>
+<p>  Uses Crout's algorithm with scaled partial pivoting.</p>
+<p>  See pp 48-54 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.  Numerical Recipes 3rd Edition: The Art of Scientific Computing.  3rd ed. Cambridge University Press; 2007.</p>
+<p>  @returns an object with the members, P (permutation),      L (lower), U (upper), and the intermediate results      p (the row permutations performed by P), p_epsilon (-1 iff p      is composed of an odd number of swaps, otherwise 1), and      decompositionType (set to "LU").         </p>
+</div>
+<div id="jsnum-AbstractNDArray-max" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-max">src/AbstractNDArray.js:473</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>max()</h3>
+<p>Returns the largest number in the array.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-min" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-min">src/AbstractNDArray.js:508</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>min()</h3>
+<p>Returns the smallest number in the array.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-mul" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-mul">src/AbstractNDArray.js:668</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>mul(B)</h3>
+<p>Perform an element-wise multiplication with another array.  @param { Number | NDArray } B the number or elements to multiply      by this array  @returns a new array         </p>
+</div>
+<div id="jsnum-AbstractNDArray-mulHere" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-mulHere">src/AbstractNDArray.js:641</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>mulHere(B)</h3>
+<p>Replace this array with an element-wise product with B.  @param { Number | NDArray } B the number or elements to multiply      by this array  @returns this n-dimensional array (chainable)         </p>
+</div>
+<div id="jsnum-AbstractNDArray-neg" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-neg">src/AbstractNDArray.js:726</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>neg()</h3>
+<p>Perform an element-wise negation.  @returns a new array         </p>
+</div>
+<div id="jsnum-AbstractNDArray-negHere" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-negHere">src/AbstractNDArray.js:716</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>negHere()</h3>
+<p>Replace this array with its element-wise negation.  @returns this n-dimensional array (chainable)         </p>
+</div>
+<div id="jsnum-AbstractNDArray-norm" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-norm">src/linalg.js:13</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>norm()</h3>
+<p>Calculate the `L_2` norm of the array.  This is the square root of the sum of the squares of all of the  elements in this array.  For a vector, this is the Euclidean norm,  and for a matrix, this is the Frobenius norm.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-nullity" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-nullity">src/linalg.js:698</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>nullity()</h3>
+<p>Compute the nullity of this matrix. The nullity is the number of dimensions in the matrix's nullspace.</p>
+<p>  See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.  Numerical Recipes 3rd Edition: The Art of Scientific Computing.  3rd ed. Cambridge University Press; 2007.</p>
+<p> @returns the nullity (a non-negative integer)         </p>
+</div>
+<div id="jsnum-AbstractNDArray-nullspace" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-nullspace">src/linalg.js:747</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>nullspace()</h3>
+<p>Compute the nullspace of this matrix.</p>
+<p>  The nullspace is the space spanned by input vectors that this matrix  will map to the null null vector, i.e. all vectors `x` where `A x = 0`.</p>
+<p>  See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.  Numerical Recipes 3rd Edition: The Art of Scientific Computing.  3rd ed. Cambridge University Press; 2007.</p>
+<p>  @returns A matrix whose rows form an orthogonal basis set for the  nullspace, or null if the matrix has no nullspace         </p>
+</div>
+<div id="jsnum-AbstractNDArray-pseudoinverse" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-pseudoinverse">src/linalg.js:250</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>pseudoinverse(options)</h3>
+<p>Find the pseudoinverse of this matrix.  This is identical to the inverse if it exists  (in which case the inverse function is likely to be faster).  It can be also used in cases where the inverse does not exist,  however, such as singular matrices and rectangular matrices.  In these cases this will be a matrix that is in some sense as  "close" as possible to being an inverse (e.g. minimizing the  error when solving a linear system).  The pseudoinverse is  found using singular value decomposition.  @returns The pseudoinverse of this matrix.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-range" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-range">src/linalg.js:714</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>range()</h3>
+<p>Compute the range of this matrix.  The range is the space of  possible results when multiplying this by a vector, that is  all vectors `b` where there exists `x` such that `b = A x`.</p>
+<p>  See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.  Numerical Recipes 3rd Edition: The Art of Scientific Computing.  3rd ed. Cambridge University Press; 2007.</p>
+<p> @returns A matrix whose rows form an orthogonal basis set for the range, or null if the matrix has no range         </p>
+</div>
+<div id="jsnum-AbstractNDArray-rank" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-rank">src/linalg.js:671</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>rank()</h3>
+<p>Compute the rank of this matrix. The rank is the number of linearly independent rows, which is also the dimension of the range.</p>
+<p>  See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.  Numerical Recipes 3rd Edition: The Art of Scientific Computing.  3rd ed. Cambridge University Press; 2007.</p>
+<p> @returns the rank (a non-negative integer)         </p>
+</div>
+<div id="jsnum-AbstractNDArray-reciprocal" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-reciprocal">src/AbstractNDArray.js:554</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>reciprocal()</h3>
+<p>Take the reciprocal of each element in the array.  Returns a new array containing the result.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-set" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-set">src/AbstractNDArray.js:431</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>set(B)</h3>
+<p>Replace this the elements of this array with a new value or values.  If B is not an NDArray, all of the elements of this array will be  set to B.  If B is an NDArray, it should be the same shape as this  and specify the new elements of the array for every position in the  array.  @param { ... | NDArray } B The new value or or NDArray of new values  @returns this n-dimensional array (chainable)         </p>
+</div>
+<div id="jsnum-AbstractNDArray-setElement" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-setElement">src/AbstractNDArray.js:49</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>setElement(index, newValue)</h3>
+<p>Sets the value of one element of the array.  This must be overloaded in derived classes if the array is not  read only.</p>
+<p>  @param { Array<int> } index A list of indexes for the desired     element.  @param newValue The new value to assign to the array element at     index.  @returns The array (chainable)  @abstract         </p>
+</div>
+<div id="jsnum-AbstractNDArray-shape" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-shape">src/AbstractNDArray.js:67</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>shape</h3>
+<p>The lengths of each dimension of the n-dimensional array.  This must be overloaded in derived classe  @type Array<int>  @readonly         </p>
+</div>
+<div id="jsnum-AbstractNDArray-singularValueDecomposition" class="namespaceLeaf">
+<a class="sourceLink" href="src-linalg_js.html#jsnum-AbstractNDArray-singularValueDecomposition">src/linalg.js:472</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>singularValueDecomposition()</h3>
+<p>Compute a decomposition of this matrix into the form `A = U D V`.  Here `A` is this matrix, `U` and `V` are orthogonal matrices, and `D` is  a diagonal matrix (i.e. is zero everywhere except for the  diagonal).</p>
+<p>  Based on algorithms 8.6.1 and 8.62 in  Golub GH, Van Loan CF. Matrix Computations. 3rd ed. The Johns  Hopkins University Press; 1996.</p>
+<p>  @returns an object with the members U, B, V, and decompositionType  (set to "Singular Value").         </p>
+</div>
+<div id="jsnum-AbstractNDArray-sub" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-sub">src/AbstractNDArray.js:630</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>sub(B)</h3>
+<p>Perform an element-wise subtraction with B.  @param { Number | NDArray } B the number or elements to subtract      from this array  @returns a new array         </p>
+</div>
+<div id="jsnum-AbstractNDArray-subHere" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-subHere">src/AbstractNDArray.js:603</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>subHere(B)</h3>
+<p>Replace this array with an element-wise subtraction with B.  @param { Number | NDArray } B the number or elements to subtract      from this array  @returns this n-dimensional array (chainable)         </p>
+</div>
+<div id="jsnum-AbstractNDArray-sum" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-sum">src/AbstractNDArray.js:735</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>sum()</h3>
+<p>Calculate the sum of all of the elements in this array.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-swap" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-swap">src/AbstractNDArray.js:457</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>swap(B)</h3>
+<p>Swap the contents of this array with those in B.  Combined with  at, this allows you to do things like swap rows or columns.  @param { NDArray } B the array with which to swap elements  @returns this n-dimensional array (chainable)         </p>
+</div>
+<div id="jsnum-AbstractNDArray-toArray" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-toArray">src/AbstractNDArray.js:747</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>toArray()</h3>
+<p>Convert this NDArray to a nested Array.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-transpose" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-transpose">src/AbstractNDArray.js:765</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>transpose()</h3>
+<p>Get the transpose of this array.  For a 0 or 1 dimensional array, this is just the array itself.  For  a 2 dimensional array or higher, the order of the indexing of the  dimensions is reversed.  Note that for a matrix, this is the same  as the matrix transpose.  The transpose is a new view of the  original array, i.e. calling setElement will change the  corresponding element in the original array.</p>
+<p>  @returns The transpose of this array.         </p>
+</div>
+<div id="jsnum-AbstractNDArray-val" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-val">src/AbstractNDArray.js:815</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>val(index)</h3>
+<p>Gets a particular element from the array.  This is similar to  getElement, but provides better error checking  and support for negative indexes.</p>
+<p>  @param {Array<int>} index The index of the element to retrieve      (optional for a 0-D array).         </p>
+</div>
+<div id="jsnum-AbstractNDArray-walkIndexes" class="namespaceLeaf">
+<a class="sourceLink" href="src-AbstractNDArray_js.html#jsnum-AbstractNDArray-walkIndexes">src/AbstractNDArray.js:242</a>
+<h3 class="functionTitle"><span class="namespacePrefix"><a href="#jsnum">jsnum&#8203;</a>.<a href="#jsnum-AbstractNDArray">AbstractNDArray&#8203;</a>.</span>walkIndexes(callback)</h3>
+<p>Calls a callback with every valid index for this array.  This is useful when you want to perform an operation on every  element element of the array.  The callback passed a single  parameter which is the index to process.  The this  variable for the callback is set to the original array.  @param { function } callback A function to be called with each      index  @returns The n-dimensional array (chainable)         </p>
+</div>
+</div>
+</div>
+
+<div><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script></body>
+</html>

@@ -1,0 +1,144 @@
+.documentationIndexPage {
+}
+.sourceCodeListingPage {
+}
+body {
+    background-color: #506080;
+    background-image: -webkit-linear-gradient(-2deg, #607090, #506080 200px, #202040 1500px, #101020);
+    background-image: -moz-linear-gradient(-2deg, #607090, #506080 200px, #202040 1500px, #101020);
+    background-image: -ms-linear-gradient(-2deg, #607090, #506080 200px, #202040 1500px, #101020);
+    background-image: -o-linear-gradient(-2deg, #607090, #506080 200px, #202040 1500px, #101020);
+    background-image: linear-gradient(-2deg, #607090, #506080 200px, #202040 1500px, #101020);
+    background-position: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.mainColumn {
+    max-width: 800px;
+    min-width: 300px;
+    margin: 0px auto;
+    background-color: white;
+    background-image: -webkit-linear-gradient(0deg, #FFFFF8, #FCFCFC 70%, #F8F8FF);
+    background-image: -moz-linear-gradient(0deg, #FFFFF8, #FCFCFC 70%, #F8F8FF);
+    background-image: -ms-linear-gradient(0deg, #FFFFF8, #FCFCFC 70%, #F8F8FF);
+    background-image: -o-linear-gradient(0deg, #FFFFF8, #FCFCFC 70%, #F8F8FF);
+    background-image: linear-gradient(0deg, #FFFFF8, #FCFCFC 70%, #F8F8FF);
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 20px;
+    padding-bottom: 60px;
+}
+.sourceCodeListingPage .mainColumn {
+    font-size: 0.8em;
+    width: 800px;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Palatino Linotype", "Palatino", "URW Palladio L", serif;
+}
+h1 {
+    border-bottom: 2px #808080 solid;
+    padding-bottom: 5px;
+    margin-bottom: 30px;
+}
+h2 {
+    font-weight: bold;
+    font-size: 1.3em;
+    margin-top: 40px;
+    margin-bottom: 10px;
+    padding-bottom: 0px;
+}
+.namespaceNode > h2 {
+    border-bottom: 2px #808080 solid;
+}
+.functionTitle .namespacePrefix, .functionTitle .namespacePrefix a {
+    color: #888;
+}
+.functionTitle .namespacePrefix a:hover {
+    color: #000080;
+}
+h3 {
+    margin-left: 20px;
+    margin-bottom: 10px;
+    padding-bottom: 0px;
+}
+h3.functionTitle {
+    margin-top: 30px;
+}
+.namespaceLeaf h3 {
+    margin-left: 20px;
+}
+p {
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 5px;
+    padding-top: 0px;
+    margin-bottom: 8px;
+    padding-bottom: 0px;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
+    -o-hyphens: auto;
+    hyphens: auto;
+    text-align: justify;
+}
+.namespaceLeaf p {
+    margin-left: 40px;
+}
+dl {
+    margin-top: 0px;
+    padding-top: 0px;
+}
+dt, dd, p, li {
+    font-family: "Linux Libertine O", Times, "Times New Roman", serif;
+}
+dt {
+    font-weight: bold;
+    margin-left: 40px;
+}
+dd {
+    margin-left: 60px;
+}
+li.indexLeaf {
+    display: inline;
+    padding: 0;
+    margin: 0;
+    padding-right: 10px;
+}
+li.indexNode {
+    display: block;
+    padding: 0;
+    margin: 0;
+}
+ul, ol {
+    padding: 0 0 0 20px;
+    margin: 0;
+}
+a {
+    text-decoration: none;
+}
+a:hover {
+    color: #F00080;
+}
+.docTag {
+    text-decoration: none;
+    color: #2020F0;
+}
+.docTag:hover {
+    text-decoration: none;
+    color: #F00080;
+}
+.sourceLink {
+    font-size: 1em;
+    font-weight: normal;
+    font-family: "Linux Libertine O", Times, "Times New Roman", serif;
+    margin-left: 20px;
+    margin-right: 20px;
+    float: right;
+}
+.lineNum {
+    color: #808080;
+}
+code {
+    font-family: "DejaVu Sans Mono", "Andale Mono", Consolas, monospace;
+}
+

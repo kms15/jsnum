@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>src/linalg.js</title>
+<link rel="stylesheet" type="text/css" href="mudoc.css"/>
+</head>
+<body class="sourceCodeListingPage"><div class="mainColumn">
+<h1>src/linalg.js</h1><code>
+<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp1</span>&nbsp&nbsp&nbsp&nbsp/*global define */<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp2</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp3</span>&nbsp&nbsp&nbsp&nbsp/*&nbsp; This file adds several methods to AbstractNDArray to support<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp4</span>&nbsp&nbsp&nbsp&nbsp *&nbsp; numerical linear algebraic computations.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp5</span>&nbsp&nbsp&nbsp&nbsp *&nbsp; @copyright (c) 2012 Kendrick Shaw<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp6</span>&nbsp&nbsp&nbsp&nbsp */<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp7</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp8</span>&nbsp&nbsp&nbsp&nbspdefine(<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp&nbsp9</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; ["src/jsnum-base", "src/AbstractNDArray"],<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp10</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; function (jsnum, AbstractNDArray) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp11</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "use strict";<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp12</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp13</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-norm" class="docTag" href="index.html#jsnum-AbstractNDArray-norm">/** jsnum.AbstractNDArray.norm()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp14</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Calculate the `L_2` norm of the array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp15</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This is the square root of the sum of the squares of all of the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp16</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; elements in this array.&nbsp; For a vector, this is the Euclidean norm,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp17</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; and for a matrix, this is the Frobenius norm.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp18</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp19</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.norm = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp20</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var total = 0, scale;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp21</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp22</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var val = this.val(index);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp23</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; total += val * val;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp24</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp25</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp26</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (total === Infinity) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp27</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // vector too large to square; scale it by absmax first<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp28</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scale = this.abs().max();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp29</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return scale * this.div(scale).norm();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp30</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp31</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp32</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return Math.sqrt(total);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp33</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp34</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp35</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp36</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-isOrthogonal" class="docTag" href="index.html#jsnum-AbstractNDArray-isOrthogonal">/** jsnum.AbstractNDArray.isOrthogonal()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp37</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Returns true iff this is an orthogonal matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp38</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This is true iff the rows (and columns) are orthogonal unit<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp39</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; vectors, and implies that the transpose of the matrix is equal to<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp40</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; its inverse.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp41</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp42</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.isOrthogonal = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp43</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (this.shape.length !== 2 || this.shape[0] !== this.shape[1]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp44</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return false;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp45</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp46</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return jsnum.areClose(this.dot(this.transpose()), jsnum.eye(this.shape[0]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp47</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp48</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp49</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp50</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-dot" class="docTag" href="index.html#jsnum-AbstractNDArray-dot">/** jsnum.AbstractNDArray.dot(B)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp51</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Perform a matrix product with another array.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp52</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; In particular, this function takes the dot product of the last<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp53</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; dimension of the first array (this) and the first dimension<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp54</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; of the second array (B).&nbsp; This is equivalent to the dot product<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp55</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; for vectors and the matrix product for matrices, with vectors<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp56</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; being treated as rows when on the left and columns when on the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp57</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; right.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp58</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @param { NDArray } B the other NDArray in the multiplication (on the right)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp59</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns A new NDArray<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp60</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp61</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.dot = function (B) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp62</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var newShape = this.shape.slice(0, -1).concat(B.shape.slice(1)),<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp63</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = this.createResult(newShape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp64</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp65</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (this.shape[this.shape.length - 1] !== B.shape[0]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp66</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new RangeError("Can not multiply array of shape " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp67</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.shape + " by array of shape " + B.shape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp68</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp69</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp70</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function dotToResult(result, A, B) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp71</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var i, total;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp72</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp73</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (A.shape.length &gt; 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp74</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = A.shape[0] - 1; i &gt;= 0; i -= 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp75</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dotToResult(result.at([i]), A.at([i]), B);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp76</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp77</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (B.shape.length &gt; 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp78</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = B.shape[1] - 1; i &gt;= 0; i -= 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp79</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dotToResult(result.at([i]), A, B.at([undefined, i]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp80</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp81</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp82</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; total = A.val([0]) * B.val([0]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp83</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = A.shape[0] - 1; i &gt; 0; i -= 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp84</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; total += A.val([i]) * B.val([i]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp85</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp86</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result.setElement([], total);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp87</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp88</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp89</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp90</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dotToResult(result, this, B);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp91</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp92</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp93</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp94</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp95</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-LUDecomposition" class="docTag" href="index.html#jsnum-AbstractNDArray-LUDecomposition">/** jsnum.AbstractNDArray.LUDecomposition()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp96</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Decomposes this matrix into three matrices, `P`, `L` and `U`.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp97</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Here is a row permutation matrix, `L` (lower) has no elements<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp98</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; above the diagonal, `U` (upper) has no elements below the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp&nbsp99</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; diagonal, and `P` `L` `U` = `A` where `A` is this matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp100</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp101</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Uses Crout's algorithm with scaled partial pivoting.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp102</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp103</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; See pp 48-54 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp104</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Numerical Recipes 3rd Edition: The Art of Scientific Computing.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp105</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; 3rd ed. Cambridge University Press; 2007.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp106</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp107</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns an object with the members, P (permutation),<br/><span class="lineNum">
+&nbsp&nbsp&nbsp108</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; L (lower), U (upper), and the intermediate results<br/><span class="lineNum">
+&nbsp&nbsp&nbsp109</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p (the row permutations performed by P), p_epsilon (-1 iff p<br/><span class="lineNum">
+&nbsp&nbsp&nbsp110</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; is composed of an odd number of swaps, otherwise 1), and<br/><span class="lineNum">
+&nbsp&nbsp&nbsp111</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; decompositionType (set to "LU").<br/><span class="lineNum">
+&nbsp&nbsp&nbsp112</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp113</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.LUDecomposition = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp114</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var P, L, U, p = [], p_epsilon = 1,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp115</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i, j, k,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp116</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; N = this.shape[0],<br/><span class="lineNum">
+&nbsp&nbsp&nbsp117</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scaling = [],<br/><span class="lineNum">
+&nbsp&nbsp&nbsp118</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pivotRow, pivotVal, testVal, pivotScalingFactor, rowScalingFactor,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp119</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scratch = this.copy();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp120</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp121</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (this.shape.length !== 2 || this.shape[0] !== this.shape[1]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp122</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("LUDecomposition currently only supports square matrices");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp123</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp124</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp125</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; N; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp126</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scaling[i] = 1 / this.at([i]).abs().max();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp127</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp128</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp129</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // for each column...<br/><span class="lineNum">
+&nbsp&nbsp&nbsp130</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (k = 0; k &lt; N; k += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp131</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp132</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // find the largest scaled pivot<br/><span class="lineNum">
+&nbsp&nbsp&nbsp133</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pivotRow = k;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp134</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pivotVal = Math.abs(scaling[k] * scratch.val([k, k]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp135</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = k + 1; i &lt; N; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp136</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; testVal = Math.abs(scaling[i] * scratch.val([i, k]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp137</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (testVal &gt; pivotVal) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp138</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pivotRow = i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp139</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pivotVal = testVal;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp140</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp141</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp142</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp143</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // swap rows if needed to put the pivot value in the right place<br/><span class="lineNum">
+&nbsp&nbsp&nbsp144</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (pivotRow !== k) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp145</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scratch.at([k]).swap(scratch.at([pivotRow]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp146</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p_epsilon = -p_epsilon; // track the permutation parity<br/><span class="lineNum">
+&nbsp&nbsp&nbsp147</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scaling[pivotRow] = scaling[k]; // fix the scaling (for the part we'll use again)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp148</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp149</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p[k] = pivotRow;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp150</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp151</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (pivotVal === 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp152</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Press et al say that this is a good idea for some<br/><span class="lineNum">
+&nbsp&nbsp&nbsp153</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // singular matrices; we'll trust them once we've seen this.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp154</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // scratch.setElement([k, k], 1e-40); // a very small non-zero number<br/><span class="lineNum">
+&nbsp&nbsp&nbsp155</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new jsnum.NumericalError("Singular or near-singular " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp156</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "matrix encountered; consider using singular " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp157</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "value decomposition");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp158</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp159</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp160</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Now reduce the remaining rows<br/><span class="lineNum">
+&nbsp&nbsp&nbsp161</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pivotScalingFactor = 1 / scratch.val([k, k]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp162</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = k + 1; i &lt; N; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp163</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rowScalingFactor =&nbsp; scratch.val([i, k]) * pivotScalingFactor;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp164</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scratch.setElement([i, k], rowScalingFactor);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp165</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (j = k + 1; j &lt; N; j += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp166</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scratch.setElement([i, j], scratch.val([i, j]) - scratch.val([k, j]) * rowScalingFactor);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp167</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp168</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp169</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp170</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp171</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; P = this.createResult(this.shape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp172</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; P.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp173</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var val;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp174</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (index[0] === index[1]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp175</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val = 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp176</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp177</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp178</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp179</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, val);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp180</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp181</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = N - 1; i &gt;= 0; i -= 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp182</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (p[i] !== i) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp183</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; P.at([i]).swap(P.at([p[i]]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp184</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp185</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp186</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; P.det = function () { return p_epsilon; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp187</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; P.setElement = jsnum.AbstractNDArray.prototype.setElement;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp188</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp189</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; L = this.createResult(this.shape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp190</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; L.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp191</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var val;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp192</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (index[0] &lt; index[1]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp193</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp194</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (index[0] === index[1]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp195</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val = 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp196</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp197</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val = scratch.val(index);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp198</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp199</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, val);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp200</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp201</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; L.setElement = jsnum.AbstractNDArray.prototype.setElement;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp202</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp203</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; U = this.createResult(this.shape);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp204</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; U.walkIndexes(function (index) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp205</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var val;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp206</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (index[0] &gt; index[1]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp207</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp208</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp209</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val = scratch.val(index);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp210</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp211</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setElement(index, val);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp212</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp213</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; U.setElement = jsnum.AbstractNDArray.prototype.setElement;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp214</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp215</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return { P: P, L: L, U: U, p: p, decompositionType : "LU" };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp216</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp217</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp218</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp219</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-inverse" class="docTag" href="index.html#jsnum-AbstractNDArray-inverse">/** jsnum.AbstractNDArray.inverse()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp220</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Find the inverse of this matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp221</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; If this is an `N xx N` square non-singular matrix this function finds<br/><span class="lineNum">
+&nbsp&nbsp&nbsp222</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; the inverse of the matrix, using jsnum.linSolve (which uses<br/><span class="lineNum">
+&nbsp&nbsp&nbsp223</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; `LU`-decomposition).&nbsp; For non-square or singular matrices, see<br/><span class="lineNum">
+&nbsp&nbsp&nbsp224</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; pseudoinverse.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp225</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns The inverse of this matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp226</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp227</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.inverse = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp228</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (this.shape.length !== 2) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp229</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("Only matrices support inverse");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp230</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp231</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp232</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (this.shape[0] !== this.shape[1]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp233</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("Only square matricies have an inverse; " +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp234</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "consider using pseudoinverse instead.");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp235</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp236</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp237</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp238</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return jsnum.solveLinearSystem(this, jsnum.eye(this.shape[0]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp239</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } catch (e) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp240</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (e instanceof jsnum.NumericalError) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp241</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new jsnum.NumericalError("Singular matrix encountered; "<br/><span class="lineNum">
+&nbsp&nbsp&nbsp242</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; + "consider using pseudoinverse function");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp243</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp244</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw e;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp245</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp246</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp247</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp248</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp249</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp250</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-pseudoinverse" class="docTag" href="index.html#jsnum-AbstractNDArray-pseudoinverse">/** jsnum.AbstractNDArray.pseudoinverse(options)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp251</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Find the pseudoinverse of this matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp252</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This is identical to the inverse if it exists<br/><span class="lineNum">
+&nbsp&nbsp&nbsp253</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; (in which case the inverse function is likely to be faster).<br/><span class="lineNum">
+&nbsp&nbsp&nbsp254</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; It can be also used in cases where the inverse does not exist,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp255</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; however, such as singular matrices and rectangular matrices.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp256</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; In these cases this will be a matrix that is in some sense as<br/><span class="lineNum">
+&nbsp&nbsp&nbsp257</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; "close" as possible to being an inverse (e.g. minimizing the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp258</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; error when solving a linear system).&nbsp; The pseudoinverse is<br/><span class="lineNum">
+&nbsp&nbsp&nbsp259</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; found using singular value decomposition.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp260</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns The pseudoinverse of this matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp261</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp262</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.pseudoinverse = function (options) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp263</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var svd, small, Dinv, val, i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp264</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp265</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; svd = this.singularValueDecomposition();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp266</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp267</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // estimate of threshold for small singular values from Press et al.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp268</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; small = 0.5 * Math.sqrt(this.shape[0] + this.shape[1] + 1) *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp269</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; svd.D.val([0, 0]) * jsnum.eps;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp270</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp271</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dinv = svd.D.transpose().copy();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp272</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp273</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = Math.min(this.shape[0], this.shape[1]) - 1; i &gt;= 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp274</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i -= 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp275</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val = svd.D.val([i, i]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp276</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (val &lt; small) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp277</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dinv.at([i, i]).set(0); // part of the nullspace<br/><span class="lineNum">
+&nbsp&nbsp&nbsp278</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp279</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dinv.at([i, i]).set(1 / val);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp280</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp281</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp282</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp283</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return svd.V.transpose().dot(Dinv.dot(svd.U.transpose()));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp284</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp285</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp286</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp287</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-det" class="docTag" href="index.html#jsnum-AbstractNDArray-det">/** jsnum.AbstractNDArray.det()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp288</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Find the determinant of this matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp289</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; If this is an `N xx N` square matrix this function finds the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp290</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; determinant of the matrix, using jsnum.linSolve (which uses<br/><span class="lineNum">
+&nbsp&nbsp&nbsp291</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; `LU`-decomposition).&nbsp; @returns The determinant of this matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp292</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp293</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.det = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp294</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var lu = this.LUDecomposition(), N = this.shape[0], i, result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp295</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp296</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // determinant of a product is the product of the determinants,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp297</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // and the determinant of an upper or lower triangular matrix<br/><span class="lineNum">
+&nbsp&nbsp&nbsp298</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // is just the product of the diagonal elements.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp299</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = lu.P.det();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp300</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; N; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp301</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result *= lu.L.val([i, i]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp302</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result *= lu.U.val([i, i]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp303</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp304</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp305</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp306</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp307</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp308</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp309</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-householderTransform" class="docTag" href="index.html#jsnum-AbstractNDArray-householderTransform">/** jsnum.AbstractNDArray.householderTransform()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp310</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Compute the Householder transformation of this vector.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp311</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This is a reflection across a hyperplane that will zero all but the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp312</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; first element of this vector.&nbsp; The transformation itself is a<br/><span class="lineNum">
+&nbsp&nbsp&nbsp313</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; reflection across a hyperplane that passes through the origin; thus<br/><span class="lineNum">
+&nbsp&nbsp&nbsp314</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; this reflection can be represented by an orthogonal matrix `P` which<br/><span class="lineNum">
+&nbsp&nbsp&nbsp315</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; applies the transform or by a vector `v` that is normal to the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp316</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; hyperplane.&nbsp; This function returns a vector v, a matrix P, and a<br/><span class="lineNum">
+&nbsp&nbsp&nbsp317</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; scalar beta such that `v_0 = 1`, `P = I - beta v v^t`, and `P * this`<br/><span class="lineNum">
+&nbsp&nbsp&nbsp318</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; has zeros everywhere except for the first element.&nbsp; This<br/><span class="lineNum">
+&nbsp&nbsp&nbsp319</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; transformation is usually used as a building block for other<br/><span class="lineNum">
+&nbsp&nbsp&nbsp320</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; transforms and decompositions.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp321</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp322</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Based on algorithm 5.1.1 in<br/><span class="lineNum">
+&nbsp&nbsp&nbsp323</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Golub GH, Van Loan CF. Matrix Computations. 3rd ed. The Johns<br/><span class="lineNum">
+&nbsp&nbsp&nbsp324</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Hopkins University Press; 1996.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp325</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp326</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns an object with the members v (Householder vector),<br/><span class="lineNum">
+&nbsp&nbsp&nbsp327</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; P (Householder matrix), and beta<br/><span class="lineNum">
+&nbsp&nbsp&nbsp328</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp329</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.householderTransform = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp330</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var v = this.copy(), x0 = this.val([0]), norm2, offNorm2, beta, norm, P;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp331</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp332</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; norm2 = v.dot(v).val();&nbsp; // the square of the Euclidean norm<br/><span class="lineNum">
+&nbsp&nbsp&nbsp333</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp334</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (norm2 &gt; 1e200) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp335</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // For large magnitude vectors, first normalize x to avoid<br/><span class="lineNum">
+&nbsp&nbsp&nbsp336</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // problems with overflows when squaring these values.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp337</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.div(this.norm()).householderTransform();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp338</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp339</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // magnitude squared of components other than the first<br/><span class="lineNum">
+&nbsp&nbsp&nbsp340</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; offNorm2 = norm2 - x0 * x0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp341</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp342</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (offNorm2 === 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp343</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // x is already of the form [x0 0 0 ... 0]<br/><span class="lineNum">
+&nbsp&nbsp&nbsp344</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (x0 &lt; 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp345</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // note: Golub and Van Loan have zero here, but that makes<br/><span class="lineNum">
+&nbsp&nbsp&nbsp346</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // the first term of P x negative.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp347</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; beta = 2;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp348</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp349</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; beta = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp350</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp351</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; v.setElement([0], 1);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp352</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp353</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; norm = Math.sqrt(norm2);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp354</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp355</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (x0 &lt;= 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp356</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; v.setElement([0], x0 - norm);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp357</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp358</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; v.setElement([0], -offNorm2 / (x0 + norm));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp359</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp360</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp361</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; beta = 2 * v.val([0]) * v.val([0]) / (offNorm2 + v.val([0]) * v.val([0]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp362</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; v.divHere(v.val([0]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp363</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp364</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp365</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; P = jsnum.eye(this.shape[0]).sub(v.at([undefined, "1"]).<br/><span class="lineNum">
+&nbsp&nbsp&nbsp366</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dot(v.at(["1", undefined])).mul(beta));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp367</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp368</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return { beta : beta, v : v, P : P };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp369</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp370</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp371</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp372</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-givensRotation" class="docTag" href="index.html#jsnum-AbstractNDArray-givensRotation">/** jsnum.AbstractNDArray.givensRotation()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp373</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Compute the Givens matrix of this vector.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp374</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; This is a rotation matrix `G` that will zero the second element of<br/><span class="lineNum">
+&nbsp&nbsp&nbsp375</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; a vector.&nbsp; This transformation is usually used as a<br/><span class="lineNum">
+&nbsp&nbsp&nbsp376</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; building block for other transforms and decompositions.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp377</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp378</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Based on algorithm 1 in:<br/><span class="lineNum">
+&nbsp&nbsp&nbsp379</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Anderson, E, Discontinuous Plane Rotations and the Symmetric<br/><span class="lineNum">
+&nbsp&nbsp&nbsp380</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Eigenvalue Problem. LAPACK Working Note 150, University of<br/><span class="lineNum">
+&nbsp&nbsp&nbsp381</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Tennessee, UT-CS-00-454, December 4, 2000.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp382</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp383</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns a rotation matrix<br/><span class="lineNum">
+&nbsp&nbsp&nbsp384</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp385</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.givensRotation = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp386</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var f, g, t, u, c, s, result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp387</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp388</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (this.shape.length !== 1 || this.shape[0] !== 2) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp389</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("Only vectors of length 2 are supported");<br/><span class="lineNum">
+&nbsp&nbsp&nbsp390</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp391</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp392</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f = this.val([0]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp393</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; g = this.val([1]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp394</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t = f / g;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp395</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (g === 0 || Math.abs(t) &gt; 1e100) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp396</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // rotate 0 or 180°<br/><span class="lineNum">
+&nbsp&nbsp&nbsp397</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c = (f &gt;= 0) ? 1 : -1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp398</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; s = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp399</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (f === 0 || Math.abs(t) &lt; 1e-100) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp400</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // rotate ±90°<br/><span class="lineNum">
+&nbsp&nbsp&nbsp401</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp402</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; s = (g &gt;= 0) ? 1 : -1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp403</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (Math.abs(f) &gt; Math.abs(g)) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp404</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; u = Math.sqrt(1 + t * t) * (g &gt;= 0 ? 1 : -1);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp405</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; s = 1 / u;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp406</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c = s * t;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp407</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp408</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; u = Math.sqrt(1 + 1 / (t * t)) * (f &gt;= 0 ? 1 : -1);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp409</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c = 1 / u;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp410</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; s = c / t;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp411</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp412</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp413</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = this.createResult([2, 2]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp414</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result.setElement([0, 0], c);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp415</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result.setElement([0, 1], s);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp416</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result.setElement([1, 0], -s);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp417</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result.setElement([1, 1], c);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp418</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp419</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp420</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp421</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp422</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp423</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-bidiagonalization" class="docTag" href="index.html#jsnum-AbstractNDArray-bidiagonalization">/** jsnum.AbstractNDArray.bidiagonalization()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp424</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Compute a decomposition of this matrix into the form `A = U B V`.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp425</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Here `A` is this matrix, `U` and `V` are orthogonal matrices, and `B` is<br/><span class="lineNum">
+&nbsp&nbsp&nbsp426</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; an upper bidiagonal matrix (i.e. is zero everywhere except for the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp427</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; diagonal and the elements directly above it).&nbsp; This is used as part<br/><span class="lineNum">
+&nbsp&nbsp&nbsp428</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; of computing the singular value decomposition but rarely used<br/><span class="lineNum">
+&nbsp&nbsp&nbsp429</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; directly.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp430</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp431</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Based on algorithm 5.4.2 (Householder bidiagonalization) in<br/><span class="lineNum">
+&nbsp&nbsp&nbsp432</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Golub GH, Van Loan CF. Matrix Computations. 3rd ed. The Johns<br/><span class="lineNum">
+&nbsp&nbsp&nbsp433</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Hopkins University Press; 1996.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp434</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp435</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns an object with the members U, B, and V<br/><span class="lineNum">
+&nbsp&nbsp&nbsp436</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp437</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.bidiagonalization = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp438</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var U, V, B, i, m = this.shape[0], n = this.shape[1], house,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp439</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; min = Math.min(m, n);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp440</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp441</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (this.shape.length !== 2) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp442</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("Value is not a matrix:\n" + this);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp443</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp444</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp445</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; U = jsnum.eye(m).copy();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp446</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V = jsnum.eye(n).copy();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp447</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; B = this.copy();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp448</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp449</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; min; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp450</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // cancel out a column below the diagonal<br/><span class="lineNum">
+&nbsp&nbsp&nbsp451</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (i &lt; m - 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp452</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; house = B.at([[i], i]).householderTransform();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp453</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; U.at([undefined, [i]]).set(U.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp454</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at([undefined, [i]]).dot(house.P));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp455</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; B.at([[i], [i]]).set(house.P.dot(B.at([[i], [i]])));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp456</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; B.at([[i + 1], i]).set(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp457</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp458</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (i + 1 &lt; n - 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp459</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // cancel out a row to the right of the diagonal<br/><span class="lineNum">
+&nbsp&nbsp&nbsp460</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; house = B.at([i, [i + 1]]).householderTransform();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp461</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V.at([[i + 1]]).set(house.P.dot(V.at([[i + 1]])));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp462</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; B.at([undefined, [i + 1]]).set(B.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp463</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at([undefined, [i + 1]]).dot(house.P));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp464</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; B.at([i, [i + 2]]).set(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp465</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp466</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp467</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp468</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return { U : U, B : B, V : V };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp469</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp470</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp471</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp472</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-singularValueDecomposition" class="docTag" href="index.html#jsnum-AbstractNDArray-singularValueDecomposition">/** jsnum.AbstractNDArray.singularValueDecomposition()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp473</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Compute a decomposition of this matrix into the form `A = U D V`.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp474</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Here `A` is this matrix, `U` and `V` are orthogonal matrices, and `D` is<br/><span class="lineNum">
+&nbsp&nbsp&nbsp475</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; a diagonal matrix (i.e. is zero everywhere except for the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp476</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; diagonal).<br/><span class="lineNum">
+&nbsp&nbsp&nbsp477</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp478</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Based on algorithms 8.6.1 and 8.62 in<br/><span class="lineNum">
+&nbsp&nbsp&nbsp479</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Golub GH, Van Loan CF. Matrix Computations. 3rd ed. The Johns<br/><span class="lineNum">
+&nbsp&nbsp&nbsp480</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Hopkins University Press; 1996.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp481</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp482</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns an object with the members U, B, V, and decompositionType<br/><span class="lineNum">
+&nbsp&nbsp&nbsp483</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; (set to "Singular Value").<br/><span class="lineNum">
+&nbsp&nbsp&nbsp484</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp485</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.singularValueDecomposition = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp486</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var U, V, B, i, m = this.shape[0], n = this.shape[1], bidiag, svdT,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp487</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tiny = 5 * jsnum.eps, p, q,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp488</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; d0, dm, dn, f1, fm, fn, scale,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp489</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tmm, tmn, tnn, tdet, ttrace, mu,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp490</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; k, j, r, G, fixingDiagonal,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp491</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result, sortedOrder;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp492</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp493</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (this.shape.length !== 2) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp494</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new TypeError("Value is not a matrix:\n" + this);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp495</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (m &lt; n) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp496</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // rather than tweak the algorithm below to handle the more<br/><span class="lineNum">
+&nbsp&nbsp&nbsp497</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // columns than rows case, we can just compute the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp498</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // svd of the transpose and then transpose the result.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp499</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; svdT = this.transpose().singularValueDecomposition();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp500</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return { U : svdT.V.transpose(), D: svdT.D.transpose(),<br/><span class="lineNum">
+&nbsp&nbsp&nbsp501</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V: svdT.U.transpose(), decompositionType: "Singular Value" };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp502</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp503</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bidiag = this.bidiagonalization();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp504</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp505</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; U = bidiag.U.copy();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp506</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V = bidiag.V.copy();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp507</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; B = bidiag.B;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp508</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r = this.createResult([2]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp509</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp510</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (true) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp511</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // zero the near-zero off diagonal elements<br/><span class="lineNum">
+&nbsp&nbsp&nbsp512</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; n - 1; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp513</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (Math.abs(B.val([i, i + 1])) &lt;= tiny *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp514</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Math.abs(B.val([i, i])) +<br/><span class="lineNum">
+&nbsp&nbsp&nbsp515</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Math.abs(B.val([i + 1, i + 1])))) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp516</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; B.at([i, i + 1]).set(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp517</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp518</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp519</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp520</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // set q to the index of the upper left element of the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp521</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // largest diagonal matrix in the lower right part of B<br/><span class="lineNum">
+&nbsp&nbsp&nbsp522</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; q = n;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp523</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (q &gt; 1 && 0 === B.val([q - 2, q - 1])) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp524</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; q -= 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp525</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp526</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (q &lt;= 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp527</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break; // B is now diagonal, so we're done.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp528</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp529</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp530</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // set p to be the index of the upper left element of the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp531</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // lower-right most submatrix with all non-zero supradiagonal<br/><span class="lineNum">
+&nbsp&nbsp&nbsp532</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // elements.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp533</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p = q - 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp534</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (p &gt; 0 && 0 !== B.val([p - 1, p])) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp535</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p -= 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp536</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp537</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp538</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // if a diagonal element in B[p:q, p:q] is zero, zero the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp539</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // corresponding supradiagonal element using a Givens<br/><span class="lineNum">
+&nbsp&nbsp&nbsp540</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // rotation.&nbsp; (Note: Golub and Van Loan simply say<br/><span class="lineNum">
+&nbsp&nbsp&nbsp541</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // to zero the element but don't describe how; this seems<br/><span class="lineNum">
+&nbsp&nbsp&nbsp542</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // to work in my testing.)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp543</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fixingDiagonal = false;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp544</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = p; i &lt; q - 1; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp545</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (B.val([i, i]) === 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp546</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fixingDiagonal = true;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp547</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; k = i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp548</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r.setElement([0], 0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp549</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r.setElement([1], 1);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp550</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp551</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp552</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp553</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp554</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!fixingDiagonal) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp555</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // find the eigenvalue of the lower right 2x2 matrix of<br/><span class="lineNum">
+&nbsp&nbsp&nbsp556</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // B∙B^t that it closest to its lowest right value.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp557</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; d0 = B.val([p, p]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp558</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dm = B.val([q - 2, q - 2]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp559</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dn = B.val([q - 1, q - 1]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp560</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f1 = B.val([p, p + 1]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp561</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fm = (q &gt; 2 ? B.val([q - 3, q - 2]) : 0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp562</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fn = B.val([q - 2, q - 1]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp563</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // rescale things to avoid overflows when squaring values<br/><span class="lineNum">
+&nbsp&nbsp&nbsp564</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scale = Math.max(Math.abs(d0), Math.abs(f1), Math.abs(dm),<br/><span class="lineNum">
+&nbsp&nbsp&nbsp565</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Math.abs(dn), Math.abs(fm), Math.abs(fn));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp566</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; d0 /= scale;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp567</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dm /= scale;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp568</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dn /= scale;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp569</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f1 /= scale;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp570</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fm /= scale;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp571</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fn /= scale;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp572</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tmm = dm * dm + fm * fm;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp573</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tmn = dm * fn;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp574</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tnn = dn * dn + fn * fn;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp575</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tdet = tmm * tnn - tmn * tmn;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp576</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ttrace = tmm + tnn;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp577</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (ttrace / 2 &gt; tnn) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp578</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mu = (ttrace - Math.sqrt(ttrace * ttrace - 4 * tdet)) / 2;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp579</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp580</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mu = (ttrace + Math.sqrt(ttrace * ttrace - 4 * tdet)) / 2;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp581</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp582</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp583</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; k = p;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp584</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r.setElement([0], d0 * d0 - mu);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp585</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r.setElement([1], d0 * f1);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp586</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp587</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp588</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // propagate the Givens rotations down the columns<br/><span class="lineNum">
+&nbsp&nbsp&nbsp589</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (k; k &lt; q - 1; k += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp590</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp591</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j = Math.max(0, k - 1);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp592</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; G = r.givensRotation();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp593</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V.at([[k, k + 2]]).set(G.dot(V.at([[k, k + 2]])));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp594</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; B.at([[j, k + 2], [k, k + 2]]).set(B.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp595</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at([[j, k + 2], [k, k + 2]]).dot(G.transpose()));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp596</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r.setElement([0], B.val([k, k]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp597</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r.setElement([1], B.val([k + 1, k]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp598</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp599</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j = Math.min(q, k + 3);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp600</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; G = r.givensRotation();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp601</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; U.at([undefined, [k, k + 2]]).set(U.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp602</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at([undefined, [k, k + 2]]).dot(G.transpose()));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp603</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; B.at([[k, k + 2], [k, j]]).set(G.dot(B.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp604</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at([[k, k + 2], [k, j]])));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp605</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (k + 2 &lt; q) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp606</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r.setElement([0], B.val([k, k + 1]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp607</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r.setElement([1], B.val([k, k + 2]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp608</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp609</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp610</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp611</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp612</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // sort the singular values by size<br/><span class="lineNum">
+&nbsp&nbsp&nbsp613</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sortedOrder = [];<br/><span class="lineNum">
+&nbsp&nbsp&nbsp614</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; n; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp615</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sortedOrder[i] = i;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp616</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp617</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sortedOrder.sort(function (a, b) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp618</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var valA = B.val([a, a]),<br/><span class="lineNum">
+&nbsp&nbsp&nbsp619</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; valB = B.val([b, b]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp620</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (valA &lt; valB) ? 1 : ((valA &gt; valB) ? -1 : 0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp621</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/><span class="lineNum">
+&nbsp&nbsp&nbsp622</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result = {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp623</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; U : this.createResult(U.shape),<br/><span class="lineNum">
+&nbsp&nbsp&nbsp624</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; D : this.createResult(B.shape),<br/><span class="lineNum">
+&nbsp&nbsp&nbsp625</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V : this.createResult(V.shape),<br/><span class="lineNum">
+&nbsp&nbsp&nbsp626</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; decompositionType : "Singular Value"<br/><span class="lineNum">
+&nbsp&nbsp&nbsp627</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp628</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result.D.set(0);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp629</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i = 0; i &lt; n; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp630</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result.U.at([undefined, i]).<br/><span class="lineNum">
+&nbsp&nbsp&nbsp631</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set(U.at([undefined, sortedOrder[i]]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp632</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result.D.at([i, i]).<br/><span class="lineNum">
+&nbsp&nbsp&nbsp633</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set(B.at([sortedOrder[i], sortedOrder[i]]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp634</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result.V.at([i]).<br/><span class="lineNum">
+&nbsp&nbsp&nbsp635</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set(V.at([sortedOrder[i]]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp636</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp637</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (i; i &lt; m; i += 1) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp638</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // copy remaining columns of U<br/><span class="lineNum">
+&nbsp&nbsp&nbsp639</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // (representing space outside of the range of the matrix)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp640</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; result.U.at([undefined, i]).set(U.at([undefined, i]));<br/><span class="lineNum">
+&nbsp&nbsp&nbsp641</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp642</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp643</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return result;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp644</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp645</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp646</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp647</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-conditionNumber" class="docTag" href="index.html#jsnum-AbstractNDArray-conditionNumber">/** jsnum.AbstractNDArray.conditionNumber()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp648</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * Compute the condition number of this matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp649</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * The condition number is equal to the largest<br/><span class="lineNum">
+&nbsp&nbsp&nbsp650</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * singular value divided by the smallest.&nbsp; This is a measure of how<br/><span class="lineNum">
+&nbsp&nbsp&nbsp651</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * well behaved this matrix is likely to be in numerical computations,<br/><span class="lineNum">
+&nbsp&nbsp&nbsp652</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * with larger condition numbers being given to matrices that are "more<br/><span class="lineNum">
+&nbsp&nbsp&nbsp653</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * singular" and likely to behave poorly.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp654</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp655</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp656</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Numerical Recipes 3rd Edition: The Art of Scientific Computing.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp657</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; 3rd ed. Cambridge University Press; 2007.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp658</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp659</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * @returns the condition number<br/><span class="lineNum">
+&nbsp&nbsp&nbsp660</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp661</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.conditionNumber = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp662</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var svd, n;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp663</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp664</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; svd = this.singularValueDecomposition();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp665</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; n = Math.min(this.shape[0], this.shape[1]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp666</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp667</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return svd.D.val([0, 0]) / svd.D.val([n - 1, n - 1]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp668</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp669</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp670</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp671</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-rank" class="docTag" href="index.html#jsnum-AbstractNDArray-rank">/** jsnum.AbstractNDArray.rank()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp672</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * Compute the rank of this matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp673</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * The rank is the number of linearly independent rows, which is also<br/><span class="lineNum">
+&nbsp&nbsp&nbsp674</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * the dimension of the range.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp675</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp676</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp677</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Numerical Recipes 3rd Edition: The Art of Scientific Computing.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp678</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; 3rd ed. Cambridge University Press; 2007.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp679</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp680</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * @returns the rank (a non-negative integer)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp681</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp682</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.rank = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp683</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var svd, rank, threshold, n;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp684</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp685</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; svd = this.singularValueDecomposition();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp686</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; n = Math.min(this.shape[0], this.shape[1]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp687</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; threshold = 0.5 * Math.sqrt(this.shape[0] + this.shape[1] + 1) *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp688</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; svd.D.val([0, 0]) * jsnum.eps;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp689</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rank = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp690</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (rank &lt; n && Math.abs(svd.D.val([rank, rank])) &gt; threshold) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp691</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rank += 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp692</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp693</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp694</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return rank;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp695</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp696</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp697</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp698</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-nullity" class="docTag" href="index.html#jsnum-AbstractNDArray-nullity">/** jsnum.AbstractNDArray.nullity()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp699</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * Compute the nullity of this matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp700</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * The nullity is the number of dimensions in the matrix's nullspace.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp701</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp702</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp703</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Numerical Recipes 3rd Edition: The Art of Scientific Computing.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp704</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; 3rd ed. Cambridge University Press; 2007.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp705</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp706</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * @returns the nullity (a non-negative integer)<br/><span class="lineNum">
+&nbsp&nbsp&nbsp707</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp708</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.nullity = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp709</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp710</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.shape[0] - this.rank();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp711</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp712</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp713</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp714</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-range" class="docTag" href="index.html#jsnum-AbstractNDArray-range">/** jsnum.AbstractNDArray.range()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp715</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Compute the range of this matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp716</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; The range is the space of<br/><span class="lineNum">
+&nbsp&nbsp&nbsp717</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; possible results when multiplying this by a vector, that is<br/><span class="lineNum">
+&nbsp&nbsp&nbsp718</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; all vectors `b` where there exists `x` such that `b = A x`.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp719</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp720</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp721</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Numerical Recipes 3rd Edition: The Art of Scientific Computing.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp722</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; 3rd ed. Cambridge University Press; 2007.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp723</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp724</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * @returns A matrix whose rows form an orthogonal basis set for the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp725</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * range, or null if the matrix has no range<br/><span class="lineNum">
+&nbsp&nbsp&nbsp726</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp727</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.range = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp728</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var svd, rank, threshold, n;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp729</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp730</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; svd = this.singularValueDecomposition();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp731</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; n = Math.min(this.shape[0], this.shape[1]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp732</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; threshold = 0.5 * Math.sqrt(this.shape[0] + this.shape[1] + 1) *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp733</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; svd.D.val([0, 0]) * jsnum.eps;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp734</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rank = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp735</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (rank &lt; n && Math.abs(svd.D.val([rank, rank])) &gt; threshold) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp736</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rank += 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp737</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp738</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp739</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (rank === 0) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp740</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return null;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp741</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp742</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp743</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return svd.U.transpose().at([[0, rank]]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp744</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp745</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp746</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp747</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a  id="jsnum-AbstractNDArray-nullspace" class="docTag" href="index.html#jsnum-AbstractNDArray-nullspace">/**&nbsp; jsnum.AbstractNDArray.nullspace()<br/><span class="lineNum">
+&nbsp&nbsp&nbsp748</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Compute the nullspace of this matrix.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp749</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp750</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; The nullspace is the space spanned by input vectors that this matrix<br/><span class="lineNum">
+&nbsp&nbsp&nbsp751</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; will map to the null null vector, i.e. all vectors `x` where `A x = 0`.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp752</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp753</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; See pp 67-69 in Press WH, Teukolsky SA, Vetterling WT, Flannery BP.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp754</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; Numerical Recipes 3rd Edition: The Art of Scientific Computing.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp755</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; 3rd ed. Cambridge University Press; 2007.<br/><span class="lineNum">
+&nbsp&nbsp&nbsp756</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp757</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; @returns A matrix whose rows form an orthogonal basis set for the<br/><span class="lineNum">
+&nbsp&nbsp&nbsp758</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *&nbsp; nullspace, or null if the matrix has no nullspace<br/><span class="lineNum">
+&nbsp&nbsp&nbsp759</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</a><br/><span class="lineNum">
+&nbsp&nbsp&nbsp760</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AbstractNDArray.prototype.nullspace = function () {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp761</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var svd, rank, threshold, n;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp762</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp763</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; svd = this.singularValueDecomposition();<br/><span class="lineNum">
+&nbsp&nbsp&nbsp764</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; n = Math.min(this.shape[0], this.shape[1]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp765</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; threshold = 0.5 * Math.sqrt(this.shape[0] + this.shape[1] + 1) *<br/><span class="lineNum">
+&nbsp&nbsp&nbsp766</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; svd.D.val([0, 0]) * jsnum.eps;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp767</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rank = 0;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp768</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (rank &lt; n && Math.abs(svd.D.val([rank, rank])) &gt; threshold) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp769</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rank += 1;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp770</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp771</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp772</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (rank === svd.V.shape[0]) {<br/><span class="lineNum">
+&nbsp&nbsp&nbsp773</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return null;<br/><span class="lineNum">
+&nbsp&nbsp&nbsp774</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp775</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp776</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return svd.V.at([[rank]]);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp777</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br/><span class="lineNum">
+&nbsp&nbsp&nbsp778</span>&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp;&nbsp; }<br/><span class="lineNum">
+&nbsp&nbsp&nbsp779</span>&nbsp&nbsp&nbsp&nbsp);<br/><span class="lineNum">
+&nbsp&nbsp&nbsp780</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp781</span>&nbsp&nbsp&nbsp&nbsp<br/><span class="lineNum">
+&nbsp&nbsp&nbsp782</span>&nbsp&nbsp&nbsp&nbsp
+</code></div></body>
+</html>
