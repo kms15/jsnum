@@ -1,6 +1,6 @@
 #!/usr/bin/node
 /**
- * DocGen: a simple documentation generator
+ * μDoc.js: a simple documentation generator
  *
  * copyright (c) Kendrick Shaw 2012
  */
@@ -125,7 +125,7 @@ function generateAnnotatedCode(parsedFile, outFiles) {
     result += "<html>\n";
     result += "<head>\n";
     result += "<title>" + parsedFile[0].filename + "</title>\n";
-    result += '<link rel="stylesheet" type="text/css" href="docgen.css"/>\n';
+    result += '<link rel="stylesheet" type="text/css" href="mudoc.css"/>\n';
     result += "</head>\n";
     result += '<body class="sourceCodeListingPage"><div class="mainColumn">\n';
     result += "<h1>" + parsedFile[0].filename + "</h1>";
@@ -373,7 +373,7 @@ function generateIndex(idHierarchy, outFiles) {
     result += "<html>\n";
     result += "<head>\n";
     result += "<title>" + title + "</title>\n";
-    result += '<link rel="stylesheet" type="text/css" href="docgen.css"/>\n';
+    result += '<link rel="stylesheet" type="text/css" href="mudoc.css"/>\n';
     result += "</head>\n";
     result += '<body class="documentationIndexPage">\n';
     result += '<div class="mainColumn">\n';
@@ -419,7 +419,7 @@ idHierarchy = createIdHierarchy(parsedFiles);
 //console.log(idHierarchy);
 generateIndex(idHierarchy, outFiles);
 
-outFiles["docgen.css"] =
+outFiles["mudoc.css"] =
     '.documentationIndexPage {\n' +
     '}\n' +
     '.sourceCodeListingPage {\n' +
