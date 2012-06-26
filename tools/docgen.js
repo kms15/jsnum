@@ -55,7 +55,7 @@ function parseComment(filename, lineNum, text) {
         lead: lead,
         body: body,
         id: id,
-        htmlId: id,
+        htmlId: htmlId,
         text: text
     };
 }
@@ -105,6 +105,19 @@ function sanitizeCode(text) {
         replace(/>/g, '&gt;').replace(/\n/g, '<br/>');
 }
 
+function caseInsensitiveCompare(a, b) {
+    var al = a.toLowerCase(),
+        bl = b.toLowerCase();
+
+    if (al > bl) {
+        return 1;
+    }
+    if (bl > al) {
+        return -1;
+    }
+    return 0;
+}
+
 function generateAnnotatedCode(parsedFile, outFiles) {
     var i, j, result = "", lines, docTagOpen, docTagClose = '</a>',
         linenumWidth = 6;//Math.ceil(Math.log(lines.length) / Math.log(10));
@@ -147,7 +160,7 @@ function generateAnnotatedCode(parsedFile, outFiles) {
 
 
 function createIdHierarchy(parsedFiles) {
-    var nameHash = {}, hierarchyRoot = { children: {} }, i, name;
+    var nameHash = {}, hierarchyRoot = {}, i, name;
 
     for (i = 0; i < parsedFiles.length; i += 1) {
         if (parsedFiles[i].type == "comment") {
@@ -169,7 +182,7 @@ function createIdHierarchy(parsedFiles) {
             ids=name.split('.');
 
         while (depth < ids.length) {
-            newNode = node.children[ids[depth]];
+            newNode = node.children && node.children[ids[depth]];
 
             if (!newNode) {
                 newNodeId = ids.slice(0,depth + 1).join('.');
@@ -184,7 +197,7 @@ function createIdHierarchy(parsedFiles) {
                         title : newNodeId
                     }
                 }
-                newNode.children = newNode.children || {};
+                node.children = node.children || {};
 
                 node.children[ids[depth]] = newNode;
             }
@@ -218,13 +231,15 @@ if (Object.prototype.keys === undefined) {
 }
 
 function htmlForNode(node) {
-    var result = "", childNames, i;
+    var result = "", childNames, i, splitId, prefix, title,
+        zeroWidthSpace = "&#8203;";
 
-    childNames = node.children.keys().sort();
+    childNames = node.children && node.children.keys().
+        sort(caseInsensitiveCompare);
 
     if (node.id) {
         result += '<div id="' + node.htmlId + '" class="' +
-            (childNames.length > 0 ? "namespaceNode" : "namespaceLeaf") +
+            (childNames ? "namespaceNode" : "namespaceLeaf") +
             '">\n';
         if (node.filename !== undefined) {
             result += '<a class="sourceLink" href="' +
@@ -233,10 +248,23 @@ function htmlForNode(node) {
                     node.filename + ':' + node.lineNum +
                     '</a>\n';
         }
-        result += '<h2>' + node.title + '</h2>\n';
+        splitId = node.id.split('.');
+        prefix = splitId.slice(0, splitId.length - 1).join('.');
+        title = '<span class="namespacePrefix">';
+        for (i = 0; i < splitId.length - 1; i += 1) {
+            title += '<a href="#' + splitId.slice(0, i + 1).join('-') + '">' +
+                splitId[i] + zeroWidthSpace + '</a>.';
+        }
+        title += '</span>' +
+            node.title.slice(prefix.length > 0 ? prefix.length + 1 : 0);
+        if (childNames) {
+            result += '<h2 class="functionTitle">' + title + '</h2>\n';
+        } else {
+            result += '<h3 class="functionTitle">' + title + '</h3>\n';
+        }
     }
 
-    if (childNames.length > 0) {
+    if (childNames) {
         if (node.lead) {
             result += '<p>' + node.lead + '</p>\n';
         }
@@ -265,8 +293,18 @@ function htmlForNode(node) {
         result += '</p>\n';
     }
 
-    for (i = 0; i < childNames.length; i += 1) {
-        result += htmlForNode(node.children[childNames[i]]);
+    // first leaf children, then node children
+    if (childNames) {
+        for (i = 0; i < childNames.length; i += 1) {
+            if (node.children[childNames[i]].children === undefined) {
+                result += htmlForNode(node.children[childNames[i]]);
+            }
+        }
+        for (i = 0; i < childNames.length; i += 1) {
+            if (node.children[childNames[i]].children !== undefined) {
+                result += htmlForNode(node.children[childNames[i]]);
+            }
+        }
     }
 
     if (node.id) {
@@ -276,19 +314,90 @@ function htmlForNode(node) {
     return result;
 }
 
+function indexHtmlForNode(node) {
+    var ids = node.id.split('.'), name = ids[ids.length - 1], result,
+        childNames, i;
+
+    childNames = node.children && node.children.keys().
+        sort(caseInsensitiveCompare);
+
+
+    if (childNames) {
+        result = '<li class="indexNode"><a href="#' + node.htmlId + '">' +
+            name + '</a>';
+        result += '<ul>\n';
+        // first leaf children, then node children
+        for (i = 0; i < childNames.length; i += 1) {
+            if (node.children[childNames[i]].children === undefined) {
+                result += indexHtmlForNode(node.children[childNames[i]]);
+            }
+        }
+        for (i = 0; i < childNames.length; i += 1) {
+            if (node.children[childNames[i]].children !== undefined) {
+                result += indexHtmlForNode(node.children[childNames[i]]);
+            }
+        }
+        result += '</ul></li>\n';
+    } else {
+        result = '<li class="indexLeaf"><a href="#' + node.htmlId + '">' +
+            name + '</a></li>\n';
+    }
+
+    return result;
+}
+
 function generateIndex(idHierarchy, outFiles) {
     var i, j, result = "", lines, docTagOpen, docTagClose = '</a>',
-        libName = "testlib";
+        title, childNames;
+
+    childNames = idHierarchy.children && idHierarchy.children.keys().
+        sort(caseInsensitiveCompare);
+    if (childNames === undefined) {
+        title = "Empty Documentation";
+    } else if (childNames.length === 1) {
+        title = "Documentation for the " +
+            idHierarchy.children[childNames[0]].title +
+            " library";
+    } else {
+        title = "Documentation for the ";
+        for (i = 0; i < childNames.length - 2; i += 1) {
+            title += idHierarchy.children[childNames[i]].title + ", ";
+        }
+        title +=
+            idHierarchy.children[childNames[childNames.length - 2]].title +
+            " and " +
+            idHierarchy.children[childNames[childNames.length - 1]].title +
+            " libraries";
+    }
     result += "<!DOCTYPE html>\n";
     result += "<html>\n";
     result += "<head>\n";
-    result += "<title>Documentation for " + libName + "</title>\n";
+    result += "<title>" + title + "</title>\n";
     result += '<link rel="stylesheet" type="text/css" href="docgen.css"/>\n';
     result += "</head>\n";
-    result += '<body class="documentationIndexPage"><div class="mainColumn">\n';
-    result += "<h1>Documentation for " + libName + "</h1>\n";
-    result += htmlForNode(idHierarchy);
-    result += "\n<div></body>\n";
+    result += '<body class="documentationIndexPage">\n';
+    result += '<div class="mainColumn">\n';
+    result += "<h1>" + title + "</h1>\n";
+    if (childNames) {
+        result += '<div class="namespaceIndex">\n';
+        result += '<h2>Contents</h2>\n'
+        result += '<ul>\n';
+        for (i = 0; i < childNames.length; i += 1) {
+            result += indexHtmlForNode(idHierarchy.children[childNames[i]]);
+        }
+        result += '</ul>\n';
+        result += '</div>\n';
+    }
+    if (childNames) {
+        for (i = 0; i < childNames.length; i += 1) {
+            result += htmlForNode(idHierarchy.children[childNames[i]]);
+        }
+    }
+    result += "\n<div>";
+    result += '<script type="text/javascript" ' +
+        'src="http://cdn.mathjax.org/mathjax/latest/MathJax.js' +
+        '?config=TeX-MML-AM_HTMLorMML"></script>';
+    result += "</body>\n";
     result += "</html>\n";
 
     outFiles["index.html"] = result;
@@ -328,7 +437,7 @@ outFiles["docgen.css"] =
     '}\n' +
     '.mainColumn {\n' +
     '    max-width: 800px;\n' +
-    '    min-width: 400px;\n' +
+    '    min-width: 300px;\n' +
     '    margin: 0px auto;\n' +
     '    background-color: white;\n' +
     '    background-image: -webkit-linear-gradient(0deg, #FFFFF8, #FCFCFC 70%, #F8F8FF);\n' +
@@ -339,7 +448,7 @@ outFiles["docgen.css"] =
     '    padding-left: 40px;\n' +
     '    padding-right: 40px;\n' +
     '    padding-top: 20px;\n' +
-    '    padding-bottom: 20px;\n' +
+    '    padding-bottom: 60px;\n' +
     '}\n' +
     '.sourceCodeListingPage .mainColumn {\n' +
     '    font-size: 0.8em;\n' +
@@ -357,27 +466,32 @@ outFiles["docgen.css"] =
     '    font-weight: bold;\n' +
     '    font-size: 1.3em;\n' +
     '    margin-top: 40px;\n' +
-    '    margin-bottom: 0px;\n' +
+    '    margin-bottom: 10px;\n' +
     '    padding-bottom: 0px;\n' +
     '}\n' +
     '.namespaceNode > h2 {\n' +
     '    border-bottom: 2px #808080 solid;\n' +
     '}\n' +
-    '.namespaceLeaf h2 {\n' +
-    '    margin-left: 20px;\n' +
+    '.functionTitle .namespacePrefix, .functionTitle .namespacePrefix a {\n' +
+    '    color: #888;\n' +
+    '}\n' +
+    '.functionTitle .namespacePrefix a:hover {\n' +
+    '    color: #000080;\n' +
     '}\n' +
     'h3 {\n' +
     '    margin-left: 20px;\n' +
-    '    margin-bottom: 5px;\n' +
+    '    margin-bottom: 10px;\n' +
     '    padding-bottom: 0px;\n' +
     '}\n' +
+    'h3.functionTitle {\n' +
+    '    margin-top: 30px;\n' +
+    '}\n' +
     '.namespaceLeaf h3 {\n' +
-    '    margin-left: 40px;\n' +
+    '    margin-left: 20px;\n' +
     '}\n' +
     'p {\n' +
     '    margin-left: 20px;\n' +
     '    margin-right: 20px;\n' +
-    '    font-family: "Linux Libertine O", Times, "Times New Roman", serif;\n' +
     '    margin-top: 5px;\n' +
     '    padding-top: 0px;\n' +
     '    margin-bottom: 8px;\n' +
@@ -396,7 +510,7 @@ outFiles["docgen.css"] =
     '    margin-top: 0px;\n' +
     '    padding-top: 0px;\n' +
     '}\n' +
-    'dt, dd {\n' +
+    'dt, dd, p, li {\n' +
     '    font-family: "Linux Libertine O", Times, "Times New Roman", serif;\n' +
     '}\n' +
     'dt {\n' +
@@ -405,6 +519,21 @@ outFiles["docgen.css"] =
     '}\n' +
     'dd {\n' +
     '    margin-left: 60px;\n' +
+    '}\n' +
+    'li.indexLeaf {\n' +
+    '    display: inline;\n' +
+    '    padding: 0;\n' +
+    '    margin: 0;\n' +
+    '    padding-right: 10px;\n' +
+    '}\n' +
+    'li.indexNode {\n' +
+    '    display: block;\n' +
+    '    padding: 0;\n' +
+    '    margin: 0;\n' +
+    '}\n' +
+    'ul, ol {\n' +
+    '    padding: 0 0 0 20px;\n' +
+    '    margin: 0;\n' +
     '}\n' +
     'a {\n' +
     '    text-decoration: none;\n' +
@@ -425,6 +554,7 @@ outFiles["docgen.css"] =
     '    font-weight: normal;\n' +
     '    font-family: "Linux Libertine O", Times, "Times New Roman", serif;\n' +
     '    margin-left: 20px;\n' +
+    '    margin-right: 20px;\n' +
     '    float: right;\n' +
     '}\n' +
     '.lineNum {\n' +
