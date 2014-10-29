@@ -775,6 +775,75 @@ define(
 
             return svd.V.at([[rank]]);
         };
+
+        /** jsnum.UntypedNDArray(shape)
+         * An implementation of an NDArray that stores data with any type.
+         * This is likely to work for most uses, but more specialized types of
+         * NDArray are likely to have better performance and memory usage.
+         * @param { Array<int> } shape The length of each of the dimensions of
+         *      the new array.
+         * @constructor
+         */
+        jsnum.BandDiagonalMatrix = function (shape, rowsAbove, rowsBelow) {
+            // if called without new, create a new object
+            if (!(this instanceof jsnum.BandDiagonalMatrix)) {
+                return new jsnum.BandDiagonalMatrix(shape);
+            }
+
+            jsnum.AbstractNDArray.checkShape(shape);
+
+            if (shape.length !== 2) {
+                throw TypeError("Shape must be 2D");
+            }
+            /*var i,
+                size = 1,
+                data = [],
+                that = this,
+                myShape = shape.slice(0);
+
+            jsnum.AbstractNDArray.checkShape(shape);
+
+            // if called without new, create a new object
+            if (!(this instanceof jsnum.UntypedNDArray)) {
+                return new jsnum.UntypedNDArray(myShape);
+            }
+
+            for (i = 0; i < myShape.length; i += 1) {
+                size = size * myShape[i];
+            }
+            data.length = size;
+
+            function calc1DIndex(indexes) {
+                var index1D;
+
+                that.checkIndexes(indexes);
+                if (myShape.length === 0) {
+                    return 0;
+                }
+
+                index1D = indexes[0];
+
+                for (i = 1; i < myShape.length; i += 1) {
+                    index1D = index1D * myShape[i] + indexes[i];
+                }
+
+                return index1D;
+            }
+
+            this.getElement = function (indexes) {
+                return data[calc1DIndex(indexes)];
+            };
+
+            this.setElement = function (indexes, value) {
+                data[calc1DIndex(indexes)] = value;
+                return this;
+            };
+
+            Object.defineProperty(this, "shape",
+                { value : myShape, writable : false });
+                */
+        };
+        jsnum.BandDiagonalMatrix.prototype = Object.create(jsnum.AbstractNDArray.prototype);
     }
 );
 
