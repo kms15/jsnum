@@ -776,74 +776,74 @@ define(
             return svd.V.at([[rank]]);
         };
 
-        /** jsnum.UntypedNDArray(shape)
-         * An implementation of an NDArray that stores data with any type.
-         * This is likely to work for most uses, but more specialized types of
-         * NDArray are likely to have better performance and memory usage.
-         * @param { Array<int> } shape The length of each of the dimensions of
-         *      the new array.
+        /** jsnum.BandDiagonalMatrix(size, rowsAbove, rowsBelow)
+         * Create a band-diagonal matrix.
+         * This is a matrix which contains all 0's except along the diagonal
+         * and a few rows above and below.  For some operations on large
+         * matrices, this class can be much faster than a normal NDArray.
+         * @param { int } size The number of rows in the (square) matrix.
+         * @param { int } rowsAbove The number of rows above the diagonal
+         * @param { int } rowsBelow The number of rows below the diagonal
          * @constructor
          */
-        jsnum.BandDiagonalMatrix = function (shape, rowsAbove, rowsBelow) {
+        function BandDiagonalMatrix(size, rowsAbove, rowsBelow) {
             // if called without new, create a new object
             if (!(this instanceof jsnum.BandDiagonalMatrix)) {
-                return new jsnum.BandDiagonalMatrix(shape);
+                return new jsnum.BandDiagonalMatrix(size, rowsAbove, rowsBelow);
             }
 
-            jsnum.AbstractNDArray.checkShape(shape);
-
-            if (shape.length !== 2) {
-                throw TypeError("Shape must be 2D");
+            if (typeof size !== 'number' || size != Math.floor(size)) {
+                throw TypeError("size must be a positive integer");
             }
-            /*var i,
-                size = 1,
-                data = [],
+            if (size < 1) {
+                throw RangeError("size must be greater than 0");
+            }
+            var data = [],
+                bandWidth = rowsBelow + 1 + rowsAbove,
                 that = this,
-                myShape = shape.slice(0);
+                i;
 
-            jsnum.AbstractNDArray.checkShape(shape);
-
-            // if called without new, create a new object
-            if (!(this instanceof jsnum.UntypedNDArray)) {
-                return new jsnum.UntypedNDArray(myShape);
+            data.length = size * bandWidth - rowsAbove - rowsBelow;
+            for (i = 0; i < data.length; ++i) {
+                data[i] = 0;
             }
-
-            for (i = 0; i < myShape.length; i += 1) {
-                size = size * myShape[i];
-            }
-            data.length = size;
 
             function calc1DIndex(indexes) {
-                var index1D;
-
-                that.checkIndexes(indexes);
-                if (myShape.length === 0) {
-                    return 0;
-                }
-
-                index1D = indexes[0];
-
-                for (i = 1; i < myShape.length; i += 1) {
-                    index1D = index1D * myShape[i] + indexes[i];
-                }
-
-                return index1D;
+                return (indexes[0] * (bandWidth - 1) + indexes[1] - rowsBelow);
             }
 
             this.getElement = function (indexes) {
-                return data[calc1DIndex(indexes)];
+                that.checkIndexes(indexes);
+                if ((indexes[1] < indexes[0] - rowsBelow) ||
+                       (indexes[1] > indexes[0] + rowsAbove)) {
+                    return 0;
+                } else {
+                    return data[calc1DIndex(indexes)];
+                }
             };
 
             this.setElement = function (indexes, value) {
-                data[calc1DIndex(indexes)] = value;
+                that.checkIndexes(indexes);
+                if ((indexes[1] < indexes[0] - rowsBelow) ||
+                       (indexes[1] > indexes[0] + rowsAbove)) {
+                    if (value !== 0) {
+                        throw RangeError(
+                            "Can not set an off-band element of a " +
+                            "BandDiagonalMatrix to a non-zero value" +
+                            "(" + indexes + ")");
+                    }
+                } else {
+                    data[calc1DIndex(indexes)] = value;
+                }
                 return this;
             };
 
             Object.defineProperty(this, "shape",
-                { value : myShape, writable : false });
-                */
+                { value : [size,size], writable : false });
         };
-        jsnum.BandDiagonalMatrix.prototype = Object.create(jsnum.AbstractNDArray.prototype);
+        BandDiagonalMatrix.prototype = Object.create(jsnum.AbstractNDArray.prototype);
+
+        jsnum.BandDiagonalMatrix = BandDiagonalMatrix;
     }
 );
 
