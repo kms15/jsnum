@@ -238,8 +238,9 @@ define(
                 return jsnum.solveLinearSystem(this, jsnum.eye(this.shape[0]));
             } catch (e) {
                 if (e instanceof jsnum.NumericalError) {
-                    throw new jsnum.NumericalError("Singular matrix encountered; "
-                        + "consider using pseudoinverse function");
+                    throw new jsnum.NumericalError(
+                            "Singular matrix encountered; " +
+                            "consider using pseudoinverse function");
                 } else {
                     throw e;
                 }
@@ -793,10 +794,10 @@ define(
             }
 
             if (typeof size !== 'number' || size != Math.floor(size)) {
-                throw TypeError("size must be a positive integer");
+                throw new TypeError("size must be a positive integer");
             }
             if (size < 1) {
-                throw RangeError("size must be greater than 0");
+                throw new RangeError("size must be greater than 0");
             }
             var data = [],
                 bandWidth = rowsBelow + 1 + rowsAbove,
@@ -827,7 +828,7 @@ define(
                 if ((indexes[1] < indexes[0] - rowsBelow) ||
                        (indexes[1] > indexes[0] + rowsAbove)) {
                     if (value !== 0) {
-                        throw RangeError(
+                        throw new RangeError(
                             "Can not set an off-band element of a " +
                             "BandDiagonalMatrix to a non-zero value" +
                             "(" + indexes + ")");
@@ -840,7 +841,8 @@ define(
 
             Object.defineProperty(this, "shape",
                 { value : [size,size], writable : false });
-        };
+        }
+
         BandDiagonalMatrix.prototype = Object.create(jsnum.AbstractNDArray.prototype);
 
         jsnum.BandDiagonalMatrix = BandDiagonalMatrix;
